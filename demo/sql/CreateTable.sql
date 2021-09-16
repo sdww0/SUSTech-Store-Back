@@ -1,6 +1,9 @@
 
 -- postgresql
 
+drop table if exists store.address;
+drop table if exists store."user";
+
 
 create table if not exists store.user(
 
@@ -12,7 +15,7 @@ create table if not exists store.user(
     credit int not null ,
     phone BIGINT,
     email varchar,
-    id_card varchar not null ,
+    id_card varchar ,
     money float not null,
     picture_path varchar not null
 
