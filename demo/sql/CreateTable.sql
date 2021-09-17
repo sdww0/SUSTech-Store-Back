@@ -14,7 +14,7 @@ create table if not exists store.user(
     birthday time,
     credit int not null ,
     phone BIGINT,
-    email varchar,
+    email varchar unique not null ,
     id_card varchar ,
     money float not null,
     picture_path varchar not null

@@ -11,12 +11,12 @@
         select * from store."user" where user_id=#{id}
     </select>
 
-    <insert id="addUser" parameterType="User" >
-        insert into store."user" (name,password,gender,credit,money,picture_path)
-        values (#{name},#{password},#{gender},0,0.0,'/user_picture_default.png') returning user_id;
+    <insert id="addUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+        insert into store."user" (name,password,gender,credit,money,email,picture_path)
+        values (#{name},#{password},'n',0,0.0,#{email},'user_picture_default.png') returning user_id;
     </insert>
 
-    <update id="updateUser" parameterType="User">
+    <update id="updateUser" parameterType="User" >
         update store."user"
         <set>
             <if test="name != null">name=#{name,}</if>
@@ -38,7 +38,7 @@
     </delete>
 
     <select id="login" parameterType="map" resultType="int">
-        select user_id from store."user" where name=#{username} and password=#{password}
+        select user_id from store."user" where email=#{email} and password=#{password}
     </select>
 
 </mapper>

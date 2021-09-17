@@ -37,9 +37,9 @@ public class UserService {
         return userMapper.deleteUser(id);
     }
 
-    public Integer login(String username,String password){
+    public Integer login(String email,String password){
         Map<String,Object> map = new HashMap<>();
-        map.put("username",username);
+        map.put("email",email);
         map.put("password",password);
         return userMapper.login(map);
     }
