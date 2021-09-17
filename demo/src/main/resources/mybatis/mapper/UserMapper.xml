@@ -41,4 +41,8 @@
         select user_id from store."user" where email=#{email} and password=#{password}
     </select>
 
+    <select id="queryUserByEmail" parameterType="String" resultType="int">
+        select user_id from store."user" where email=#{email}
+    </select>
+
 </mapper>

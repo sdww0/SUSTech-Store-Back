@@ -2,6 +2,7 @@ package com.susstore.controller;
 
 import com.susstore.pojo.User;
 import com.susstore.service.UserService;
+import com.susstore.util.SecretUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,16 +22,27 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/allUser")
-    public String allUser(@CookieValue(value="userID",defaultValue = "")String userId ,Model model){
-        if(userId.length()==0){
-            return "fail.html";
-        }
-        List<User> users = userService.queryUserList();
-        model.addAttribute("list",users);
-        return "allUser.html";
-    }
+//    @GetMapping("/allUser")
+//    public String allUser(@CookieValue(value="userID",defaultValue = "")String userId ,Model model){
+//        if(userId.length()==0){
+//            return "fail.html";
+//        }
+//        List<User> users = userService.queryUserList();
+//        model.addAttribute("list",users);
+//        return "allUser.html";
+//    }
 
+    /**
+     * 登录
+     * 参数判断
+     * 登录判断
+     * 添加cookie
+     * 返回id
+     * @param model model
+     * @param request 请求
+     * @param response 响应
+     * @return 跳转页面
+     */
     @PostMapping("/login")
     public String login(Model model,HttpServletRequest request,HttpServletResponse response){
         String email = request.getParameter("email");
@@ -42,15 +54,21 @@ public class UserController {
         if(id==null){
             return "fail.html";
         }
-
-        model.addAttribute("loginUsername",email);
-        response.addCookie(new Cookie("user",email));
-        response.addCookie(new Cookie("userID",String.valueOf(id)));
+        response.addCookie(new Cookie("email", SecretUtils.encode(email)));
+        response.addCookie(new Cookie("password",SecretUtils.encode(password)));
         return "loginSuccess.html";
-
-
     }
 
+    /**
+     * 用户注册
+     * 首先对参数进行正确性判断
+     * 后判断邮箱是否被注册
+     * 注册后添加cookie跳转
+     * @param model model
+     * @param request 请求
+     * @param response 响应
+     * @return 跳转页面
+     */
     @PostMapping("/register")
     public String register(Model model,HttpServletRequest request,HttpServletResponse response){
         String username =  request.getParameter("name");
@@ -59,29 +77,48 @@ public class UserController {
         if(username==null||password==null||email==null||username.length()==0||password.length()==0||email.length()==0){
             return "fail.html";
         }
+        if(userService.queryUserByEmail(email)!=null){
+            return "fail.html";
+        }
         User user = new User();
         user.setName(username);
         user.setPassword(password);
         user.setEmail(email);
         userService.addUser(user);
-        int id = user.getUserId();
-        if(id==-1){
+        if(user.getUserId()==-1){
             return "fail.html";
         }
-        model.addAttribute("loginUsername",username);
-        response.addCookie(new Cookie("user",username));
-        response.addCookie(new Cookie("userID",String.valueOf(id)));
+        response.addCookie(new Cookie("email", SecretUtils.encode(email)));
+        response.addCookie(new Cookie("password",SecretUtils.encode(password)));
         return "registerSuccess.html";
     }
 
+    /**
+     * 查看用户详情
+     * 先判断是否有cookie
+     * 其次判断是否有该用户
+     * 注入model
+     * 返回
+     * @param email 邮箱cookie
+     * @param password 密码cookie
+     * @param model model
+     * @return 页面
+     */
     @GetMapping("/account")
-    public String account(@CookieValue(value="userID",defaultValue = "")String userId,
+    public String account(@CookieValue(value="email",defaultValue = "")String email,
+                          @CookieValue(value="password",defaultValue = "")String password,
                           Model model){
-        if(userId.length()==0){
-            return "my-account.html";
+        if(email.length()==0||password.length()==0){
+            return "login-register.html";
         }
-        User user = userService.queryUserById(Integer.valueOf(userId));
-        model.addAttribute("userDetail",user);
+        email = SecretUtils.decode(email);
+        password = SecretUtils.decode(password);
+
+        Integer id = userService.login(email,password);
+        if(id==null){
+            return "login-register.html";
+        }
+        model.addAttribute("userDetail",userService.queryUserById(id));
         return "account-detail.html";
     }
 

@@ -44,5 +44,9 @@ public class UserService {
         return userMapper.login(map);
     }
 
+    public Integer queryUserByEmail(String email){
+        return userMapper.queryUserByEmail(email);
+    }
+
 
 }
