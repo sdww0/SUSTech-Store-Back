@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="zxx">
 <head>
 
   <meta charset="utf-8">
@@ -52,7 +52,7 @@
           <div class="header-right-content">
             <ul>
               <li>
-                <a href="login-register.html">My Account</a>
+                <a href="my-account.html">My Account</a>
               </li>
             </ul>
           </div>
@@ -254,122 +254,28 @@ $00.00
             Home
           </a>
         </li>
-        <li class="active">Dashboard</li>
+        <li class="active">404!</li>
       </ul>
     </div>
   </div>
 </div>
 
 
-<section class="dashboard-area ptb-54">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-4">
-        <ul class="dashboard-navigation">
-          <li>
-            <h3>Navigation</h3>
-          </li>
-          <li>
-            <a href="dashboard.html" class="active">Dashboard</a>
-          </li>
-          <li>
-            <a href="edit-profile.html">Edit Profile</a>
-          </li>
-          <li>
-            <a href="edit-address.html">Edit Address</a>
-          </li>
-          <li>
-            <a href="order-history.html">Order History</a>
-          </li>
-          <li>
-            <a href="order-details.html">Order Details</a>
-          </li>
-          <li>
-            <a href="address.html">Address</a>
-          </li>
-          <li>
-            <a href="password.html">Password</a>
-          </li>
-          <li>
-            <a href="login-register.html">Log Out</a>
-          </li>
-        </ul>
-      </div>
-      <div class="col-lg-8">
-        <div class="profile-bar">
-          <div class="row align-items-center">
-            <div class="col-lg-6 col-md-6">
-              <div class="profile-info">
-                <img th:src="${userDetail.picturePath}" alt="Image">
-                <h3 th:text="${userDetail.name}"></h3>
-                <a th:text="${userDetail.credit}">信誉分:</a>
-              </div>
-            </div>
-            <div class="col-lg-6 col-md-6">
-              <div class="edit-profiles">
-                <a href="edit-profile.html" class="default-btn">Edit Profile</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="billing-address-bar">
-          <div class="row align-items-center">
-            <div class="col-lg-4 col-md-6">
-              <h3>Billing Address</h3>
-              <ul>
-                <li>Doreen McCool</li>
-                <li>
-                  <span>Address:</span>
-                  2491 Reel Avenue Albuquerque
-                </li>
-              </ul>
-            </div>
-            <div class="col-lg-4 col-md-6">
-              <ul>
-                <li>
-                  <span>Phone:</span>
-                  <a href="tel:+1-(514)-321-4566">+1 (514) 321-4566</a>
-                </li>
-                <li>
-                  <span>Email:</span>
-                  <a href="cdn-cgi/l/email-protection#4a2f222b330a2f322b273a262f64292527"> <span class="__cf_email__" data-cfemail="badfd2dbc3fadfc2dbd7cad6df94d9d5d7">[email&#160;protected]</span></a>
-                </li>
-              </ul>
-            </div>
-            <div class="col-lg-4 col-md-6">
-              <div class="edit-address">
-                <a href="edit-address.html" class="default-btn">Edit Address</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cart-area recent-order">
-          <h3>Recent Order</h3>
-          <form class="cart-controller mb-0">
-            <div class="cart-table table-responsive">
-              <table class="table table-bordered">
-                <thead>
-                <tr>
-                  <th scope="col">Product</th>
-                  <th scope="col"></th>
-                  <th scope="col">Order</th>
-                  <th scope="col">Quantity</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Total</th>
-                  <th scope="col">Trash</th>
-                </tr>
-                </thead>
-                <tbody>
-
-                </tbody>
-              </table>
-            </div>
-          </form>
-        </div>
+<div class="error-area ptb-54">
+  <div class="d-table">
+    <div class="d-table-cell">
+      <div class="error-content">
+        <h1>4 <span class="red">0</span> 4</h1>
+        <h3>Oops! Page Not Found</h3>
+        <p>The page you were looking for could not be found.</p>
+        <a href="index.html" class="default-btn two">
+          Return To Home Page
+        </a>
       </div>
     </div>
   </div>
-</section>
+</div>
+
 
 
 <div class="footer-area pt-54 pb-30">

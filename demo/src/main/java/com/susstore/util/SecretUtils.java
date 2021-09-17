@@ -1,89 +1,86 @@
 package com.susstore.util;
 
-import java.io.UnsupportedEncodingException;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-
 /**
- * SecretUtils {3DES加密解密的工具类 }
- * @author William
- * @date 2013-04-19
- */
+ * @author xxx
+ * @date 2020-09-16 11:17
+ **/
 public class SecretUtils {
 
-    //定义加密算法，有DES、DESede(即3DES)、Blowfish
-    private static final String Algorithm = "DESede";
-    private static final String PASSWORD_CRYPT_KEY = "2012PinganVitality075522628888ForShenZhenBelter075561869839";
+    /**
+     * 密钥, 256位32个字节
+     */
+    public static final String DEFAULT_SECRET_KEY = "uBdUx82vPHkDKb284d7NkjFoNcKWBuka";
 
+    private static final String AES = "AES";
 
     /**
-     * 加密方法
-     * @param src 源数据的字节数组
-     * @return
+     * 初始向量IV, 初始向量IV的长度规定为128位16个字节, 初始向量的来源为随机生成.
      */
-    public static byte[] encryptMode(byte[] src) {
+    private static final byte[] KEY_VI = "c558Gq0YQK2QUlMc".getBytes();
+
+    /**
+     * 加密解密算法/加密模式/填充方式
+     */
+    private static final String CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
+
+    private static java.util.Base64.Encoder base64Encoder = java.util.Base64.getEncoder();
+    private static java.util.Base64.Decoder base64Decoder = java.util.Base64.getDecoder();
+
+    static {
+        java.security.Security.setProperty("crypto.policy", "unlimited");
+    }
+
+    /**
+     * AES加密
+     */
+    public static String encode(String content) {
         try {
-            SecretKey deskey = new SecretKeySpec(build3DesKey(PASSWORD_CRYPT_KEY), Algorithm);    //生成密钥
-            Cipher c1 = Cipher.getInstance(Algorithm);    //实例化负责加密/解密的Cipher工具类
-            c1.init(Cipher.ENCRYPT_MODE, deskey);    //初始化为加密模式
-            return c1.doFinal(src);
-        } catch (java.security.NoSuchAlgorithmException e1) {
-            e1.printStackTrace();
-        } catch (javax.crypto.NoSuchPaddingException e2) {
-            e2.printStackTrace();
-        } catch (java.lang.Exception e3) {
-            e3.printStackTrace();
+            javax.crypto.SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(DEFAULT_SECRET_KEY.getBytes(), AES);
+            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_ALGORITHM);
+            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKey, new javax.crypto.spec.IvParameterSpec(KEY_VI));
+
+            // 获取加密内容的字节数组(这里要设置为utf-8)不然内容中如果有中文和英文混合中文就会解密为乱码
+            byte[] byteEncode = content.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+
+            // 根据密码器的初始化方式加密
+            byte[] byteAES = cipher.doFinal(byteEncode);
+
+            // 将加密后的数据转换为字符串
+            return base64Encoder.encodeToString(byteAES);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-
     /**
-     * 解密函数
-     * @param src 密文的字节数组
-     * @return
+     * AES解密
      */
-    public static byte[] decryptMode(byte[] src) {
+    public static String decode(String content) {
         try {
-            SecretKey deskey = new SecretKeySpec(build3DesKey(PASSWORD_CRYPT_KEY), Algorithm);
-            Cipher c1 = Cipher.getInstance(Algorithm);
-            c1.init(Cipher.DECRYPT_MODE, deskey);    //初始化为解密模式
-            return c1.doFinal(src);
-        } catch (java.security.NoSuchAlgorithmException e1) {
-            e1.printStackTrace();
-        } catch (javax.crypto.NoSuchPaddingException e2) {
-            e2.printStackTrace();
-        } catch (java.lang.Exception e3) {
-            e3.printStackTrace();
+
+            javax.crypto.SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(DEFAULT_SECRET_KEY.getBytes(), AES);
+            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CIPHER_ALGORITHM);
+            cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey, new javax.crypto.spec.IvParameterSpec(KEY_VI));
+
+            // 将加密并编码后的内容解码成字节数组
+            byte[] byteContent = base64Decoder.decode(content);
+            // 解密
+            byte[] byteDecode = cipher.doFinal(byteContent);
+            return new String(byteDecode, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
 
+    public static void main(String[] args) {
+        String dbPassword = "123456";
+        String encryptDbPwd = SecretUtils.encode(dbPassword);
+        System.out.println("encrypt: " + encryptDbPwd);
 
-    /*
-     * 根据字符串生成密钥字节数组
-     * @param keyStr 密钥字符串
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    public static byte[] build3DesKey(String keyStr) throws UnsupportedEncodingException{
-        byte[] key = new byte[24];    //声明一个24位的字节数组，默认里面都是0
-        byte[] temp = keyStr.getBytes("UTF-8");    //将字符串转成字节数组
-
-        /*
-         * 执行数组拷贝
-         * System.arraycopy(源数组，从源数组哪里开始拷贝，目标数组，拷贝多少位)
-         */
-        if(key.length > temp.length){
-            //如果temp不够24位，则拷贝temp数组整个长度的内容到key数组中
-            System.arraycopy(temp, 0, key, 0, temp.length);
-        }else{
-            //如果temp大于24位，则拷贝temp数组24个长度的内容到key数组中
-            System.arraycopy(temp, 0, key, 0, key.length);
-        }
-        return key;
+        String decrypt = SecretUtils.decode( encryptDbPwd);
+        System.out.println("decrypt:" + decrypt);
     }
+
 }

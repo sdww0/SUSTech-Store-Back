@@ -24,7 +24,7 @@ public interface UserMapper {
 
      Integer login(Map<String,Object> parameterMap);
 
-
+     Integer queryUserByEmail(String email);
 
 
 
