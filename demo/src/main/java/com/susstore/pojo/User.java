@@ -7,13 +7,13 @@ public class User {
     private int userId;
     private String name;
     private String password;
-    private char gender;
+    private Character gender;
     private Date birthday;
-    private int credit;
-    private long phone;
+    private Integer credit;
+    private Long phone;
     private String email;
     private String IDCard;
-    private float money;
+    private Float money;
     private String picturePath;
 
     public int getUserId() {
@@ -40,11 +40,11 @@ public class User {
         this.password = password;
     }
 
-    public char getGender() {
+    public Character getGender() {
         return gender;
     }
 
-    public void setGender(char gender) {
+    public void setGender(Character gender) {
         this.gender = gender;
     }
 
@@ -56,19 +56,19 @@ public class User {
         this.birthday = birthday;
     }
 
-    public int getCredit() {
+    public Integer getCredit() {
         return credit;
     }
 
-    public void setCredit(int credit) {
+    public void setCredit(Integer credit) {
         this.credit = credit;
     }
 
-    public long getPhone() {
+    public Long getPhone() {
         return phone;
     }
 
-    public void setPhone(long phone) {
+    public void setPhone(Long phone) {
         this.phone = phone;
     }
 
@@ -88,11 +88,11 @@ public class User {
         this.IDCard = IDCard;
     }
 
-    public float getMoney() {
+    public Float getMoney() {
         return money;
     }
 
-    public void setMoney(float money) {
+    public void setMoney(Float money) {
         this.money = money;
     }
 
