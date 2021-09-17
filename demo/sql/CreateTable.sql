@@ -26,6 +26,7 @@ create table if not exists store.address(
     address_id serial primary key ,
     belong_user_id int not null ,
     address_name varchar not null ,
+    recipient_name varchar not null,
     phone bigint not null ,
     constraint belong_user_id_fkey foreign key (belong_user_id) references store.user(user_id)
 );
