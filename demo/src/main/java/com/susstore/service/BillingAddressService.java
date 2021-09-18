@@ -14,8 +14,8 @@ public class BillingAddressService {
     @Autowired
     private BillingAddressMapper billingAddressMapper ;
 
-    public Integer ifExist(String recipientName,long phone, String addressName){
-        return billingAddressMapper.ifExist(recipientName,phone,addressName);
+    public Integer ifExist(String recipientName,long phone, String addressName,int userId){
+        return billingAddressMapper.ifExist(recipientName,phone,addressName,userId);
     }
     public Integer addAddress(Address address){
         return billingAddressMapper.addAddress(address);

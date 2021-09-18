@@ -13,16 +13,16 @@
 
     <insert id="addUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
         insert into store."user" (name,password,gender,credit,money,email,picture_path)
-        values (#{name},#{password},'n',0,0.0,#{email},'user_picture_default.png') returning user_id;
+        values (#{name},#{password},'n',0,0.0,#{email},'/user_picture_default.png') returning user_id;
     </insert>
 
     <update id="updateUser" parameterType="User" >
         update store."user"
         <set>
-            <if test="name != null">name=#{name,}</if>
+            <if test="name != null">name=#{name},</if>
             <if test="password != null">password=#{password},</if>
-            <if test="gender != null">gender=#{ gender},</if>
-            <if test="birthday != null"> birthday=#{ birthday},</if>
+            <if test="gender != null">gender=#{gender},</if>
+            <if test="birthday != null"> birthday=#{birthday},</if>
             <if test="credit != null">credit=#{credit},</if>
             <if test="phone != null">phone=#{phone},</if>
             <if test="email != null">email=#{email},</if>

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BillingAddressMapper {
 
-    Integer ifExist(String recipientName,long phone, String addressName);
+    Integer ifExist(String recipientName,long phone, String addressName,int userId);
 
     Integer addAddress(Address address);
 

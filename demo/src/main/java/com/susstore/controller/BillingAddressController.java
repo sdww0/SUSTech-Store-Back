@@ -58,7 +58,7 @@ public class BillingAddressController {
             return "fail.html";
         }
         long phone=Long.parseLong(phoneString);
-        if(billingAddressService.ifExist(recipientName,phone,addressName)!=null){
+        if(billingAddressService.ifExist(recipientName,phone,addressName,userId)!=null){
             return "fail.html";
         }
         Address address=new Address();

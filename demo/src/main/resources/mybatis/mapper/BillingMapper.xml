@@ -10,7 +10,11 @@
     </insert>
 
     <select id="ifExist" resultType="int">
-        select * from store."address" where recipient_name=#{recipientName} and phone=#{phone} and address_name=#{addressName};
+        select * from store."address" where
+                                            recipient_name=#{recipientName}
+                                        and phone=#{phone}
+                                        and address_name=#{addressName}
+                                        and  belong_user_id=#{userId}       ;
     </select>
 
 
