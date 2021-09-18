@@ -2,7 +2,9 @@ package com.susstore.controller;
 
 import com.susstore.config.Data;
 import com.susstore.pojo.User;
+import com.susstore.service.MailServiceImpl;
 import com.susstore.service.UserService;
+import com.susstore.util.CommonUtil;
 import com.susstore.util.ImageUtil;
 import com.susstore.util.SecretUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +35,34 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-//    @GetMapping("/allUser")
-//    public String allUser(@CookieValue(value="userID",defaultValue = "")String userId ,Model model){
-//        if(userId.length()==0){
-//            return "fail.html";
-//        }
-//        List<User> users = userService.queryUserList();
-//        model.addAttribute("list",users);
-//        return "allUser.html";
-//    }
+    @Autowired
+    private MailServiceImpl mailService;
+
+
+
+    @GetMapping("/user/{queryuserId}")
+    public String getUserInformation(@CookieValue(value="id",defaultValue = "")String cookieId,
+                                     @PathVariable("queryuserId")Integer id,Model model){
+        User user = userService.queryUserById(id);
+        cookieId = SecretUtils.decode(cookieId);
+        if(user.getEmail()==null){
+            return "404.html";
+        }
+        model.addAttribute("userDetail",user);
+        if(cookieId!=null&&cookieId.length()!=0&&
+                CommonUtil.isInteger(cookieId)&&user.getUserId()==Integer.parseInt(cookieId)){
+            return "account-detail.html";
+        }
+        return "account-information.html";
+    }
+    @GetMapping("/edit-profile")
+    public String index1(){
+        return "edit-profile.html";
+    }
+    @GetMapping("/edit-address")
+    public String index2(){
+        return "edit-address.html";
+    }
 
     /**
      * 登录
@@ -67,6 +88,7 @@ public class UserController {
         }
         response.addCookie(new Cookie("email", SecretUtils.encode(email)));
         response.addCookie(new Cookie("password",SecretUtils.encode(password)));
+        response.addCookie(new Cookie("id",SecretUtils.encode(String.valueOf(id))));
         return "loginSuccess.html";
     }
 
@@ -97,12 +119,14 @@ public class UserController {
         user.setPassword(password);
         user.setEmail(email);
         userService.addUser(user);
-        if(user.getUserId()==-1){
+        int id = 0;
+        if((id=user.getUserId())==-1){
             return "fail.html";
         }
         response.addCookie(new Cookie("email", SecretUtils.encode(email)));
         response.addCookie(new Cookie("password",SecretUtils.encode(password)));
-        String path = Data.USER_UPLOAD_PATH+email+"/image/";
+        response.addCookie(new Cookie("id",SecretUtils.encode(String.valueOf(id))));
+        String path = Data.USER_UPLOAD_PATH+id+"/image/";
         File file = new File(path);
         file.mkdirs();
         return "registerSuccess.html";
@@ -131,6 +155,15 @@ public class UserController {
         return "account-detail.html";
     }
 
+    /**
+     * 更新用户数
+     * @param email 邮箱
+     * @param password 密码
+     * @param photo 图片
+     * @param request 请求
+     * @return
+     * @throws IOException
+     */
     @PostMapping("/update/user")
     public String updateUser(@CookieValue(value="email",defaultValue = "")String email,
                              @CookieValue(value="password",defaultValue = "")String password,
@@ -147,44 +180,11 @@ public class UserController {
         newName = newName.length() == 0 ? null : newName;
         newEmail = newEmail.length() == 0 ? null : newEmail;
         newPhone = newPhone.length() == 0 ? null : newPhone;
-        String path = Data.USER_UPLOAD_PATH + email + "/image/";
-        String picturePath = null;
-        if (!photo.isEmpty()) {
-            //String realPath = path.replace('/', '\\').substring(1,path.length());//linux系统再弄
-            String realPath = path;
-            //获取文件的名称
-            final String fileName = photo.getOriginalFilename();
-            //限制文件上传的类型
-            String contentType = fileName.substring(fileName.lastIndexOf("."));
-            if (contentType.length() == 0) {
-                return "index.html";
-            }
-            if (".jpeg".equals(contentType) || ".jpg".equals(contentType) || ".png".equals(contentType)) {
-                //完成文件的上传
-                BufferedImage srcImage = null;
-                try {
-                    FileInputStream in = (FileInputStream) photo.getInputStream();
-                    srcImage = javax.imageio.ImageIO.read(in);
-                    picturePath = "/user/" + email + "/image/index" + contentType;
-                    ImageUtil.zoomImage(srcImage, realPath + "index" + contentType, USER_PICTURE_SIZE, USER_PICTURE_SIZE);
-                } catch (Exception e) {
-                    System.out.println("读取图片文件出错！" + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }
-        User user = new User();
-        user.setUserId(id);
-        user.setName(newName);
-        user.setEmail(newEmail);
-        if (newPhone != null && isInteger(newPhone)){
-            user.setPhone(Long.parseLong(newPhone));
-        }
-        user.setPicturePath(picturePath);
-        userService.updateUser(user);
-        return "redirect:/account";
 
-
+        if(userService.updateUser(photo,newName,newEmail,newPhone,id)){
+            return "redirect:/account";
+        }
+        return "index.html";
     }
 
     private Integer checkIsValidUserNeedDecode(String email,String password){
@@ -204,10 +204,7 @@ public class UserController {
     }
 
 
-    private static boolean isInteger(String str) {
-        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
-        return pattern.matcher(str).matches();
-    }
+
 
 
 }
