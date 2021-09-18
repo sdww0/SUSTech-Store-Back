@@ -1,12 +1,14 @@
 package com.susstore.mapper;
+import com.susstore.pojo.Address;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
-import java.util.Map;
 
 @Mapper
 @Repository
 public interface BillingAddressMapper {
 
-    Integer add(Map<String,Object> parameterMap);
+    Integer ifExist(String recipientName,long phone, String addressName);
+
+    Integer addAddress(Address address);
 
 }

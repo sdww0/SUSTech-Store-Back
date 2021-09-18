@@ -1,38 +1,39 @@
 package com.susstore.pojo;
 
-public class address {
+public class Address {
 
-    private int addressID;
-    private User user;
+    private int addressId;
+    private int belongToUserId;
     private String recipientName;
     private String addressName;
     private long phone;
 
-    public address(int addressID, User user, String recipientName, String addressName, long phone) {
-        this.addressID = addressID;
-        this.user = user;
+    public Address(int addressId, int belongToUserId, String recipientName, String addressName, long phone) {
+        this.addressId = addressId;
+        this.belongToUserId = belongToUserId;
         this.recipientName=recipientName;
         this.addressName = addressName;
         this.phone = phone;
     }
 
-    public address() {
+
+    public int getBelongToUserId() {
+        return belongToUserId;
     }
 
-    public int getAddressID() {
-        return addressID;
+    public void setBelongToUserId(int belongToUserId) {
+        this.belongToUserId = belongToUserId;
     }
 
-    public void setAddressID(int addressID) {
-        this.addressID = addressID;
+    public Address() {
     }
 
-    public User getUser() {
-        return user;
+    public int getAddressId() {
+        return addressId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setAddressID(int addressId) {
+        this.addressId = addressId;
     }
 
     public String getRecipientName() {
