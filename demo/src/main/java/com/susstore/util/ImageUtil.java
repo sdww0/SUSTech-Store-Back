@@ -15,6 +15,9 @@ public class ImageUtil {
 
         double wr=0,hr=0;
         File destFile = new File(dest);
+        if (destFile.exists()){
+            destFile.delete(); // here i'm checking if file exists and if yes then i'm deleting it but its not working
+        }
 
         Image Itemp = bufImg.getScaledInstance(w, h, bufImg.SCALE_SMOOTH);//设置缩放目标图片模板
 

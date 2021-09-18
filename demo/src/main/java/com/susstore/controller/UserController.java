@@ -152,7 +152,6 @@ public class UserController {
         if (!photo.isEmpty()) {
             //String realPath = path.replace('/', '\\').substring(1,path.length());//linux系统再弄
             String realPath = path;
-            System.out.println(realPath);
             //获取文件的名称
             final String fileName = photo.getOriginalFilename();
             //限制文件上传的类型
@@ -172,7 +171,6 @@ public class UserController {
                     System.out.println("读取图片文件出错！" + e.getMessage());
                     e.printStackTrace();
                 }
-                System.out.println("图片上传成功!");
             }
         }
         User user = new User();
