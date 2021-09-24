@@ -15,10 +15,13 @@ public class SpringMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/resources/")
                 .addResourceLocations("classpath:/static/")
                 .addResourceLocations("classpath:/public/");
-        registry.addResourceHandler("/user/**").addResourceLocations("file:"+Data.USER_UPLOAD_PATH);
+        registry.addResourceHandler("/user/**").addResourceLocations("file:"+ Constants.USER_UPLOAD_PATH);
         WebMvcConfigurer.super.addResourceHandlers(registry);
 
 
 
     }
+
+
+
 }

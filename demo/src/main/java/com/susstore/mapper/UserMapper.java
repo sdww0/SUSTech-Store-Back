@@ -1,6 +1,6 @@
 package com.susstore.mapper;
 
-import com.susstore.pojo.User;
+import com.susstore.pojo.Users;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -12,20 +12,19 @@ import java.util.Map;
 public interface UserMapper {
 
 
-     List<User> queryUserList();
+     List<Users> queryUserList();
 
-     User queryUserById(int id);
+     Users queryUserById(int id);
 
-     Integer addUser(User user);
+     Integer addUser(Users user);
 
-     int updateUser(User user);
+     int updateUser(Users user);
 
      int deleteUser(int id);
 
-     Integer login(Map<String,Object> parameterMap);
-
      Integer queryUserByEmail(String email);
 
+     Integer updateToken(Map<String,Object> map);
 
 
 }

@@ -1,8 +1,8 @@
 package com.susstore.service;
 
-import com.susstore.config.Data;
+import com.susstore.config.Constants;
 import com.susstore.mapper.UserMapper;
-import com.susstore.pojo.User;
+import com.susstore.pojo.Users;
 import com.susstore.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.susstore.controller.UserController.USER_PICTURE_SIZE;
 import static com.susstore.util.CommonUtil.isInteger;
 
 @Service
@@ -24,20 +23,20 @@ public class UserService {
     private UserMapper userMapper;
 
 
-    public List<User> queryUserList(){
+    public List<Users> queryUserList(){
         return userMapper.queryUserList();
     }
 
-    public User queryUserById(int id){
+    public Users queryUserById(int id){
         return userMapper.queryUserById(id);
     }
 
-    public Integer addUser(User user){
+    public Integer addUser(Users user){
         return userMapper.addUser(user);
     }
 
     public boolean updateUser(MultipartFile photo,String newName,String newEmail,String newPhone,int id){
-        String path = Data.USER_UPLOAD_PATH + id + "/image/";
+        String path = Constants.USER_UPLOAD_PATH + id + "/image/";
         String picturePath = null;
         if (!photo.isEmpty()) {
             //String realPath = path.replace('/', '\\').substring(1,path.length());//linux系统再弄
@@ -55,8 +54,8 @@ public class UserService {
                 try {
                     FileInputStream in = (FileInputStream) photo.getInputStream();
                     srcImage = javax.imageio.ImageIO.read(in);
-                    picturePath = "/user/" + id + "/image/index" + contentType;
-                    ImageUtil.zoomImage(srcImage, realPath + "face" + contentType, USER_PICTURE_SIZE, USER_PICTURE_SIZE);
+                    picturePath = "/user/" + id + "/image/face" + contentType;
+                    ImageUtil.zoomImage(srcImage, realPath + "face" + contentType, 100, 100);
                 } catch (Exception e) {
                     System.out.println("读取图片文件出错！" + e.getMessage());
                     e.printStackTrace();
@@ -65,7 +64,7 @@ public class UserService {
                 return false;
             }
         }
-        User user = new User();
+        Users user = new Users();
         user.setUserId(id);
         user.setName(newName);
         user.setEmail(newEmail);
@@ -82,16 +81,18 @@ public class UserService {
         return userMapper.deleteUser(id);
     }
 
-    public Integer login(String email,String password){
-        Map<String,Object> map = new HashMap<>();
-        map.put("email",email);
-        map.put("password",password);
-        return userMapper.login(map);
-    }
+
 
     public Integer queryUserByEmail(String email){
         return userMapper.queryUserByEmail(email);
     }
 
+
+    public Integer updateToken(String token,Integer id){
+        Map<String,Object> map = new HashMap<>();
+        map.put("token",token);
+        map.put("userId",id);
+        return userMapper.updateToken(map);
+    }
 
 }
