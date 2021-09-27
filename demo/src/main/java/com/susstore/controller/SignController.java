@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,11 +30,12 @@ public class SignController {
 
     @GetMapping("/pre-login")
     public String preLogin(Model model,Principal principal){
+
         if(principal!=null){
             model.addAttribute("sign-message","已登录，请不要重复登陆");
             return "/index.html";
         }
-        return "redirect:/login.html";
+        return "/login";
 
     }
 //
@@ -80,8 +82,7 @@ public class SignController {
      * @return 跳转页面
      */
     @PostMapping("/register")
-    public String register(Model model, HttpServletRequest request, HttpServletResponse response) {
-        String username =  request.getParameter("name");
+    public String register(Model model, HttpServletRequest request, @RequestParam(name = "name")String username) {
         String password =  request.getParameter("password");
         String email = request.getParameter("email");
         if(username==null||password==null||email==null||username.length()==0||password.length()==0||email.length()==0){
@@ -125,7 +126,7 @@ public class SignController {
                           Model model){
 
         if(principal==null){
-            return "/login.html";
+            return "redirect:/login.html";
         }
         Users user = signService.getUserByEmail(principal.getName());
         model.addAttribute("userDetail",userService.queryUserById(user.getUserId()));

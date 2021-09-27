@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/","/index.html","/login").permitAll()
                 .antMatchers("/assets/**").permitAll()
-                .antMatchers("/account").permitAll()
+                .antMatchers("/account","/user/**","/user_picture_default.png").permitAll()
                 .antMatchers("/register","/register.html","/pre-register").permitAll()
                 .anyRequest().authenticated()
                 .and().rememberMe().tokenRepository(persistentTokenRepository())
