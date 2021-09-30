@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-@Controller
+@RestController
 @RequestMapping("/user")
 public class UserController {
 //
@@ -82,7 +82,7 @@ public class UserController {
         newEmail = newEmail.length() == 0 ? null : newEmail;
         newPhone = newPhone.length() == 0 ? null : newPhone;
 
-        if(userService.updateUser(photo,newName,newEmail,newPhone,id)){
+        if(userService.updateUserWithPhoto(photo,newName,newEmail,newPhone,id)){
             return "redirect:/account";
         }
         return "index.html";

@@ -2,13 +2,13 @@ package com.susstore.pojo;
 
 public class Address {
 
-    private int addressId;
-    private int belongToUserId;
+    private Integer addressId;
+    private Integer belongToUserId;
     private String recipientName;
     private String addressName;
-    private long phone;
+    private Long phone;
 
-    public Address(int addressId, int belongToUserId, String recipientName, String addressName, long phone) {
+    public Address(Integer addressId, Integer belongToUserId, String recipientName, String addressName, Long phone) {
         this.addressId = addressId;
         this.belongToUserId = belongToUserId;
         this.recipientName=recipientName;
@@ -17,22 +17,22 @@ public class Address {
     }
 
 
-    public int getBelongToUserId() {
+    public Integer getBelongToUserId() {
         return belongToUserId;
     }
 
-    public void setBelongToUserId(int belongToUserId) {
+    public void setBelongToUserId(Integer belongToUserId) {
         this.belongToUserId = belongToUserId;
     }
 
     public Address() {
     }
 
-    public int getAddressId() {
+    public Integer getAddressId() {
         return addressId;
     }
 
-    public void setAddressID(int addressId) {
+    public void setAddressID(Integer addressId) {
         this.addressId = addressId;
     }
 
@@ -52,11 +52,11 @@ public class Address {
         this.addressName = addressName;
     }
 
-    public long getPhone() {
+    public Long getPhone() {
         return phone;
     }
 
-    public void setPhone(long phone) {
+    public void setPhone(Long phone) {
         this.phone = phone;
     }
 }

@@ -1,53 +1,37 @@
 package com.susstore.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 public class Users {
-
-    private int userId;
-    private String name;
+    private Integer userId;
+    private String sign;
+    private String userName;
     private String password;
-    private Character gender;
+    private Integer gender;
     private Date birthday;
     private Integer credit;
-    private Long phone;
     private String email;
-    private String IDCard;
+    private String idCard;
     private Float money;
     private String picturePath;
-    private String slat;
-    private String token;
+    private Long phone;
+    private List<Address> addresses;
 
-    public String getSlat() {
-        return slat;
+    public List<Address> getAddresses() {
+        return addresses;
     }
 
-    public String getToken() {
-        return token;
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public Long getPhone() {
+        return phone;
     }
 
-    public void setSlat(String slat) {
-        this.slat = slat;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setPhone(Long phone) {
+        this.phone = phone;
     }
 
     public String getPassword() {
@@ -58,11 +42,35 @@ public class Users {
         this.password = password;
     }
 
-    public Character getGender() {
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public Integer getGender() {
         return gender;
     }
 
-    public void setGender(Character gender) {
+    public void setGender(Integer gender) {
         this.gender = gender;
     }
 
@@ -82,14 +90,6 @@ public class Users {
         this.credit = credit;
     }
 
-    public Long getPhone() {
-        return phone;
-    }
-
-    public void setPhone(Long phone) {
-        this.phone = phone;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -98,12 +98,12 @@ public class Users {
         this.email = email;
     }
 
-    public String getIDCard() {
-        return IDCard;
+    public String getIdCard() {
+        return idCard;
     }
 
-    public void setIDCard(String IDCard) {
-        this.IDCard = IDCard;
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
     }
 
     public Float getMoney() {
@@ -120,22 +120,5 @@ public class Users {
 
     public void setPicturePath(String picturePath) {
         this.picturePath = picturePath;
-    }
-
-    public Users(int userId, String name, String password, char gender, Date birthday, int credit, long phone, String email, String IDCard, float money, String picturePath) {
-        this.userId = userId;
-        this.name = name;
-        this.password = password;
-        this.gender = gender;
-        this.birthday = birthday;
-        this.credit = credit;
-        this.phone = phone;
-        this.email = email;
-        this.IDCard = IDCard;
-        this.money = money;
-        this.picturePath = picturePath;
-    }
-
-    public Users() {
     }
 }

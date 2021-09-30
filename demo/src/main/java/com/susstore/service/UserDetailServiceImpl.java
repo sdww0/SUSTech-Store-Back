@@ -1,8 +1,6 @@
 package com.susstore.service;
 
-import com.susstore.login.LoginUsers;
 import com.susstore.mapper.SignMapper;
-import com.susstore.pojo.Role;
 import com.susstore.pojo.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,12 +29,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
         if(user==null){
             throw new UsernameNotFoundException("用户不存在");
         }
-        List<Role> roles = signMapper.getRolesByUserId(user.getUserId());
-
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for(Role role:roles){
-            authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
-        }
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 //
 //        return new LoginUsers(new User(
 //                email,
@@ -45,7 +39,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 //        ),user.getUserId(),user.getSlat());
         return new User(
                 email,
-                passwordEncoder.encode(user.getPassword()),
+                user.getPassword(),
                 authorities
         );
     }

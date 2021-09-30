@@ -1,6 +1,5 @@
 package com.susstore.mapper;
 
-import com.susstore.pojo.Role;
 import com.susstore.pojo.Users;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;

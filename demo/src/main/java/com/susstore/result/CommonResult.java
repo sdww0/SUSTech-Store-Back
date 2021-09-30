@@ -5,13 +5,25 @@ public class CommonResult<T> {
     private String message;
     private T data;
 
-    protected CommonResult() {
+    public CommonResult() {
     }
 
-    protected CommonResult(long code, String message, T data) {
+    public CommonResult(long code, String message, T data) {
         this.code = code;
         this.message = message;
         this.data = data;
+    }
+
+    public CommonResult(ResultCode resultCode,T data){
+        this.code = resultCode.getCode();
+        this.message = resultCode.getMessage();
+        this.data = data;
+    }
+
+    public CommonResult(ResultCode resultCode){
+        this.data = null;
+        this.message = resultCode.getMessage();
+        this.code = resultCode.getCode();
     }
 
     public long getCode() {

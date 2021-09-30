@@ -2,15 +2,14 @@ package com.susstore.controller;
 
 import com.susstore.config.Constants;
 import com.susstore.pojo.Users;
+import com.susstore.result.CommonResult;
 import com.susstore.service.SignService;
 import com.susstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +18,7 @@ import java.io.FileNotFoundException;
 import java.security.Principal;
 
 
-@Controller
+@RestController
 public class SignController {
 
     @Autowired
@@ -28,16 +27,16 @@ public class SignController {
     @Autowired
     SignService signService;
 
-    @GetMapping("/pre-login")
-    public String preLogin(Model model,Principal principal){
-
-        if(principal!=null){
-            model.addAttribute("sign-message","已登录，请不要重复登陆");
-            return "/index.html";
-        }
-        return "/login";
-
-    }
+//    @GetMapping("/pre-login")
+//    public String preLogin(Model model,Principal principal){
+//
+//        if(principal!=null){
+//            model.addAttribute("sign-message","已登录，请不要重复登陆");
+//            return this.account(principal,model);
+//        }
+//        return "/login";
+//
+//    }
 //
 //    /**
 //     * 登录
@@ -70,6 +69,8 @@ public class SignController {
 //        return "/index.html";
 //    }
 //
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     /**
      * 用户注册
      * 首先对参数进行正确性判断
@@ -82,7 +83,7 @@ public class SignController {
      * @return 跳转页面
      */
     @PostMapping("/register")
-    public String register(Model model, HttpServletRequest request, @RequestParam(name = "name")String username) {
+    public CommonResult register(HttpServletRequest request, @RequestParam(name = "name")String username) {
         String password =  request.getParameter("password");
         String email = request.getParameter("email");
         if(username==null||password==null||email==null||username.length()==0||password.length()==0||email.length()==0){
@@ -92,13 +93,13 @@ public class SignController {
             return "fail.html";
         }
         Users user = new Users();
-        user.setName(username);
-        user.setPassword(password);
+        user.setUserName(username);
+        user.setPassword(passwordEncoder.encode(password));
         user.setEmail(email);
         userService.addUser(user);
         int id = 0;
         if((id=user.getUserId())==-1){
-            return "fail.html";
+            return new CommonResult();
         }
         String path = Constants.USER_UPLOAD_PATH+id+"/image/";
         File file = new File(path);
@@ -122,7 +123,7 @@ public class SignController {
      * @return 页面
      */
     @GetMapping("/account")
-    public String account(Principal principal,
+    public CommonResult account(Principal principal,
                           Model model){
 
         if(principal==null){

@@ -35,7 +35,12 @@ public class UserService {
         return userMapper.addUser(user);
     }
 
-    public boolean updateUser(MultipartFile photo,String newName,String newEmail,String newPhone,int id){
+    public Integer updateUser(Users user){
+
+
+    }
+
+    public boolean updateUserWithPhoto(MultipartFile photo,String newName,String newEmail,String newPhone,int id){
         String path = Constants.USER_UPLOAD_PATH + id + "/image/";
         String picturePath = null;
         if (!photo.isEmpty()) {
@@ -66,7 +71,7 @@ public class UserService {
         }
         Users user = new Users();
         user.setUserId(id);
-        user.setName(newName);
+        user.setUserName(newName);
         user.setEmail(newEmail);
         if (newPhone != null && isInteger(newPhone)){
             user.setPhone(Long.parseLong(newPhone));
