@@ -16,8 +16,6 @@ public interface SignMapper {
 
     Users getUserByEmail(String email);
 
-    List<Role> getRolesByUserId(Integer userId);
-
     Integer addRoleToUser(Map<String,Object> map);
 
 

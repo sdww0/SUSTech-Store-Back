@@ -1,11 +1,15 @@
 
 -- postgresql
 
-drop table if exists store.address;
-drop table if exists store.user_role;
-drop table if exists store.users;
-drop table if exists store.role;
-
+drop table if exists store.address cascade;
+drop table if exists store.users cascade ;
+drop table if exists store.goods cascade ;
+drop table if exists store.label cascade ;
+drop table if exists store.chat_content cascade ;
+drop table if exists store.goods_label cascade ;
+drop table if exists store.comment cascade ;
+drop table if exists store.deal cascade;
+--主要的大类
 create table if not exists store.users(
 
     user_id serial primary key,
@@ -18,8 +22,8 @@ create table if not exists store.users(
     credit int not null ,
     id_card varchar,
     money float not null ,
+    phone bigint not null ,
     picturePath varchar not null
-
 
 );
 
@@ -34,8 +38,6 @@ create table if not exists store.address
     constraint belong_user_id_fkey foreign key (belong_user_id) references store.users (user_id)
 );
 
-
-
 create table if not exists store.goods(
     goods_id serial primary key ,
     price float not null ,
@@ -44,12 +46,40 @@ create table if not exists store.goods(
     want_amount int not null ,
     announce_time date not null,
     constraint announcer_id_fkey foreign key (announcer_id) references store.users(user_id)
+);
 
+
+
+create table if not exists store.deal(
+    deal_id serial primary key ,
+    stage int not null ,
+    goods_id int not null ,
+    buyer_id int not null ,
+    seller_id int not null ,
+    mailing_number varchar,
+    shipping_address_id int not null,
+    constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
+    constraint buyer_id_fkey foreign key (buyer_id) references store.users(user_id),
+    constraint seller_id_fkey foreign key (seller_id) references store.users(user_id)
+
+);
+create table if not exists store.chat_content(
+     chat_content_id serial primary key ,
+     belong_to_deal_id int not null ,
+     is_seller_speak bool not null ,
+     speak_date date not null,
+     constraint belong_to_deal_id_fkey foreign key (belong_to_deal_id) references store.deal (deal_id)
+);
+
+-- 一些小类
+create table if not exists store.label(
+    label_id serial primary key ,
+    content varchar not null
 );
 
 create table if not exists store.comment
 (
-
+    comment_id serial primary key ,
     content         varchar not null,
     comment_user_id int     not null,
     comment_date    date    not null,
@@ -58,5 +88,11 @@ create table if not exists store.comment
     constraint belong_goods_id_fkey foreign key (belong_goods_id) references store.goods (goods_id)
 );
 
+-- 关系表
 
-
+create table if not exists store.goods_label(
+    goods_id int not null ,
+    label_id int not null,
+    constraint goods_id_fkey foreign key (goods_id) references store.goods (goods_id),
+    constraint label_id_fkey foreign key (label_id) references store.label (label_id)
+);

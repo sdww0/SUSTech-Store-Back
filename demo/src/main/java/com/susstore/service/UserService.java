@@ -35,10 +35,6 @@ public class UserService {
         return userMapper.addUser(user);
     }
 
-    public Integer updateUser(Users user){
-
-
-    }
 
     public boolean updateUserWithPhoto(MultipartFile photo,String newName,String newEmail,String newPhone,int id){
         String path = Constants.USER_UPLOAD_PATH + id + "/image/";
