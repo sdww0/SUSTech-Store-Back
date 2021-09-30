@@ -57,7 +57,7 @@ create table if not exists store.deal(
     buyer_id int not null ,
     seller_id int not null ,
     mailing_number varchar,
-    shipping_address_id int not null,
+    shipping_address_id int,
     constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
     constraint buyer_id_fkey foreign key (buyer_id) references store.users(user_id),
     constraint seller_id_fkey foreign key (seller_id) references store.users(user_id)
