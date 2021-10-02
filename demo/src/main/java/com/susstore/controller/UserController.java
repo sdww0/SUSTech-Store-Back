@@ -129,11 +129,14 @@ public class UserController {
         Users user = userService.getUserByEmail(principal.getName());
         return new CommonResult(ResultCode.SUCCESS,userService.queryUserById(user.getUserId()));
     }
-//    @PreAuthorize("hasRole(ROLE_USER)")
-//    @GetMapping("/address")
-//    public CommonResult address(){
-//
-//    }
+    @PreAuthorize("hasRole(ROLE_USER)")
+    @GetMapping("/address")
+    public CommonResult address(Principal principal){
+        if(principal==null){
+            return new CommonResult(ResultCode.USER_NOT_LOGIN);
+        }
+
+    }
 
 
 }

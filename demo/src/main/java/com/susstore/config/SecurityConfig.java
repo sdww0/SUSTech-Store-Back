@@ -56,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.formLogin().loginPage("/login.html")
+        http.formLogin()
                 .loginProcessingUrl("/login")
                 .usernameParameter("email").passwordParameter("password")
                 .and()
@@ -64,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/","/index","/login").permitAll()
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/account","/user/**","/user_picture_default.png").permitAll()
-                .antMatchers("/register","/register.html","/pre-register").permitAll()
+                .antMatchers("/register").permitAll()
                 .anyRequest().authenticated()
                 .and().rememberMe().tokenRepository(persistentTokenRepository())
                 .tokenValiditySeconds(3600)
