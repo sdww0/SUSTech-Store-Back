@@ -1,6 +1,5 @@
 package com.susstore.service;
 
-import com.susstore.mapper.SignMapper;
 import com.susstore.pojo.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,14 +17,14 @@ import java.util.List;
 public class UserDetailServiceImpl implements UserDetailsService {
 
     @Autowired
-    private SignMapper signMapper;
+    private UserService userService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Users user = signMapper.getUserByEmail(email);
+        Users user = userService.getUserByEmail(email);
         if(user==null){
             throw new UsernameNotFoundException("用户不存在");
         }

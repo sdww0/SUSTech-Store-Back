@@ -1,5 +1,8 @@
-package com.susstore.security;
+package com.susstore.login;
 
+import com.alibaba.fastjson.JSON;
+import com.susstore.result.CommonResult;
+import com.susstore.result.ResultCode;
 import com.susstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,12 +21,9 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
     UserService userService;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
-        AuthenticationSuccessHandler.super.onAuthenticationSuccess(request, response, chain, authentication);
-    }
-
-    @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
-
+        CommonResult result = new CommonResult(ResultCode.SUCCESS);
+        httpServletResponse.setContentType("text/json;charset=utf-8");
+        httpServletResponse.getWriter().write(JSON.toJSONString(result));
     }
 }

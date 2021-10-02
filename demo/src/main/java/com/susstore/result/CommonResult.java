@@ -49,4 +49,15 @@ public class CommonResult<T> {
     public void setData(T data) {
         this.data = data;
     }
+
+
+
+    @Override
+    public String toString() {
+        return "CommonResult{" +
+                "code=" + code +
+                ", message='" + message + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

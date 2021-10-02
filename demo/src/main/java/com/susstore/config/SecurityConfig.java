@@ -1,11 +1,15 @@
 package com.susstore.config;
 
+import com.susstore.login.CustomizeAuthenticationEntryPoint;
+import com.susstore.login.CustomizeAuthenticationFailureHandler;
+import com.susstore.login.CustomizeAuthenticationSuccessHandler;
+import com.susstore.login.CustomizeLogoutSuccessHandler;
 import com.susstore.service.UserDetailServiceImpl;
-import com.susstore.service.SignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,12 +25,26 @@ import javax.sql.DataSource;
 
 @EnableWebSecurity
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled=true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailServiceImpl userDetailService;
 
     @Autowired
     private DataSource dataSource;
+
+    @Autowired
+    private CustomizeAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Autowired
+    private CustomizeAuthenticationSuccessHandler authenticationSuccessHandler;
+
+    @Autowired
+    private CustomizeAuthenticationFailureHandler authenticationFailureHandler;
+
+    @Autowired
+    private CustomizeLogoutSuccessHandler logoutSuccessHandler;
+
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository(){
@@ -45,7 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("username").passwordParameter("password")
                 .and()
                 .authorizeRequests()
-                .antMatchers("/","/index.html","/login").permitAll()
+                .antMatchers("/","/index","/login").permitAll()
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/account","/user/**","/user_picture_default.png").permitAll()
                 .antMatchers("/register","/register.html","/pre-register").permitAll()
@@ -56,6 +74,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout().logoutSuccessUrl("/index").permitAll()
                 .and().csrf().disable();
+
+        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+                .and().formLogin().permitAll()
+                .successHandler(authenticationSuccessHandler)
+                .failureHandler(authenticationFailureHandler)
+                .and().logout().permitAll()
+                .logoutSuccessHandler(logoutSuccessHandler)
+                .deleteCookies("JSESSIONID");
 
 
 

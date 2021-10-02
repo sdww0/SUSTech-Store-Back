@@ -3,22 +3,21 @@ package com.susstore.controller;
 import com.susstore.config.Constants;
 import com.susstore.pojo.Users;
 //import com.susstore.service.MailServiceImpl;
+import com.susstore.result.CommonResult;
+import com.susstore.result.ResultCode;
 import com.susstore.service.UserService;
-import com.susstore.util.CommonUtil;
-import com.susstore.util.SecretUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/user")
@@ -29,6 +28,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/{queryUserId}")
     public String getUserInformation(Authentication authentication,
@@ -48,24 +50,15 @@ public class UserController {
         }
         return "account-information.html";
     }
-    @GetMapping("/edit-profile")
-    public String index1(){
-        return "edit-profile.html";
-    }
-    @GetMapping("/edit-address")
-    public String index2(){
-        return "edit-address.html";
-    }
-
     /**
-     * 更新用户数
-     * @param email 邮箱
-     * @param password 密码
-     * @param photo 图片
-     * @param request 请求
+     *
+     * @param authentication
+     * @param photo
+     * @param request
      * @return
      * @throws IOException
      */
+    @PreAuthorize("hasRole(ROLE_USER)")
     @PostMapping("/update")
     public String updateUser(Authentication authentication,
                              @RequestParam("photo")MultipartFile photo, HttpServletRequest request) throws IOException {
@@ -88,22 +81,55 @@ public class UserController {
         return "index.html";
     }
 
-//    private Integer checkIsValidUserNeedDecode(String email,String password){
-//        if(email.length()==0||password.length()==0){
-//            return null;
-//        }
-//        email = SecretUtils.decode(email);
-//        password = SecretUtils.decode(password);
-//        return userService.login(email,password);
-//    }
-//
-//    private Integer checkIsValidUser(String email,String password){
-//        if(email.length()==0||password.length()==0){
-//            return null;
-//        }
-//        return userService.login(email,password);
-//    }
 
+    /**
+     *
+     * @param request
+     * @param username
+     * @return
+     */
+    @PostMapping("/register")
+    public CommonResult register(HttpServletRequest request, @RequestParam(name = "name")String username) {
+        String password =  request.getParameter("password");
+        String email = request.getParameter("email");
+        if(username==null||password==null||email==null||username.length()==0||password.length()==0||email.length()==0){
+            return new CommonResult(ResultCode.REGISTER_FAIL);
+        }
+        if(userService.queryUserByEmail(email)!=null){
+            return new CommonResult(ResultCode.REGISTER_FAIL);
+        }
+        Users user = new Users();
+        user.setUserName(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
+        userService.addUser(user);
+        int id = 0;
+        if((id=user.getUserId())==-1){
+            return new CommonResult();
+        }
+        String path = Constants.USER_UPLOAD_PATH+id+"/image/";
+        File file = new File(path);
+        file.mkdirs();
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+    /**
+     * 查看用户详情
+     * 先判断是否有cookie
+     * 其次判断是否有该用户
+     * 注入model
+     * 返回
+     * @param principal
+     * @return 页面
+     */
+    @PreAuthorize("hasRole(ROLE_USER)")
+    @GetMapping("/account")
+    public CommonResult account(Principal principal){
+        if(principal==null){
+            return new CommonResult(ResultCode.USER_NOT_LOGIN);
+        }
+        Users user = userService.getUserByEmail(principal.getName());
+        return new CommonResult(ResultCode.SUCCESS,userService.queryUserById(user.getUserId()));
+    }
 
 
 

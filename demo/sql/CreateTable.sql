@@ -15,7 +15,7 @@ create table if not exists store.users(
     user_id serial primary key,
     sign varchar,
     email varchar not null ,
-    userName varchar not null ,
+    user_name varchar not null ,
     password varchar not null ,
     gender int not null ,
     birthday date ,
@@ -23,7 +23,7 @@ create table if not exists store.users(
     id_card varchar,
     money float not null ,
     phone bigint not null ,
-    picturePath varchar not null
+    picture_path varchar not null
 
 );
 

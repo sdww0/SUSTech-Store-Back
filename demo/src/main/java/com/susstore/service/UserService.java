@@ -89,11 +89,9 @@ public class UserService {
     }
 
 
-    public Integer updateToken(String token,Integer id){
-        Map<String,Object> map = new HashMap<>();
-        map.put("token",token);
-        map.put("userId",id);
-        return userMapper.updateToken(map);
+
+    public Users getUserByEmail(String email){
+        return userMapper.getUserByEmail(email);
     }
 
 }

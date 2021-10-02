@@ -12,7 +12,7 @@
     </select>
 
     <insert id="addUser" parameterType="Users" useGeneratedKeys="true" keyProperty="userId">
-        insert into store.users (name,password,gender,credit,money,email,picture_path)
+        insert into store.users (user_name,password,gender,credit,money,email,picture_path)
         values (#{name},#{password},'n',0,0.0,#{email},'/user/user_picture_default.png') returning user_id;
     </insert>
 
@@ -41,8 +41,8 @@
         select user_id from store.users where email=#{email}
     </select>
 
-    <update id="updateToken" parameterType="map">
-        update store.users set token = #{token} where user_id=#{userId};
-    </update>
+    <select id="getUserByEmail" parameterType="String" resultType="com.susstore.pojo.Users">
+        select user_id,password from store.users where email=#{email}
+    </select>
 
 </mapper>
