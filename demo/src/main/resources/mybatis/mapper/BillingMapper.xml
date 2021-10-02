@@ -17,7 +17,6 @@
                                         and  belong_user_id=#{userId}       ;
     </select>
 
-    <delete id="deleteAddress">
 
 
 
