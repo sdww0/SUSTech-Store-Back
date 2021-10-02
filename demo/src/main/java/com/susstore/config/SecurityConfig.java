@@ -58,9 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin().loginPage("/login.html")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/index.html").permitAll()
-                .failureUrl("/login/error").permitAll()
-                .usernameParameter("username").passwordParameter("password")
+                .usernameParameter("email").passwordParameter("password")
                 .and()
                 .authorizeRequests()
                 .antMatchers("/","/index","/login").permitAll()

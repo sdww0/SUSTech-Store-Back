@@ -32,23 +32,22 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping("/{queryUserId}")
-    public String getUserInformation(Authentication authentication,
-                                     @PathVariable("queryUserId")Integer id, Model model){
+    @GetMapping("/information/{queryUserId}")
+    public CommonResult getUserInformation(Authentication authentication,
+                                     @PathVariable("queryUserId")Integer id){
         Users user = userService.queryUserById(id);
 
         if(user==null){
-            return "redirect:/404.html";
+            return new CommonResult(ResultCode.NOT_FOUND);
         }
         Integer loginId = -1;
         if(authentication!=null){
             loginId = userService.queryUserByEmail(authentication.getName());
         }
-        model.addAttribute("userDetail",user);
         if(loginId==user.getUserId()){
-            return "account-detail.html";
+            return new CommonResult(ResultCode.SUCCESS,user);
         }
-        return "account-information.html";
+        return new CommonResult(ResultCode.SUCCESS,user);
     }
     /**
      *
@@ -60,13 +59,13 @@ public class UserController {
      */
     @PreAuthorize("hasRole(ROLE_USER)")
     @PostMapping("/update")
-    public String updateUser(Authentication authentication,
+    public CommonResult updateUser(Authentication authentication,
                              @RequestParam("photo")MultipartFile photo, HttpServletRequest request) throws IOException {
         String email = authentication.getName();
 
         Integer id;
         if ((id = userService.queryUserByEmail(email)) == null) {
-            return "login.html";
+            return new CommonResult(ResultCode.USER_NOT_LOGIN);
         }
         String newName = request.getParameter("newName");
         String newEmail = request.getParameter("newEmail");
@@ -76,9 +75,9 @@ public class UserController {
         newPhone = newPhone.length() == 0 ? null : newPhone;
 
         if(userService.updateUserWithPhoto(photo,newName,newEmail,newPhone,id)){
-            return "redirect:/account";
+            return getUserInformation(authentication,id);
         }
-        return "index.html";
+        return new CommonResult(ResultCode.FAILED);
     }
 
 
@@ -130,8 +129,11 @@ public class UserController {
         Users user = userService.getUserByEmail(principal.getName());
         return new CommonResult(ResultCode.SUCCESS,userService.queryUserById(user.getUserId()));
     }
-
-
+//    @PreAuthorize("hasRole(ROLE_USER)")
+//    @GetMapping("/address")
+//    public CommonResult address(){
+//
+//    }
 
 
 }

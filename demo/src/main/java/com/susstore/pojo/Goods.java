@@ -15,6 +15,15 @@ public class Goods {
     private List<Comment> comments;
     private Integer want;
     private Time time;
+    private GoodsState goodsState;
+
+    public GoodsState getGoodsState() {
+        return goodsState;
+    }
+
+    public void setGoodsState(GoodsState goodsState) {
+        this.goodsState = goodsState;
+    }
 
     public Goods() {
     }
