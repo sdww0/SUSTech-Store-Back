@@ -12,7 +12,7 @@
 
 5. 接口文档链接:https://docs.qq.com/sheet/DUVRpSFNPSlJxd3ht?tab=BB08J2
 
-
+6. 状态码说明链接:https://docs.qq.com/sheet/DUW10WGJLS3dFT0RG?&tab=BB08J2
 
 
 
