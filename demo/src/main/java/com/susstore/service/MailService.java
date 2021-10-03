@@ -107,4 +107,8 @@ public class MailService {
             logger.error("发送带图片邮件失败", e);
         }
     }
+
+
+
+
 }

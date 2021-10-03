@@ -3,6 +3,7 @@ package com.susstore.service;
 import com.susstore.config.Constants;
 import com.susstore.mapper.GoodsMapper;
 import com.susstore.pojo.Goods;
+import com.susstore.pojo.GoodsAbbreviation;
 import com.susstore.pojo.GoodsState;
 import com.susstore.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,6 @@ public class GoodsService {
         String picturePath = Constants.GOODS_UPLOAD_PATH+id+"/image/";
          count = 1;
         for(MultipartFile photo:photos) {
-            String contentType = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
             try {
                 FileInputStream in = (FileInputStream) photo.getInputStream();
                 BufferedImage srcImage = javax.imageio.ImageIO.read(in);
@@ -116,7 +116,6 @@ public class GoodsService {
         String picturePath = Constants.GOODS_UPLOAD_PATH+id+"/image/";
         count = 1;
         for(MultipartFile photo:photos) {
-            String contentType = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
             try {
                 FileInputStream in = (FileInputStream) photo.getInputStream();
                 BufferedImage srcImage = javax.imageio.ImageIO.read(in);
@@ -128,6 +127,34 @@ public class GoodsService {
             count++;
         }
         return 0;
+    }
+
+
+    /**
+     * 根据商品id获取用户邮箱
+     * @param goodsId 商品id
+     * @return 用户邮箱
+     */
+    public String getBelongUserEmail(Integer goodsId){
+        return goodsMapper.getBelongUserEmail(goodsId);
+    }
+
+    /**
+     * 删除商品（注意：只需要将商品状态调整为OFF_SHELL）
+     * @param goods 商品
+     * @return --
+     */
+    public Integer deleteGoods(Integer goods){
+        return goodsMapper.deleteGoods(goods);
+    }
+    /**
+     * 根据搜索内容查找商品略缩信息
+     * @param searchContent 搜索内容
+     * @param pageSize 每页大小
+     * @return 商品略缩信息
+     */
+    public List<GoodsAbbreviation> searchGoods(String searchContent, Integer pageSize, Integer currentPage){
+        return goodsMapper.searchGoods(searchContent,pageSize,currentPage);
     }
 
 }

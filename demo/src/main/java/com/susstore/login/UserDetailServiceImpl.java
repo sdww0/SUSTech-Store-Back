@@ -1,8 +1,10 @@
 package com.susstore.login;
 
+import com.susstore.login.exception.UserNotActivateException;
 import com.susstore.pojo.Users;
 import com.susstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -24,10 +26,13 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UserNotActivateException, UsernameNotFoundException {
         Users user = userService.getUserByEmail(email);
         if(user==null){
             throw new UsernameNotFoundException("用户不存在");
+        }
+        if(!user.getIsActivate()){
+            throw new UserNotActivateException("用户未激活");
         }
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
@@ -44,3 +49,5 @@ public class UserDetailServiceImpl implements UserDetailsService {
         );
     }
 }
+
+

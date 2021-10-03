@@ -10,6 +10,7 @@ drop table if exists store.goods_label cascade ;
 drop table if exists store.comment cascade ;
 drop table if exists store.deal cascade;
 --主要的大类
+
 create table if not exists store.users(
 
     user_id serial primary key,
@@ -23,7 +24,11 @@ create table if not exists store.users(
     id_card varchar,
     money float not null ,
     phone bigint not null ,
-    picture_path varchar not null
+    picture_path varchar not null,
+    check_code int, --验证码
+    is_activate bool not null, --用户状态，未激活，激活等
+    activate_code varchar not null unique --激活码
+
 
 );
 
@@ -49,7 +54,13 @@ create table if not exists store.goods(
     picture_amount int not null ,
     constraint announcer_id_fkey foreign key (announcer_id) references store.users(user_id)
 );
-
+--
+-- create table if not exists store.goods_picture(
+--     goods_id int not null ,
+--     picture_path varchar not null ,
+--     constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
+--     primary key (goods_id,picture_path)
+-- );
 
 
 create table if not exists store.deal(

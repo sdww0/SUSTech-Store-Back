@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Mapper
 @Repository
@@ -74,5 +75,47 @@ public interface UserMapper {
       */
      Users getUserByEmail(String email);
 
+     /**
+      * 获得用户的验证码，根据用户id
+      * @param id id
+      * @return 验证码
+      */
+     Integer getUserCheckCodeById(Integer id);
+
+     /**
+      * 根据邮箱获取验证码
+      * @param email 邮箱
+      * @return 验证码
+      */
+     Integer getUserCheckCodeByEmail(String email);
+
+     /**
+      * 根据用户邮箱清除用户的验证码(设为-1)
+      * @param email 邮箱
+      * @return --
+      */
+
+     Integer clearUserCheckCodeByEmail(String email);
+
+     /**
+      * 根据用户id清除用户的验证码(设为-1)
+      * @param id id
+      * @return --
+      */
+     Integer clearUserCheckCodeById(String id);
+
+     /**
+      * 根据激活码激活用户，如果用户为已激活则返回-2,如果不存在则返回-1,如果未激活且存在则返回用户id
+      * @param activateCode 激活码
+      * @return 状态
+      */
+     Integer getActivateUser(String activateCode);
+
+     /**
+      * 激活用户，将未激活false改成激活true
+      * @param userId 用户id
+      * @return --
+      */
+     Integer activateUser(Integer userId);
 
 }

@@ -11,6 +11,7 @@ import com.susstore.service.AddressService;
 import com.susstore.service.UserService;
 import com.susstore.util.CommonUtil;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -42,6 +43,9 @@ public class UserController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MailService mailService;
 
     @ApiOperation(value = "根据id获得用户信息")
     @GetMapping("/information/{queryUserId}")
@@ -126,11 +130,14 @@ public class UserController {
         user.setUserName(username);
         user.setPassword(passwordEncoder.encode(password));
         user.setEmail(email);
+        user.setActivateCode(email+ RandomStringUtils.random(Constants.RANDOM_STRING_SIZE));
         userService.addUser(user);
         int id = 0;
         if((id=user.getUserId())==-1){
-            return new CommonResult();
+            return new CommonResult(ResultCode.REGISTER_FAIL);
         }
+        mailService.sendSimpleMail(email,"欢迎注册南科闲鱼！",
+                "激活链接:"+Constants.USER_UPLOAD_PATH+"/user/activate/"+user.getActivateCode());
         String path = Constants.USER_UPLOAD_PATH+id+"/image/";
         File file = new File(path);
         file.mkdirs();
@@ -155,18 +162,15 @@ public class UserController {
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("收货人名") @RequestParam("recipientName")String recipientName,
             @ApiParam("地址名") @RequestParam("addressName")String addressName,
-            @ApiParam("手机号") @RequestParam("phone")String phone,
+            @ApiParam("手机号") @RequestParam("phone")Long phone,
             @ApiParam("是否是默认地址") @RequestParam("isDefault")Boolean isDefault){
         if(principal==null){
             return new CommonResult(ResultCode.USER_NOT_LOGIN);
         }
-        if(!CommonUtil.isInteger(phone)){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
-        }
         addressService.addAddress(
                 Address.builder().recipientName(recipientName)
                 .addressName(addressName)
-                .phone(Long.parseLong(phone))
+                .phone(phone)
                 .isDefault(isDefault).build()
                 ,principal.getName());
         return new CommonResult(ResultCode.SUCCESS);
@@ -177,14 +181,11 @@ public class UserController {
     @ApiOperation("删除地址")
     public CommonResult deleteAddress(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
-            @ApiParam("地址id") @RequestParam("addressId")String addressId){
+            @ApiParam("地址id") @RequestParam("addressId")Integer addressId){
         if(principal==null){
             return new CommonResult(ResultCode.USER_NOT_LOGIN);
         }
-        if(!CommonUtil.isInteger(addressId)){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
-        }
-        addressService.deleteAddress(Integer.parseInt(addressId));
+        addressService.deleteAddress(addressId);
         return new CommonResult(ResultCode.SUCCESS);
     }
 
@@ -193,19 +194,24 @@ public class UserController {
     @ApiOperation("账户安全,修改密码或者邮箱或者手机号")
     public CommonResult security(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
-            @ApiParam("是哪种类型，密码，邮箱还是手机号，见SecurityType") @RequestParam("type")String type,
-            @ApiParam("内容") @RequestParam("content")String content){
+            @ApiParam("是哪种类型，密码，邮箱还是手机号，见SecurityType") @RequestParam("type")Integer type,
+            @ApiParam("内容") @RequestParam("content")String content,
+            @ApiParam("邮箱验证码(纯数字)") @RequestParam("checkCode")Integer checkCode){
+        //预参数判断
         if(principal==null){
             return new CommonResult(ResultCode.USER_NOT_LOGIN);
         }
-        if(!CommonUtil.isInteger(type)){
+        if(type<0||type>=SecurityType.MAX.ordinal()){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
-        Integer choose = Integer.parseInt(type);
-        if(choose<0||choose>=SecurityType.MAX.ordinal()){
+        if(String.valueOf(checkCode).length()!=Constants.CHECK_CODE_SIZE){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
-        SecurityType securityType = SecurityType.values()[choose];
+        //检查验证码
+        if(userService.getUserCheckCodeByEmail(principal.getName())!=checkCode){
+            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        }
+        SecurityType securityType = SecurityType.values()[type];
         Users users = new Users();
         users.setEmail(principal.getName());
         switch (securityType){
@@ -214,7 +220,6 @@ public class UserController {
                 break;
             case EMAIL:
                 userService.updateUserEmail(principal.getName(),content);
-
                 break;
             case PHONE:
                 if(!CommonUtil.isInteger(content)){
@@ -227,6 +232,23 @@ public class UserController {
         }
         return new CommonResult(ResultCode.SUCCESS);
     }
+
+    @GetMapping("/activate/{activateCode}")
+    @ApiOperation("根据激活码激活账户")
+    public CommonResult activate(
+            @ApiParam("激活码") @PathVariable("activateCode") String activateCode
+    ){
+        Integer integer = userService.getActivateUser(activateCode);
+        if(integer==-2){
+            return new CommonResult(4006,"账户已激活");
+        }else if( integer==-1){
+            return new CommonResult(4005,"未有此激活码");
+        }
+        userService.activateUser(integer);
+        return new CommonResult(200,"账户已激活");
+    }
+
+
 
     static enum SecurityType{
         PASSWORD,

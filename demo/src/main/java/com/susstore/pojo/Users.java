@@ -27,6 +27,9 @@ public class Users {
     private String picturePath;
     private Long phone;
     private List<Address> addresses;
+    //以下为非特殊需要不需要查询的
+    private Boolean isActivate;
+    private String activateCode;
 
 
 

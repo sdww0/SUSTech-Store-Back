@@ -27,10 +27,10 @@ public interface GoodsMapper {
 
     /**
      * 删除商品（注意：只需要将商品状态调整为OFF_SHELL）
-     * @param goods 商品
+     * @param goodsId 商品id
      * @return --
      */
-    Integer deleteGoods(Goods goods);
+    Integer deleteGoods(Integer goodsId);
 
     /**
      * 根据商品id查询商品信息
@@ -52,7 +52,14 @@ public interface GoodsMapper {
      * @param pageSize 每页大小
      * @return 商品略缩信息
      */
-    List<GoodsAbbreviation> searchGoods(String searchContent,Integer pageSize);
+    List<GoodsAbbreviation> searchGoods(String searchContent,Integer pageSize,Integer currentPage);
+
+    /**
+     * 根据商品id获取用户邮箱
+     * @param goodsId 商品id
+     * @return 用户邮箱
+     */
+    String getBelongUserEmail(Integer goodsId);
 
 
 }
