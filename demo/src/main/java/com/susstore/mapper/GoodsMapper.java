@@ -2,9 +2,12 @@ package com.susstore.mapper;
 
 import com.susstore.pojo.Goods;
 import com.susstore.pojo.GoodsAbbreviation;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Mapper
+@Repository
 public interface GoodsMapper {
     /**
      * 添加商品，不需要添加商品图片路径

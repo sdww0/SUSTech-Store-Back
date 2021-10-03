@@ -26,6 +26,12 @@ public class CommonResult<T> {
         this.code = resultCode.getCode();
     }
 
+    public CommonResult(long code,String message){
+        this.code = code;
+        this.message = message;
+        this.data = null;
+    }
+
     public long getCode() {
         return code;
     }

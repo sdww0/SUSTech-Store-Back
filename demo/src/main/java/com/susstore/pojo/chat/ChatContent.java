@@ -1,7 +1,15 @@
 package com.susstore.pojo.chat;
 
-import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.Date;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ChatContent {
 
 
@@ -9,30 +17,4 @@ public class ChatContent {
     private String content;
     private Date date;
 
-    public ChatContent() {
-    }
-
-    public Boolean getSpeakUser() {
-        return isSpeakUser;
-    }
-
-    public void setSpeakUser(Boolean speakUser) {
-        isSpeakUser = speakUser;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
 }

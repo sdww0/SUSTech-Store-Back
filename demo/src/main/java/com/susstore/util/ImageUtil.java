@@ -33,5 +33,19 @@ public class ImageUtil {
         }
     }
 
+    public static void storeImage(BufferedImage bufferedImage,String dest){
+        File destFile = new File(dest);
+        destFile.mkdirs();
+        if (destFile.exists()){
+            destFile.delete(); // here i'm checking if file exists and if yes then i'm deleting it but its not working
+        }
+        try {
+            ImageIO.write(bufferedImage,dest.substring(dest.lastIndexOf(".")+1), destFile); //写入缩减后的图片
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
 
 }

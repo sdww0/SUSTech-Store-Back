@@ -1,10 +1,6 @@
 package com.susstore.config;
 
-import com.susstore.login.CustomizeAuthenticationEntryPoint;
-import com.susstore.login.CustomizeAuthenticationFailureHandler;
-import com.susstore.login.CustomizeAuthenticationSuccessHandler;
-import com.susstore.login.CustomizeLogoutSuccessHandler;
-import com.susstore.service.UserDetailServiceImpl;
+import com.susstore.login.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +41,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomizeLogoutSuccessHandler logoutSuccessHandler;
 
+    @Autowired
+    private CustomizeAccessDeniedHandler accessDeniedHandler;
+
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository(){
@@ -62,10 +61,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/","/index","/login").permitAll()
+                .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/account","/user/**","/user_picture_default.png").permitAll()
                 .antMatchers("/register").permitAll()
-                .anyRequest().authenticated()
+                //.anyRequest().authenticated()
                 .and().rememberMe().tokenRepository(persistentTokenRepository())
                 .tokenValiditySeconds(3600)
                 .userDetailsService(userDetailService)
@@ -74,12 +74,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().csrf().disable();
 
         http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+                .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler)
                 .and().formLogin().permitAll()
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
+
                 .and().logout().permitAll()
                 .logoutSuccessHandler(logoutSuccessHandler)
-                .deleteCookies("JSESSIONID");
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true);
 
 
 

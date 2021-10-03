@@ -36,12 +36,12 @@ public class UserService {
     }
 
 
-    public boolean updateUserWithPhoto(MultipartFile photo,String newName,String newEmail,String newPhone,int id){
-        String path = Constants.USER_UPLOAD_PATH + id + "/image/";
-        String picturePath = null;
+    public boolean updateUserWithPhoto(MultipartFile photo,Users users){
+        Integer id = userMapper.queryUserByEmail(users.getEmail());
+        String path = Constants.USER_UPLOAD_PATH + id + "/image/face.png";
+        users.setPicturePath(path);
         if (!photo.isEmpty()) {
             //String realPath = path.replace('/', '\\').substring(1,path.length());//linux系统再弄
-            String realPath = path;
             //获取文件的名称
             final String fileName = photo.getOriginalFilename();
             //限制文件上传的类型
@@ -55,8 +55,7 @@ public class UserService {
                 try {
                     FileInputStream in = (FileInputStream) photo.getInputStream();
                     srcImage = javax.imageio.ImageIO.read(in);
-                    picturePath = "/user/" + id + "/image/face" + contentType;
-                    ImageUtil.zoomImage(srcImage, realPath + "face" + contentType, 100, 100);
+                    ImageUtil.zoomImage(srcImage, path, 100, 100);
                 } catch (Exception e) {
                     System.out.println("读取图片文件出错！" + e.getMessage());
                     e.printStackTrace();
@@ -65,15 +64,7 @@ public class UserService {
                 return false;
             }
         }
-        Users user = new Users();
-        user.setUserId(id);
-        user.setUserName(newName);
-        user.setEmail(newEmail);
-        if (newPhone != null && isInteger(newPhone)){
-            user.setPhone(Long.parseLong(newPhone));
-        }
-        user.setPicturePath(picturePath);
-        userMapper.updateUser(user);
+        userMapper.updateUser(users);
         return true;
     }
 
@@ -92,6 +83,16 @@ public class UserService {
 
     public Users getUserByEmail(String email){
         return userMapper.getUserByEmail(email);
+    }
+
+
+    public Integer updateUserEmail(String oldEmail,String newEmail){
+        return userMapper.updateUserEmail(oldEmail,newEmail);
+    }
+
+
+    public Integer updateUserByEmail(Users users){
+        return userMapper.updateUserByEmail(users);
     }
 
 }

@@ -46,6 +46,7 @@ create table if not exists store.goods(
     want_amount int not null ,
     announce_time date not null,
     goods_state int not null ,
+    picture_amount int not null ,
     constraint announcer_id_fkey foreign key (announcer_id) references store.users(user_id)
 );
 

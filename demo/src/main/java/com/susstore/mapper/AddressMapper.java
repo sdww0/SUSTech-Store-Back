@@ -11,7 +11,13 @@ public interface AddressMapper {
 
     Integer ifExist(String recipientName,long phone, String addressName,int userId);
 
-    Integer addAddress(Address address);
+    /**
+     * 根据用户邮箱以及地址信息添加地址
+     * @param address 地址
+     * @param email 邮箱
+     * @return id
+     */
+    Integer addAddress(Address address,String email);
 
     /**
      * 根据用户id查询用户的地址

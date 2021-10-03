@@ -39,6 +39,21 @@ public interface UserMapper {
      int updateUser(Users user);
 
      /**
+      * 更新用户邮箱
+      * @param oldEmail 旧邮箱
+      * @param newEmail 新邮箱
+      * @return --
+      */
+     Integer updateUserEmail(String oldEmail,String newEmail);
+
+     /**
+      * 根据用户邮箱更新用户（id为null）
+      * @param users 用户
+      * @return --
+      */
+     Integer updateUserByEmail(Users users);
+
+     /**
       * 根据id删除用户
       * @param id id
       * @return --
