@@ -13,12 +13,12 @@ public class AddressService {
     @Autowired
     AddressMapper addressMapper;
 
-    public List<Address> getAddressByEmail(String email){
-        return addressMapper.getUserAddressByEmail(email);
+    public List<Address> getAddressById(Integer id){
+        return addressMapper.getUserAddressById(id);
     }
 
-    public Integer addAddress(Address address,String email){
-        return addressMapper.addAddress(address,email);
+    public Integer addAddress(Address address){
+        return addressMapper.addAddress(address);
     }
 
     public Integer deleteAddress(Integer addressId){

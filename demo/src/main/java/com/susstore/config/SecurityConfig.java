@@ -1,5 +1,6 @@
 package com.susstore.config;
 
+import com.susstore.filter.ValidateCodeFilter;
 import com.susstore.login.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
@@ -44,6 +46,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomizeAccessDeniedHandler accessDeniedHandler;
 
+    @Autowired
+    private ValidateCodeFilter validateCodeFilter;
+
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository(){
@@ -55,17 +60,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        //配置验证码
+        http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeRequests()
+                .antMatchers("/code/image").permitAll();
+
         http.formLogin()
                 .loginProcessingUrl("/login")
                 .usernameParameter("email").passwordParameter("password")
                 .and()
                 .authorizeRequests()
                 .antMatchers("/","/index","/login").permitAll()
-                .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/account","/user/**","/user_picture_default.png").permitAll()
                 .antMatchers("/register").permitAll()
-                //.anyRequest().authenticated()
+                .antMatchers("/v2/api-docs", "/swagger-resources/configuration/ui",
+                        "/swagger-resources", "/swagger-resources/configuration/security",
+                        "/swagger-ui.html", "/webjars/**").permitAll()
+                .anyRequest().authenticated()
                 .and().rememberMe().tokenRepository(persistentTokenRepository())
                 .tokenValiditySeconds(3600)
                 .userDetailsService(userDetailService)

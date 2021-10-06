@@ -12,12 +12,12 @@ public interface AddressMapper {
     Integer ifExist(String recipientName,long phone, String addressName,int userId);
 
     /**
-     * 根据用户邮箱以及地址信息添加地址
+     * 根据用户id以及地址信息添加地址
+     * TODO 日后需要直接用邮箱
      * @param address 地址
-     * @param email 邮箱
      * @return id
      */
-    Integer addAddress(Address address,String email);
+    Integer addAddress(Address address);
 
     /**
      * 根据用户id查询用户的地址
@@ -32,6 +32,7 @@ public interface AddressMapper {
      * @return 所有地址
      */
     List<Address> getUserAddressByEmail(String email);
+
 
     /**
      * 更新用户某个地址

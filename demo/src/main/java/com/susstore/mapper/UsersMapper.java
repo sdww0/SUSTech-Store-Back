@@ -55,6 +55,13 @@ public interface UsersMapper {
      Integer updateUserByEmail(Users users);
 
      /**
+      * 根据用户id更新用户
+      * @param users 用户
+      * @return --
+      */
+     Integer updateUserById(Users users);
+
+     /**
       * 根据id删除用户
       * @param id id
       * @return --

@@ -14,7 +14,7 @@
 
     <insert id="addUser" parameterType="Users" useGeneratedKeys="true" keyProperty="userId">
         insert into store."users" (user_name,password,gender,credit,money,email,picture_path,is_activate,activate_code)
-        values (#{userName},#{password},0,0,0.0,#{email},'/user_picture_default.png',false,#{activateCode}) returning user_id;
+        values (#{userName},#{password},#{gender},0,0.0,#{email},'/user_picture_default.png',false,#{activateCode}) returning user_id;
     </insert>
 
     <update id="updateUser" parameterType="Users" >
@@ -58,6 +58,24 @@
             <if test="picturePath != null">picture_path=#{picturePath}</if>
         </set>
         where email=#{email};
+    </update>
+
+    <update id="updateUserById" parameterType="Users" >
+        update store."users"
+        <set>
+            <if test="name != null">name=#{name},</if>
+            <if test="password != null">password=#{password},</if>
+            <if test="gender != null">gender=#{gender},</if>
+            <if test="birthday != null"> birthday=#{birthday},</if>
+            <if test="credit != null">credit=#{credit},</if>
+            <if test="phone != null">phone=#{phone},</if>
+            <if test="email != null">email=#{email},</if>
+            <if test="IDCard != null">id_card=#{IDCard},</if>
+            <if test="money != null">money=#{money},</if>
+            <if test="picturePath != null">picture_path=#{picturePath}</if>
+            <if test="email != null">email=#{email}</if>
+        </set>
+        where user_id=#{userId};
     </update>
 
 

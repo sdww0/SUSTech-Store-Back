@@ -17,7 +17,7 @@ public class Users {
     private String sign;
     private String userName;
     private String password;
-    private Integer gender;
+    private Integer gender;//Gender
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
     private Integer credit;

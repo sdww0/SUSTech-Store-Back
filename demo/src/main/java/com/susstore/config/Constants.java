@@ -8,7 +8,7 @@ public class Constants {
 
     public static final Integer GOODS_MAX_PICTURE = 3;
 
-    public static final String WEBSITE_LINK = "http://localhost:8080/";
+    public static final String WEBSITE_LINK = "http://localhost:8080";
 
     public static final Integer RANDOM_STRING_SIZE = 16;
 

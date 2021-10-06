@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Deal {
 
     private Integer dealId;
-    private Stage stage;
+    private Integer stage;//Stage
     private Goods goods;
     private Users buyer;
     private Users seller;

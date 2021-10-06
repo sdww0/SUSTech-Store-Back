@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.susstore.config.Constants.GOODS_MAX_PICTURE;
 
@@ -52,7 +53,7 @@ public class GoodsService {
         goods.setPictureAmount(count);
         goods.setAnnounceTime(new Date());
         goods.setWant(0);
-        goods.setGoodsState(GoodsState.PUBLISHED);
+        goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
         Integer id = goodsMapper.addGoods(goods);
         String picturePath = Constants.GOODS_UPLOAD_PATH+id+"/image/";
          count = 1;
@@ -109,9 +110,9 @@ public class GoodsService {
             return -1;
         }
         goods.setPictureAmount(count);
-        goods.setAnnounceTime(new Date());
         goods.setWant(0);
-        goods.setGoodsState(GoodsState.PUBLISHED);
+
+        goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
         Integer id = goodsMapper.updateGoods(goods);
         String picturePath = Constants.GOODS_UPLOAD_PATH+id+"/image/";
         count = 1;
@@ -135,8 +136,8 @@ public class GoodsService {
      * @param goodsId 商品id
      * @return 用户邮箱
      */
-    public String getBelongUserEmail(Integer goodsId){
-        return goodsMapper.getBelongUserEmail(goodsId);
+    public Integer getBelongUserId(Integer goodsId){
+        return goodsMapper.getBelongUserId(goodsId);
     }
 
     /**
@@ -153,8 +154,9 @@ public class GoodsService {
      * @param pageSize 每页大小
      * @return 商品略缩信息
      */
-    public List<GoodsAbbreviation> searchGoods(String searchContent, Integer pageSize, Integer currentPage){
-        return goodsMapper.searchGoods(searchContent,pageSize,currentPage);
+    public List<GoodsAbbreviation> searchGoods(String searchContent, Integer pageSize, Integer pageIndex){
+        return goodsMapper.searchGoods(
+                Map.of("searchContent",searchContent,"pageSize",pageSize,"pageIndex",pageIndex));
     }
 
 }

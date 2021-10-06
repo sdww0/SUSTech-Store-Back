@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 public class Goods {
 
-    private Integer id;
+    private Integer goodsId;
     private Float price;
     private String title;
     private List<String> picturePath;
@@ -25,7 +25,7 @@ public class Goods {
     private List<Comment> comments;
     private Integer want;
     private Date announceTime;
-    private GoodsState goodsState;
+    private Integer goodsState;//GoodsState
     private Integer pictureAmount;
 
 }

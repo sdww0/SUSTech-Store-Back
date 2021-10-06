@@ -25,7 +25,7 @@ public class SearchController {
     @Autowired
     private GoodsService goodsService;
 
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/search/{content}/{currentPage}")
     @ApiOperation("搜索内容，要求先登录")
     public CommonResult search(

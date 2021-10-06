@@ -49,7 +49,7 @@ create table if not exists store.goods(
     title varchar not null,
     introduce varchar not null ,
     announcer_id int not null ,
-    want_amount int not null ,
+    want int not null ,
     announce_time date not null,
     goods_state int not null ,
     picture_amount int not null ,

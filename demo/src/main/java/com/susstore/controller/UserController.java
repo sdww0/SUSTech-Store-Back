@@ -8,6 +8,7 @@ import com.susstore.service.MailService;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.AddressService;
+import com.susstore.service.MailServiceThread;
 import com.susstore.service.UserService;
 import com.susstore.util.CommonUtil;
 import io.swagger.annotations.*;
@@ -45,7 +46,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private MailService mailService;
+    private MailServiceThread mailService;
 
     @ApiOperation(value = "根据id获得用户信息")
     @GetMapping("/information/{queryUserId}")
@@ -118,7 +119,8 @@ public class UserController {
     public CommonResult register(
             @ApiParam("用户名")@RequestParam("name")String username,
             @ApiParam("邮箱") @RequestParam("email") String email,
-            @ApiParam("密码") @RequestParam("password") String password
+            @ApiParam("密码") @RequestParam("password") String password,
+            @ApiParam("性别") @RequestParam("gender") Integer gender
     ) {
         if(username==null||password==null||email==null||username.length()==0||password.length()==0||email.length()==0){
             return new CommonResult(ResultCode.REGISTER_FAIL);
@@ -131,6 +133,7 @@ public class UserController {
         user.setPassword(passwordEncoder.encode(password));
         user.setEmail(email);
         user.setActivateCode(email+ "aksjd"/*RandomStringUtils.random(Constants.RANDOM_STRING_SIZE)*/);
+        user.setGender(gender);
         userService.addUser(user);
         int id = 0;
         if((id=user.getUserId())==-1){
@@ -152,7 +155,7 @@ public class UserController {
         if(principal==null){
             return new CommonResult(ResultCode.USER_NOT_LOGIN);
         }
-        return new CommonResult(ResultCode.SUCCESS,addressService.getAddressByEmail(principal.getName()));
+        return new CommonResult(ResultCode.SUCCESS,addressService.getAddressById(Integer.parseInt(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -167,12 +170,14 @@ public class UserController {
         if(principal==null){
             return new CommonResult(ResultCode.USER_NOT_LOGIN);
         }
+
         addressService.addAddress(
                 Address.builder().recipientName(recipientName)
                 .addressName(addressName)
                 .phone(phone)
-                .isDefault(isDefault).build()
-                ,principal.getName());
+                .isDefault(isDefault)
+                .belongToUserId(Integer.parseInt(principal.getName()))
+                .build());
         return new CommonResult(ResultCode.SUCCESS);
     }
 
@@ -207,29 +212,31 @@ public class UserController {
         if(String.valueOf(checkCode).length()!=Constants.CHECK_CODE_SIZE){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
+        int id = Integer.parseInt(principal.getName());
         //检查验证码
-        if(userService.getUserCheckCodeByEmail(principal.getName())!=checkCode){
+        if(userService.getUserCheckCodeById(id)!=checkCode){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
         SecurityType securityType = SecurityType.values()[type];
         Users users = new Users();
-        users.setEmail(principal.getName());
+        users.setUserId(id);
         switch (securityType){
             case PASSWORD:
-                userService.updateUserByEmail(users);
-                break;
-            case EMAIL:
-                userService.updateUserEmail(principal.getName(),content);
+                users.setPassword(passwordEncoder.encode(content));
                 break;
             case PHONE:
                 if(!CommonUtil.isInteger(content)){
                     return new CommonResult(ResultCode.NOT_ACCEPTABLE);
                 }
-                userService.updateUserByEmail(users);
+                users.setPhone(Long.parseLong(content));
+                break;
+            case EMAIL:
+                users.setEmail(content);
                 break;
             case MAX:
             default:new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
+        userService.updateUserById(users);
         return new CommonResult(ResultCode.SUCCESS);
     }
 
@@ -239,10 +246,12 @@ public class UserController {
             @ApiParam("激活码") @PathVariable("activateCode") String activateCode
     ){
         Integer integer = userService.getActivateUser(activateCode);
+        if(integer==null){
+            return new CommonResult(4005,"未有此激活码");
+
+        }else
         if(integer==-2){
             return new CommonResult(4006,"账户已激活");
-        }else if( integer==-1){
-            return new CommonResult(4005,"未有此激活码");
         }
         userService.activateUser(integer);
         return new CommonResult(200,"账户已激活");

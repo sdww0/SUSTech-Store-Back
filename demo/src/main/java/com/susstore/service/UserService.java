@@ -93,6 +93,10 @@ public class UserService {
         return usersMapper.updateUserByEmail(users);
     }
 
+    public Integer updateUserById(Users users){
+        return usersMapper.updateUserById(users);
+    }
+
     public Integer getActivateUser(String activateCode){
         return usersMapper.getActivateUser(activateCode);
     }
@@ -109,6 +113,15 @@ public class UserService {
      */
     public Integer getUserCheckCodeByEmail(String email){
         return usersMapper.getUserCheckCodeByEmail(email);
+    }
+
+    /**
+     * 根据邮箱获取验证码
+     * @param email 邮箱
+     * @return 验证码
+     */
+    public Integer getUserCheckCodeById(Integer id){
+        return usersMapper.getUserCheckCodeById(id);
     }
 
     /**

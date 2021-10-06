@@ -28,7 +28,6 @@
         where store."users".email= #{email};
     </select>
 
-
     <update id="updateAddress" parameterType="Address">
         update store."address"
             <set>

@@ -14,10 +14,11 @@ import java.util.List;
 public class GoodsAbbreviation {
 
     private Integer goodsId;
+    private String title;
     private Float price;
     private String picturePath;
     private List<String> labels;
     private Users announcer;
-    private Integer wantAmount;
+    private Integer want;
     private Date announceTime;
 }

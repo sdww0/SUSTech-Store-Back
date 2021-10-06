@@ -36,14 +36,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
         }
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-//
-//        return new LoginUsers(new User(
-//                email,
-//                user.getPassword(),
-//                authorities
-//        ),user.getUserId(),user.getSlat());
         return new User(
-                email,
+                String.valueOf(user.getUserId()),
                 user.getPassword(),
                 authorities
         );

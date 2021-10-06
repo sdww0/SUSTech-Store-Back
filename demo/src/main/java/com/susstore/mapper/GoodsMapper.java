@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+
 @Mapper
 @Repository
 public interface GoodsMapper {
@@ -48,18 +50,17 @@ public interface GoodsMapper {
 
     /**
      * 根据搜索内容查找商品略缩信息
-     * @param searchContent 搜索内容
-     * @param pageSize 每页大小
+     * @param map String searchContent, Integer pageSize, Integer pageIndex
      * @return 商品略缩信息
      */
-    List<GoodsAbbreviation> searchGoods(String searchContent,Integer pageSize,Integer currentPage);
+    List<GoodsAbbreviation> searchGoods(Map<String,Object> map);
 
     /**
      * 根据商品id获取用户邮箱
      * @param goodsId 商品id
      * @return 用户邮箱
      */
-    String getBelongUserEmail(Integer goodsId);
+    Integer getBelongUserId(Integer goodsId);
 
 
 }
