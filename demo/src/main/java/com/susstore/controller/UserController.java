@@ -130,14 +130,14 @@ public class UserController {
         user.setUserName(username);
         user.setPassword(passwordEncoder.encode(password));
         user.setEmail(email);
-        user.setActivateCode(email+ RandomStringUtils.random(Constants.RANDOM_STRING_SIZE));
+        user.setActivateCode(email+ "aksjd"/*RandomStringUtils.random(Constants.RANDOM_STRING_SIZE)*/);
         userService.addUser(user);
         int id = 0;
         if((id=user.getUserId())==-1){
             return new CommonResult(ResultCode.REGISTER_FAIL);
         }
         mailService.sendSimpleMail(email,"欢迎注册南科闲鱼！",
-                "激活链接:"+Constants.USER_UPLOAD_PATH+"/user/activate/"+user.getActivateCode());
+                "激活链接:"+Constants.WEBSITE_LINK+"/user/activate/"+user.getActivateCode());
         String path = Constants.USER_UPLOAD_PATH+id+"/image/";
         File file = new File(path);
         file.mkdirs();

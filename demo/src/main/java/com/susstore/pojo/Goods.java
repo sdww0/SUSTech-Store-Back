@@ -16,6 +16,7 @@ public class Goods {
 
     private Integer id;
     private Float price;
+    private String title;
     private List<String> picturePath;
     private List<String> labels;
     private String introduce;

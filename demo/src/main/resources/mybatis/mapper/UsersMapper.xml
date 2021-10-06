@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susstore.mapper.UsersMapper">
+
+    <select id="queryUserList" resultType="Users">
+        select * from store."users";
+    </select>
+
+    <select id="queryUserById" resultType="Users" parameterType="int">
+        select * from store."users" where user_id=#{id};
+    </select>
+
+    <insert id="addUser" parameterType="Users" useGeneratedKeys="true" keyProperty="userId">
+        insert into store."users" (user_name,password,gender,credit,money,email,picture_path,is_activate,activate_code)
+        values (#{userName},#{password},0,0,0.0,#{email},'/user_picture_default.png',false,#{activateCode}) returning user_id;
+    </insert>
+
+    <update id="updateUser" parameterType="Users" >
+        update store."users"
+        <set>
+            <if test="name != null">name=#{name},</if>
+            <if test="password != null">password=#{password},</if>
+            <if test="gender != null">gender=#{gender},</if>
+            <if test="birthday != null"> birthday=#{birthday},</if>
+            <if test="credit != null">credit=#{credit},</if>
+            <if test="phone != null">phone=#{phone},</if>
+            <if test="email != null">email=#{email},</if>
+            <if test="IDCard != null">id_card=#{IDCard},</if>
+            <if test="money != null">money=#{money},</if>
+            <if test="picturePath != null">picture_path=#{picturePath}</if>
+        </set>
+        where user_id=#{userId};
+    </update>
+
+
+    <update id="updateUserEmail">
+        update store."users"
+        <set>
+            <if test="newEmail != null">email=#{newEmail},</if>
+        </set>
+        where email=#{oldEmail};
+    </update>
+
+    <update id="updateUserByEmail" parameterType="Users" >
+        update store."users"
+        <set>
+            <if test="name != null">name=#{name},</if>
+            <if test="password != null">password=#{password},</if>
+            <if test="gender != null">gender=#{gender},</if>
+            <if test="birthday != null"> birthday=#{birthday},</if>
+            <if test="credit != null">credit=#{credit},</if>
+            <if test="phone != null">phone=#{phone},</if>
+            <if test="email != null">email=#{email},</if>
+            <if test="IDCard != null">id_card=#{IDCard},</if>
+            <if test="money != null">money=#{money},</if>
+            <if test="picturePath != null">picture_path=#{picturePath}</if>
+        </set>
+        where email=#{email};
+    </update>
+
+
+    <delete id="deleteUser" parameterType="int">
+        delete from store."users" where user_id=#{userId};
+    </delete>
+
+    <select id="queryUserByEmail" parameterType="String" resultType="int">
+        select user_id from store."users" where email=#{email};
+    </select>
+
+    <select id="getUserByEmail" parameterType="String" resultType="com.susstore.pojo.Users">
+        select user_id,password,is_activate from store."users" where email=#{email};
+    </select>
+
+    <select id="getUserCheckCodeById" parameterType="int" resultType="int">
+        select check_code from store."users" where user_id=#{id};
+    </select>
+
+    <select id="getUserCheckCodeByEmail" parameterType="String" resultType="int">
+        select check_code from store."users" where email=#{email};
+    </select>
+
+    <update id="clearUserCheckCodeByEmail">
+        update store."users"
+        <set>
+            check_code = -1;
+        </set>
+        where email=#{email};
+    </update>
+
+
+    <update id="clearUserCheckCodeById">
+        update store."users"
+        <set>
+            check_code = -1;
+        </set>
+        where user_id=#{id};
+    </update>
+
+    <select id="getActivateUser" parameterType="String" resultType="int">
+        select case (is_activate) when true then -2 else users.user_id end
+        from store.users
+        where activate_code=#{activateCode};
+    </select>
+
+    <update id="activateUser" parameterType="int" >
+        update store."users"
+        <set>
+            is_activate=true
+        </set>
+        where user_id=#{userId};
+    </update>
+
+</mapper>

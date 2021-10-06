@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Mapper
 @Repository
-public interface UserMapper {
+public interface UsersMapper {
 
      /**
       * 查询所有用户

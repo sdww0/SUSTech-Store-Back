@@ -18,8 +18,30 @@
     </select>
 
 
+    <select id="getUserAddressById" parameterType="int" resultType="Address">
+        select * from store."address" where belong_user_id=#{id};
+    </select>
+
+    <select id="getUserAddressByEmail" parameterType="String" resultType="Address">
+        select * from store."address" join store."users"
+            on store."address".belong_user_id=store."users".user_id
+        where store."users".email= #{email};
+    </select>
 
 
+    <update id="updateAddress" parameterType="Address">
+        update store."address"
+            <set>
+             belong_user_id=#{belongToUserId},
+             recipient_name=#{recipientName},
+             address_name=#{addressName},
+             phone=#{phone}
+            </set>
+    where address_id= #{addressId}
+    </update>
 
+    <delete id="deleteAddress" parameterType="int">
+        delete from store."address" where address_id=#{addressId}
+    </delete>
 
 </mapper>

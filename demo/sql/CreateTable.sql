@@ -23,7 +23,7 @@ create table if not exists store.users(
     credit int not null ,
     id_card varchar,
     money float not null ,
-    phone bigint not null ,
+    phone bigint  ,
     picture_path varchar not null,
     check_code int, --验证码
     is_activate bool not null, --用户状态，未激活，激活等
@@ -46,6 +46,7 @@ create table if not exists store.address
 create table if not exists store.goods(
     goods_id serial primary key ,
     price float not null ,
+    title varchar not null,
     introduce varchar not null ,
     announcer_id int not null ,
     want_amount int not null ,

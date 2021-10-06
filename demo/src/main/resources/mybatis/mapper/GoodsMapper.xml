@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susstore.mapper.GoodsMapper">
+
+    <insert id="addGoods" parameterType="Goods" useGeneratedKeys="true" keyProperty="id">
+        insert into store."goods"
+            (price,introduce,announcer_id,want_amount,
+             announce_time,goods_state,picture_amount)
+        values (#{price},#{introduce},#{users.userId},
+                #{want},#{announceTime},#{goodsState},
+                #{pictureAmount})
+                returning goods_id;
+    </insert>
+
+    <update id="updateGoods" parameterType="Goods">
+        update store."goods"
+        <set>
+        price=#{price},
+        introduce=#{introduce},
+        announcer_id=#{users.userId},
+        want_amount=#{want},
+        announce_time=#{announceTime},
+        goods_state=#{goodsState},
+        picture_amount=#{pictureAmount}
+        </set>
+        where goods_id=#{goodId}
+    </update>
+
+
+    <delete id="deleteGoods" parameterType="int">
+        delete from store."goods" where goods_id=#{id}
+    </delete>
+
+    <select id="queryGoodsById" parameterType="int" resultType="Goods">
+        select * from store."goods" where goods_id=#{id};
+    </select>
+
+    <select id="queryGoodsByUserId" parameterType="int" resultType="GoodsAbbreviation">
+        select * from store."goods"
+        where store."goods".announcer_id= #{userId};
+    </select>
+
+    <select id="getBelongUserEmail" parameterType="int" resultType="String">
+        select store."users".email from
+                    store."goods" join store."users"
+                    on store."goods".announcer_id=store."users".user_id
+        where store."goods".goods_id= #{goodsId};
+    </select>
+
+
+</mapper>

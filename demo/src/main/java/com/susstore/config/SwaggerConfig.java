@@ -20,8 +20,8 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
-                .paths(PathSelectors.any())
+//                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+//                .paths(PathSelectors.any())
                 .build();
     }
 
