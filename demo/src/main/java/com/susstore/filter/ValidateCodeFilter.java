@@ -1,10 +1,9 @@
 package com.susstore.filter;
 
 import com.susstore.controller.ValidateCodeController;
-import com.susstore.login.CustomizeAuthenticationFailureHandler;
+import com.susstore.config.security.CustomizeAuthenticationFailureHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -15,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import com.susstore.login.exception.ValidateCodeException;
+import com.susstore.config.security.exception.ValidateCodeException;
 
 @Component
 public class ValidateCodeFilter extends OncePerRequestFilter {

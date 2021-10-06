@@ -1,10 +1,9 @@
-package com.susstore.login;
+package com.susstore.config.security;
 
-import com.susstore.login.exception.UserNotActivateException;
+import com.susstore.config.security.exception.UserNotActivateException;
 import com.susstore.pojo.Users;
 import com.susstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

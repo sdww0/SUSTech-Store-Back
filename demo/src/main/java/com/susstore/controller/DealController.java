@@ -20,7 +20,7 @@ public class DealController {
 
 
     @GetMapping("/{dealId}")
-    @ApiOperation("根据商品id获取商品信息")
+    @ApiOperation("获得订单信息")
     public CommonResult getGoods(
             @ApiParam("商品id") @PathVariable("dealId") String dealId
     ){

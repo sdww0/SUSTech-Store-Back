@@ -1,4 +1,4 @@
-package com.susstore.config;
+package com.susstore.config.swagger;
 
 import com.fasterxml.classmate.TypeResolver;
 import com.google.common.collect.Sets;

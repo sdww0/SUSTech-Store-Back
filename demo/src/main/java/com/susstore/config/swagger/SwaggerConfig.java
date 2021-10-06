@@ -1,4 +1,4 @@
-package com.susstore.config;
+package com.susstore.config.swagger;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;

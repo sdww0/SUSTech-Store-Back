@@ -1,4 +1,4 @@
-package com.susstore.login;
+package com.susstore.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.susstore.result.CommonResult;

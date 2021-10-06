@@ -1,11 +1,11 @@
-package com.susstore.config;
+package com.susstore.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
@@ -15,14 +15,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
-@ServerEndpoint("/websocket/{username}")
-public class WebSocket {
+@Controller
+@ServerEndpoint("/websocket/{userId}/{dealId}")
+public class WebSocketController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static int online = 0;
 
-    private static Map<String,WebSocket> clients = new ConcurrentHashMap<>();
+    private static Map<String,WebSocketController> clients = new ConcurrentHashMap<>();
 
     private Session session;
 
@@ -128,18 +128,18 @@ public class WebSocket {
 
 
     public void sendMessageTo(String message, String ToUserName) throws IOException {
-        for (WebSocket item : clients.values()) {
-            if (item.username.equals(ToUserName) ) {
-                item.session.getAsyncRemote().sendText(message);
-                break;
-            }
-        }
+//        for (WebSocket item : clients.values()) {
+//            if (item.username.equals(ToUserName) ) {
+//                item.session.getAsyncRemote().sendText(message);
+//                break;
+//            }
+//        }
     }
 
     public void sendMessageAll(String message,String FromUserName) throws IOException {
-        for (WebSocket item : clients.values()) {
-            item.session.getAsyncRemote().sendText(message);
-        }
+//        for (WebSocket item : clients.values()) {
+//            item.session.getAsyncRemote().sendText(message);
+//        }
     }
 
     public static synchronized int getOnlineCount() {

@@ -1,9 +1,8 @@
-package com.susstore.login;
+package com.susstore.config.security;
 
 import com.alibaba.fastjson.JSON;
-import com.susstore.filter.ValidateCodeFilter;
-import com.susstore.login.exception.UserNotActivateException;
-import com.susstore.login.exception.ValidateCodeException;
+import com.susstore.config.security.exception.UserNotActivateException;
+import com.susstore.config.security.exception.ValidateCodeException;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import org.springframework.security.core.AuthenticationException;

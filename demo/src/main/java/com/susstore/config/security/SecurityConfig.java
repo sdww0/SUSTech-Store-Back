@@ -1,7 +1,7 @@
-package com.susstore.config;
+package com.susstore.config.security;
 
+import com.susstore.config.security.*;
 import com.susstore.filter.ValidateCodeFilter;
-import com.susstore.login.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

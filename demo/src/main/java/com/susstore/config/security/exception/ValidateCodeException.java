@@ -1,4 +1,4 @@
-package com.susstore.login.exception;
+package com.susstore.config.security.exception;
 
 import org.springframework.security.core.AuthenticationException;
 
