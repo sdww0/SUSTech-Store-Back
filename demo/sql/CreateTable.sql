@@ -17,7 +17,7 @@ create table if not exists store.users(
     sign varchar,
     email varchar not null ,
     user_name varchar not null ,
-    password varchar not null ,
+    user_password varchar not null ,
     gender int not null ,
     birthday date ,
     credit int not null ,
