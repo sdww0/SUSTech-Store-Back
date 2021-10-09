@@ -5,6 +5,7 @@ import com.susstore.pojo.Users;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.GoodsService;
+import com.susstore.service.UserService;
 import com.susstore.util.CommonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +32,9 @@ public class GoodsController {
 
     @Autowired
     private GoodsService goodsService;
+
+    @Autowired
+    private UserService userService;
 
 
     @GetMapping("/{goodsId}")
@@ -66,7 +70,7 @@ public class GoodsController {
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
         Goods goods = Goods.builder().labels(labels).price(price).introduce(introduce)
-                .announcer(Users.builder().userId(Integer.parseInt(principal.getName())).build()).title(title).build();
+                .announcer(Users.builder().userId(userService.queryUserByEmail(principal.getName())).build()).title(title).build();
         Integer id = goodsService.addGoods(photos, goods);
         if(id==null||id<0){
             return new CommonResult(4040,"添加商品失败");
@@ -95,7 +99,7 @@ public class GoodsController {
         if(userId==null){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
-        if(!(userId==Integer.parseInt(principal.getName()))){
+        if(!(userId==userService.queryUserByEmail(principal.getName()))){
             return new CommonResult(ResultCode.FORBIDDEN);
         }
         Goods goods = Goods.builder().labels(labels).price(price).introduce(introduce).title(title)
@@ -115,7 +119,7 @@ public class GoodsController {
         if(id==null){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
-        if(!(id==Integer.parseInt(principal.getName()))){
+        if(!(id==userService.queryUserByEmail(principal.getName()))){
             return new CommonResult(ResultCode.FORBIDDEN);
         }
         goodsService.deleteGoods(goodsId);

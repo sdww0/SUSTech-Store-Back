@@ -114,10 +114,10 @@ public class UserController {
 
 
 
-    @PostMapping("/register")
+    @RequestMapping(path="/register",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("注册用户")
     public CommonResult register(
-            @ApiParam("用户名")@RequestParam("name")String username,
+            @ApiParam("用户名")@RequestParam("username")String username,
             @ApiParam("邮箱") @RequestParam("email") String email,
             @ApiParam("密码") @RequestParam("password") String password,
             @ApiParam("性别") @RequestParam("gender") Integer gender
@@ -140,7 +140,7 @@ public class UserController {
             return new CommonResult(ResultCode.REGISTER_FAIL);
         }
         mailService.sendSimpleMail(email,"欢迎注册南科闲鱼！",
-                "激活链接:"+Constants.WEBSITE_LINK+"/user/activate/"+user.getActivateCode());
+                "激活链接:"+Constants.WEBSITE_LINK+"/user/activate?activateCode="+user.getActivateCode());
         String path = Constants.USER_UPLOAD_PATH+id+"/image/";
         File file = new File(path);
         file.mkdirs();
@@ -155,7 +155,7 @@ public class UserController {
         if(principal==null){
             return new CommonResult(ResultCode.USER_NOT_LOGIN);
         }
-        return new CommonResult(ResultCode.SUCCESS,addressService.getAddressById(Integer.parseInt(principal.getName())));
+        return new CommonResult(ResultCode.SUCCESS,addressService.getUserAddressByEmail(principal.getName()));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -176,7 +176,7 @@ public class UserController {
                 .addressName(addressName)
                 .phone(phone)
                 .isDefault(isDefault)
-                .belongToUserId(Integer.parseInt(principal.getName()))
+                .belongToUserId(userService.queryUserByEmail(principal.getName()))
                 .build());
         return new CommonResult(ResultCode.SUCCESS);
     }
@@ -212,7 +212,7 @@ public class UserController {
         if(String.valueOf(checkCode).length()!=Constants.CHECK_CODE_SIZE){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
-        int id = Integer.parseInt(principal.getName());
+        int id = userService.queryUserByEmail(principal.getName());
         //检查验证码
         if(userService.getUserCheckCodeById(id)!=checkCode){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
@@ -240,7 +240,7 @@ public class UserController {
         return new CommonResult(ResultCode.SUCCESS);
     }
 
-    @GetMapping("/activate/{activateCode}")
+    @PostMapping("/activate/{activateCode}")
     @ApiOperation("根据激活码激活账户")
     public CommonResult activate(
             @ApiParam("激活码") @PathVariable("activateCode") String activateCode

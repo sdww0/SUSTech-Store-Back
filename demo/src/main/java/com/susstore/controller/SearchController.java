@@ -25,9 +25,9 @@ public class SearchController {
     @Autowired
     private GoodsService goodsService;
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @GetMapping("/search/{content}/{currentPage}")
-    @ApiOperation("搜索内容，要求先登录")
+    @ApiOperation("搜索内容")
     public CommonResult search(
             @ApiParam("搜索内容") @PathVariable("content")String content,
             @ApiParam("当前页") @PathVariable("currentPage")Integer currentPage

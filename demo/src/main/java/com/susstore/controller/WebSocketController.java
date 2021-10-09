@@ -1,149 +1,59 @@
 package com.susstore.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
 
-import javax.websocket.*;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.HtmlUtils;
 
-@Controller
-@ServerEndpoint("/websocket/{userId}/{dealId}")
+import java.security.Principal;
+
+@RestController
 public class WebSocketController {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static int online = 0;
+    //spring提供的推送方式
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
-    private static Map<String,WebSocketController> clients = new ConcurrentHashMap<>();
-
-    private Session session;
-
-    private String username;
-
-    @OnOpen
-    public void onOpen(@PathParam("username") String username, Session session)
-    {
-        online++;
-        logger.info("现在来连接的客户id："+session.getId()+"用户名："+username);
-        this.username = username;
-        this.session = session;
-        logger.info("有新连接加入！ 当前在线人数" + online);
-        try {
-        //messageType 1代表上线 2代表下线 3代表在线名单 4代表普通消息
-        //先给所有人发送通知，说我上线了
-        Map<String,Object> map1 = Maps.newHashMap();
-        map1.put("messageType",1);
-        map1.put("username",username);
-        sendMessageAll(JSON.toJSONString(map1),username);
-
-        //把自己的信息加入到map当中去
-        clients.put(username, this);
-        //给自己发一条消息：告诉自己现在都有谁在线
-        Map<String,Object> map2 = Maps.newHashMap();
-        map2.put("messageType",3);
-        //移除掉自己
-        Set<String> set = clients.keySet();
-        map2.put("onlineUsers",set);
-        sendMessageTo(JSON.toJSONString(map2),username);
-    }
-        catch (IOException e){
-        logger.info(username+"上线的时候通知所有人发生了错误");
-    }
-
-
-
-}
-
-    @OnError
-    public void onError(Session session, Throwable error) {
-        logger.info("服务端发生了错误"+error.getMessage());
-        //error.printStackTrace();
-    }
     /**
-     * 连接关闭
+     * 广播模式
+     * @param requestMsg
+     * @return
      */
-    @OnClose
-    public void onClose()
-    {
-        online--;
-        //webSockets.remove(this);
-        clients.remove(username);
-        try {
-            //messageType 1代表上线 2代表下线 3代表在线名单  4代表普通消息
-            Map<String,Object> map1 = Maps.newHashMap();
-            map1.put("messageType",2);
-            map1.put("onlineUsers",clients.keySet());
-            map1.put("username",username);
-            sendMessageAll(JSON.toJSONString(map1),username);
-        }
-        catch (IOException e){
-            logger.info(username+"下线的时候通知所有人发生了错误");
-        }
-        logger.info("有连接关闭！ 当前在线人数" + online);
+    @MessageMapping("/broadcast")
+    @SendTo("/topic/broadcast")
+    public String broadcast(Object requestMsg) {
+        //这里是有return，如果不写@SendTo默认和/topic/broadcast一样
+        return "server:" + requestMsg.toString();
     }
 
     /**
-     * 收到客户端的消息
-     *
-     * @param message 消息
-     * @param session 会话
+     * 订阅模式，只是在订阅的时候触发，可以理解为：访问——>返回数据
+     * @param id
+     * @return
      */
-    @OnMessage
-    public void onMessage(String message, Session session)
-    {
-        try {
-            logger.info("来自客户端消息：" + message+"客户端的id是："+session.getId());
-            JSONObject jsonObject = JSON.parseObject(message);
-            String textMessage = jsonObject.getString("message");
-            String fromusername = jsonObject.getString("username");
-            String tousername = jsonObject.getString("to");
-            //如果不是发给所有，那么就发给某一个人
-            //messageType 1代表上线 2代表下线 3代表在线名单  4代表普通消息
-            Map<String,Object> map1 = Maps.newHashMap();
-            map1.put("messageType",4);
-            map1.put("textMessage",textMessage);
-            map1.put("fromusername",fromusername);
-            if(tousername.equals("All")){
-                map1.put("tousername","所有人");
-                sendMessageAll(JSON.toJSONString(map1),fromusername);
-            }
-            else{
-                map1.put("tousername",tousername);
-                sendMessageTo(JSON.toJSONString(map1),tousername);
-            }
-        }
-        catch (Exception e){
-            logger.info("发生了错误了");
-        }
-
+    @SubscribeMapping("/subscribe/{id}")
+    public String subscribe(@DestinationVariable Long id) {
+        return "success";
     }
 
-
-    public void sendMessageTo(String message, String ToUserName) throws IOException {
-//        for (WebSocket item : clients.values()) {
-//            if (item.username.equals(ToUserName) ) {
-//                item.session.getAsyncRemote().sendText(message);
-//                break;
-//            }
-//        }
-    }
-
-    public void sendMessageAll(String message,String FromUserName) throws IOException {
-//        for (WebSocket item : clients.values()) {
-//            item.session.getAsyncRemote().sendText(message);
-//        }
-    }
-
-    public static synchronized int getOnlineCount() {
-        return online;
+    /**
+     * 用户模式
+     * @param requestMsg
+     * @param principal
+     */
+    //@PreAuthorize("hasRole('USER')")
+    @MessageMapping("/one")
+    //@SendToUser("/queue/one") 如果存在return,可以使用这种方式
+    public void one(Object requestMsg, Principal principal) {
+        //这里使用的是spring的security的认证体系，所以直接使用Principal获取用户信息即可。
+        //注意为什么使用queue，主要目的是为了区分广播和队列的方式。实际采用topic，也没有关系。但是为了好理解
+        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/one", requestMsg);
     }
 
 }

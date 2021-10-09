@@ -1,6 +1,7 @@
 package com.susstore.config.security;
 
 import com.susstore.config.security.*;
+import com.susstore.filter.JwtAuthenticationTokenFilter;
 import com.susstore.filter.ValidateCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,6 +51,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private ValidateCodeFilter validateCodeFilter;
 
+    @Autowired
+    private JwtAuthenticationTokenFilter authenticationTokenFilter;
+
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository(){
@@ -65,6 +70,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/code/image").permitAll();
 
+        http
+                .addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
         http.formLogin()
                 .loginProcessingUrl("/login")
                 .usernameParameter("email").passwordParameter("password")
@@ -77,27 +85,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v2/api-docs", "/swagger-resources/configuration/ui",
                         "/swagger-resources", "/swagger-resources/configuration/security",
                         "/swagger-ui.html", "/webjars/**").permitAll()
-                .anyRequest().authenticated()
+                //.anyRequest().authenticated()
                 .and().rememberMe().tokenRepository(persistentTokenRepository())
                 .tokenValiditySeconds(3600)
                 .userDetailsService(userDetailService)
                 .and()
                 .logout().logoutSuccessUrl("/index").permitAll()
-                .and().csrf().disable();
+                .and()
+                .csrf().disable();
 
         http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler)
                 .and().formLogin().permitAll()
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
-
                 .and().logout().permitAll()
                 .logoutSuccessHandler(logoutSuccessHandler)
-                .deleteCookies("JSESSIONID")
+
+
+
                 .invalidateHttpSession(true)
                 .clearAuthentication(true);
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+        http.httpBasic();
 
+        http.headers().cacheControl();
+        http.headers().frameOptions().disable();
 
     }
 

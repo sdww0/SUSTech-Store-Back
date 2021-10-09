@@ -25,4 +25,7 @@ public class AddressService {
         return addressMapper.deleteAddress(addressId);
     }
 
+    public List<Address> getUserAddressByEmail(String email) {
+        return addressMapper.getUserAddressByEmail(email);
+    }
 }

@@ -1,6 +1,6 @@
 package com.susstore.config.security;
 
-import com.susstore.config.security.exception.UserNotActivateException;
+import com.susstore.config.security.exception.*;
 import com.susstore.pojo.Users;
 import com.susstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         return new User(
-                String.valueOf(user.getUserId()),
+                email,
                 user.getPassword(),
                 authorities
         );
