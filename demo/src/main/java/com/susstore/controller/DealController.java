@@ -1,26 +1,18 @@
 package com.susstore.controller;
 
 import com.susstore.pojo.Deal;
-import com.susstore.pojo.Goods;
-import com.susstore.pojo.Users;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.DealService;
 import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
-import com.susstore.util.CommonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.List;
-
-import static com.susstore.config.Constants.GOODS_MAX_PICTURE;
-import static com.susstore.config.Constants.LABELS_MAX_AMOUNT;
 
 @RestController
 @Api(value = "商品控制器",tags = {"订单访问接口"})
