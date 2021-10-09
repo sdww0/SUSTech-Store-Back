@@ -62,5 +62,5 @@ public interface GoodsMapper {
      */
     Integer getBelongUserId(Integer goodsId);
 
-
+    Integer ifOnShelfById(int goodsId);
 }

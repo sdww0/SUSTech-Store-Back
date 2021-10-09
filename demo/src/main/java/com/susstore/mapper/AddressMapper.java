@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface AddressMapper {
 
-    Integer ifExist(String recipientName,long phone, String addressName,int userId);
+    Address ifExist(String recipientName,long phone, String addressName,int userId);
 
     /**
      * 根据用户id以及地址信息添加地址

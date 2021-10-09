@@ -25,7 +25,7 @@ public class Goods {
     private List<Comment> comments;
     private Integer want;
     private Date announceTime;
-    private Integer goodsState;//GoodsState
+    private Integer goodsState;//GoodsState 0--in shelf 1-off shelf
     private Integer pictureAmount;
 
 }

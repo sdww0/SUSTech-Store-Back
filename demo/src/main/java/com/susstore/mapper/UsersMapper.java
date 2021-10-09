@@ -68,6 +68,10 @@ public interface UsersMapper {
       */
      int deleteUser(int id);
 
+
+     Users ifExistById(int userId);
+
+     boolean ifActivatedById(int id);
      /**
       * 根据邮箱查询用户id
       * @param email 邮箱

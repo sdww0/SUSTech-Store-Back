@@ -13,7 +13,7 @@
     </select>
 
     <insert id="addUser" parameterType="Users" useGeneratedKeys="true" keyProperty="userId">
-        insert into store."users" (user_name,password,gender,credit,money,email,picture_path,is_activate,activate_code)
+        insert into store."users" (user_name,user_password,gender,credit,money,email,picture_path,is_activate,activate_code)
         values (#{userName},#{password},#{gender},0,0.0,#{email},'/user_picture_default.png',false,#{activateCode}) returning user_id;
     </insert>
 
@@ -27,7 +27,7 @@
             <if test="credit != null">credit=#{credit},</if>
             <if test="phone != null">phone=#{phone},</if>
             <if test="email != null">email=#{email},</if>
-            <if test="IDCard != null">id_card=#{IDCard},</if>
+            <if test="idCard != null">id_card=#{idCard},</if>
             <if test="money != null">money=#{money},</if>
             <if test="picturePath != null">picture_path=#{picturePath}</if>
         </set>
@@ -88,7 +88,7 @@
     </select>
 
     <select id="getUserByEmail" parameterType="String" resultType="com.susstore.pojo.Users">
-        select user_id,password,is_activate from store."users" where email=#{email};
+        select user_id,user_password,is_activate from store."users" where email=#{email};
     </select>
 
     <select id="getUserCheckCodeById" parameterType="int" resultType="int">
@@ -106,6 +106,16 @@
         </set>
         where email=#{email};
     </update>
+
+    <select id="ifExistById" resultType="Users">
+        select * from store.users
+            where user_id=#{id}
+    </select>
+
+    <select id="ifActivatedById" resultType="boolean">
+        select is_activate from store.users
+            where user_id=#{id}
+    </select>
 
 
     <update id="clearUserCheckCodeById">

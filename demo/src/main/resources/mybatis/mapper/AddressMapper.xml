@@ -9,12 +9,12 @@
         values (#{belongToUserId},#{recipientName},#{addressName},#{phone}) returning address_id;
     </insert>
 
-    <select id="ifExist" resultType="int">
+    <select id="ifExist" resultType="Address">
         select * from store."address" where
                                             recipient_name=#{recipientName}
                                         and phone=#{phone}
                                         and address_name=#{addressName}
-                                        and  belong_user_id=#{userId}       ;
+                                        and  belong_user_id=#{userId};
     </select>
 
 

@@ -55,5 +55,8 @@
         order by goods_id limit #{pageSize} offset (${pageSize}*(${pageIndex}-1))
     </select>
 
+    <select id="ifOnShelfById">
+        select goods_state from store.goods where goods_id=#{goodsId}
+    </select>
 
 </mapper>

@@ -71,6 +71,7 @@ public class GoodsService {
         return id;
     }
 
+
     /**
      * 根据商品id查询商品
      * @param goodsId 商品id
@@ -159,4 +160,11 @@ public class GoodsService {
                 Map.of("searchContent",searchContent,"pageSize",pageSize,"pageIndex",pageIndex));
     }
 
+    public Goods getGoodsById(int goodsId){
+        return goodsMapper.queryGoodsById(goodsId);
+    }
+
+    public int ifOnShelfById(int goodsId){
+        return goodsMapper.ifOnShelfById(goodsId);
+    }
 }

@@ -71,7 +71,13 @@ public class UserService {
         return usersMapper.deleteUser(id);
     }
 
+    public Users ifExistById(int id){
+        return usersMapper.ifExistById(id);
+    }
 
+    public boolean ifActivatedById(int id){
+        return usersMapper.ifActivatedById(id);
+    }
 
     public Integer queryUserByEmail(String email){
         return usersMapper.queryUserByEmail(email);
@@ -117,7 +123,7 @@ public class UserService {
 
     /**
      * 根据邮箱获取验证码
-     * @param email 邮箱
+     * @param id 用户id
      * @return 验证码
      */
     public Integer getUserCheckCodeById(Integer id){
