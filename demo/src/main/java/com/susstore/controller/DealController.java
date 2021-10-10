@@ -54,19 +54,10 @@ public class DealController {
     }
 
 
-    //@PreAuthorize("hasRole('USER')")
-    @GetMapping("/{addDeal}")
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(path="/addDeal",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("生成订单信息")
     public CommonResult AddDeal(
-            /**
-             * deal_id serial primary key ,
-             *     stage int not null ,
-             *     goods_id int not null ,
-             *     buyer_id int not null ,
-             *     seller_id int not null ,
-             *     mailing_number varchar,
-             *     shipping_address_id int,
-             * */
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单状态") @RequestParam(name = "stage") Integer stage,
             @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId,
