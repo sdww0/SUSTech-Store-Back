@@ -2,20 +2,33 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.susstore.mapper.GoodsMapper" >
+<mapper namespace="com.susstore.mapper.DealMapper" >
 
     <select id="getDeal" resultType="Deal">
         select * from store.deal
-        where deal_id=#{dealId} and seller_id =#{sellerId} and buyer_id = #{buyerId}
+        where goods_id=#{goodsId} and seller_id =#{sellerId} and buyer_id = #{buyerId}
+            and stage=#{stage}
     </select>
 
     <insert id="addDeal" parameterType="Deal" useGeneratedKeys="true" keyProperty="dealId">
         insert into store.deal
-        ( stage, goods_id, buyer_id, seller_id, mailing_number, shipping_address_id)
-        values (#{stage},#{goodsId},#{buyerId},#{sellerId},
-                null,-1)
+        ( stage, goods_id, buyer_id, seller_id)
+        values (#{stage},#{goods.goodsId},#{buyer.userId},#{seller.userId})
         returning deal_id;
     </insert>
+
+    <update id="updateDeal" parameterType="Deal">
+        update store."goods"
+        <set>
+            <if test="stage != null"> stage=#{stage},</if>
+            <if test="Goods != null">goods_id=#{goods.goodsId},</if>
+            <if test="buyer != null">buyer_id=#{buyer.userId},</if>
+            <if test="seller != null">seller_id=#{seller.userId},</if>
+            <if test="mailingNumber != null">mailing_number=#{mailingNumber},</if>
+            <if test="shippingAddress != null">shipping_address=#{shippingAddress},</if>
+        </set>
+        where goods_id=#{goodsId}
+    </update>
 
 
     <select id="getDealById">

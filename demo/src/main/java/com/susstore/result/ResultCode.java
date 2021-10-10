@@ -21,7 +21,7 @@ public enum ResultCode {
     UNAUTHORIZED(401, "暂未登录或token已经过期"),
     FORBIDDEN(403, "没有相关权限"),
     USER_NOT_LOGIN(4001,"用户未登录"),
-    USER_NOT_ACTIVATED(4002,"用户未激活"),
+    USER_NOT_ACTIVATED(4005,"用户未激活"),
     USER_NOT_EXIST(4003,"用户不存在"),
     REGISTER_FAIL(4010,"注册失败"),
     LOGIN_FAIL(4002,"登录失败"),

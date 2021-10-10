@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -28,6 +29,7 @@ public class DealController {
     private UserService userService;
 
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{dealId}")
     @ApiOperation("获得订单信息")
     public CommonResult getDeal(
@@ -52,6 +54,7 @@ public class DealController {
     }
 
 
+    //@PreAuthorize("hasRole('USER')")
     @GetMapping("/{addDeal}")
     @ApiOperation("生成订单信息")
     public CommonResult AddDeal(
@@ -71,7 +74,6 @@ public class DealController {
             @ApiParam("卖家id") @RequestParam("sellerId") Integer sellerId
     ){
         //查看商品是不是已经下架
-
         if (goodsService.ifOnShelfById(goodsId)==0){
             return new CommonResult(ResultCode.DEAL_OFF_SHELF);
         }
