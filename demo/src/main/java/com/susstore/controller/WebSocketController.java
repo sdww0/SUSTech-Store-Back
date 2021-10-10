@@ -37,9 +37,9 @@ public class WebSocketController {
      * @param id
      * @return
      */
-    @SubscribeMapping("/subscribe/{id}")
-    public String subscribe(@DestinationVariable Long id) {
-        return "success";
+    @SubscribeMapping("/subscribe/{dealId}")
+    public String subscribe(Principal principal,@DestinationVariable Long dealId) {
+        return "success, "+principal.getName();
     }
 
     /**
@@ -47,13 +47,17 @@ public class WebSocketController {
      * @param requestMsg
      * @param principal
      */
-    //@PreAuthorize("hasRole('USER')")
-    @MessageMapping("/one")
+    @MessageMapping("/{dealId}")
     //@SendToUser("/queue/one") 如果存在return,可以使用这种方式
-    public void one(Object requestMsg, Principal principal) {
+    public void one(@DestinationVariable Long dealId,String requestMsg, Principal principal) {
         //这里使用的是spring的security的认证体系，所以直接使用Principal获取用户信息即可。
         //注意为什么使用queue，主要目的是为了区分广播和队列的方式。实际采用topic，也没有关系。但是为了好理解
-        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/one", requestMsg);
+        //messagingTemplate.convertAndSend( "/topic/broadcast", "hhh");
+        if(principal.getName().charAt(0)=='6'){
+            messagingTemplate.convertAndSendToUser("7/1", "/queuee", requestMsg);
+        }else {
+            messagingTemplate.convertAndSendToUser("6/1", "/queuee", requestMsg);
+        }
     }
 
 }

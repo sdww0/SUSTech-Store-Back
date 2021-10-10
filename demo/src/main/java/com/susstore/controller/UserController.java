@@ -132,7 +132,7 @@ public class UserController {
         user.setUserName(username);
         user.setPassword(passwordEncoder.encode(password));
         user.setEmail(email);
-        user.setActivateCode(email+ "aksjd"/*RandomStringUtils.random(Constants.RANDOM_STRING_SIZE)*/);
+        user.setActivateCode(email+ CommonUtil.getRandomString(Constants.RANDOM_STRING_SIZE));
         user.setGender(gender);
         userService.addUser(user);
         int id = 0;

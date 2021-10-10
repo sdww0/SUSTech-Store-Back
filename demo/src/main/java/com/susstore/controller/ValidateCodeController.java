@@ -37,7 +37,7 @@ public class ValidateCodeController {
         request.getSession().setAttribute(SESSION_KEY_IMAGE_CODE, captcha.getCode());
         log.info("本次生成的验证码为：" + captcha.getCode() + ",已存放到HttpSession中");
 
-        //图形验证码写出，可以写出到文件，也可以写出到流
+        //图形验证码写出，可以写出到文              件，也可以写出到流
         //输出浏览器
         OutputStream out=response.getOutputStream();
         captcha.write(out);

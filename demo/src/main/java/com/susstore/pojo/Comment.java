@@ -12,6 +12,7 @@ import java.util.Date;
 @Builder
 public class Comment {
 
+    private Integer commentId;
     private String content;
     private String username;
     private Integer userId;

@@ -81,8 +81,9 @@ public class GoodsService {
         Goods goods = goodsMapper.queryGoodsById(goodsId);
         List<String> picturePath = new ArrayList<>();
         for(int n = 1;n<=goods.getPictureAmount();n++){
-            picturePath.add(Constants.GOODS_UPLOAD_PATH+goodsId+"/image/"+n+".png");
+            picturePath.add("goods/"+goodsId+"/image/"+n+".png");
         }
+        goods.setPicturePath(picturePath);
         return goods;
     }
     /**

@@ -42,7 +42,7 @@ public class GoodsController {
     public CommonResult getGoods(
             @ApiParam("商品id") @PathVariable("goodsId") String goodsId
     ){
-        if(goodsId==null|| CommonUtil.isInteger(goodsId)){
+        if(goodsId==null|| !CommonUtil.isInteger(goodsId)){
             return new CommonResult(ResultCode.NOT_FOUND);
         }
         Goods goods = goodsService.showGoods(Integer.valueOf(goodsId));

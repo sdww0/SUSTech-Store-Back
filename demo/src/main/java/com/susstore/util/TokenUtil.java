@@ -64,6 +64,7 @@ public class TokenUtil {
         Date expiration;
         try {
             final Claims claims = getClaimsFromToken(token);
+
             expiration = claims.getExpiration();
         } catch (Exception e) {
             expiration = null;

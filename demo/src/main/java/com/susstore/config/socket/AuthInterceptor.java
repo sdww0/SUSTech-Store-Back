@@ -16,6 +16,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -47,17 +48,19 @@ public class AuthInterceptor implements ChannelInterceptor {
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             //2、判断token
             List<String> nativeHeader = accessor.getNativeHeader("Authorization");
-            if (nativeHeader != null && !nativeHeader.isEmpty()) {
+            List<String> dealId = accessor.getNativeHeader("dealId");
+            if (nativeHeader != null && !nativeHeader.isEmpty() &&dealId!=null&&!dealId.isEmpty()) {
                 String token = nativeHeader.get(0);
                 if (StringUtils.isNotBlank(token)) {
                     String userEmail = TokenUtil.getUserEmailFromToken(token);
                     if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                         Users user = userService.getUserByEmail(userEmail);
                         UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(userEmail);
+                        UserDetails userDetails1 = new User(user.getUserId()+"/"+dealId.get(0),userDetails.getPassword(),userDetails.getAuthorities());
 
                         if (TokenUtil.validateToken(token, userDetails) /*&& userService.isPermissionApi(user.getId(), request.getRequestURI(), request.getMethod())*/) {
                             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities());
+                                    userDetails1, null, userDetails1.getAuthorities());
                             //如果存在用户信息，将用户名赋值，后期发送时，可以指定用户名即可发送到对应用户
                             accessor.setUser(authentication);
                             return message;
