@@ -7,8 +7,9 @@ drop table if exists store.goods cascade ;
 drop table if exists store.label cascade ;
 drop table if exists store.chat_content cascade ;
 drop table if exists store.goods_label cascade ;
-drop table if exists store.comment cascade ;
+drop table if exists store.goods_comment cascade ;
 drop table if exists store.deal cascade;
+drop table if exists store.users_comment cascade ;
 --主要的大类
 
 create table if not exists store.users(
@@ -32,6 +33,8 @@ create table if not exists store.users(
 
 );
 
+
+
 create table if not exists store.address
 (
 
@@ -53,6 +56,7 @@ create table if not exists store.goods(
     announce_time date not null,
     goods_state int not null ,
     picture_amount int not null ,
+    is_sell bool not null ,
     constraint announcer_id_fkey foreign key (announcer_id) references store.users(user_id)
 );
 --
@@ -72,11 +76,25 @@ create table if not exists store.deal(
     seller_id int not null ,
     mailing_number varchar,
     shipping_address_id int,
+    need_mailing bool,
     constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
     constraint buyer_id_fkey foreign key (buyer_id) references store.users(user_id),
     constraint seller_id_fkey foreign key (seller_id) references store.users(user_id),
     constraint shipping_address_id_fkey foreign key (shipping_address_id) references store.address(address_id)
 );
+
+create table if not exists store.users_comment(
+      belong_deal_id int not null ,
+      belong_user_id int not null ,
+      comment_user_id int not null ,
+      comment_date date not null ,
+      content varchar not null ,
+      constraint belong_user_id_fkey1 foreign key (belong_user_id) references store.users (user_id),
+      constraint belong_user_id_fkey2 foreign key (comment_user_id) references store.users (user_id),
+      constraint belong_deal_id_fkey foreign key (belong_deal_id) references store.deal (deal_id),
+      primary key (belong_deal_id,belong_user_id,comment_user_id)
+);
+
 create table if not exists store.chat_content(
      chat_content_id serial primary key ,
      belong_to_deal_id int not null ,
@@ -92,7 +110,7 @@ create table if not exists store.label(
     content varchar not null
 );
 
-create table if not exists store.comment
+create table if not exists store.goods_comment
 (
     comment_id serial primary key ,
     content         varchar not null,

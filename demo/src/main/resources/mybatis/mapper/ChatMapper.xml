@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.susstore.mapper.ChatMapper" >
 
-    <insert id="insertNewChatContent" useGeneratedKeys="true" keyProperty="chatContentId">
+    <insert id="insertNewChatContent" useGeneratedKeys="true" >
         insert into store.chat_content(belong_to_deal_id, is_seller_speak, speak_date, content) VALUES
         (#{belongDealId},#{isSellerSpeak},#{speakDate},#{content}) returning chat_content_id
     </insert>

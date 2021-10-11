@@ -127,4 +127,8 @@ public interface UsersMapper {
       */
      Integer activateUser(Integer userId);
 
+     Float getUserMoney(Integer userId);
+
+     Integer changeUserMoney(Integer userId,Float delta);
+
 }

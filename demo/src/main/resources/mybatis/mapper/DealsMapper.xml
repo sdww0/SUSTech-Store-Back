@@ -6,8 +6,8 @@
 
     <select id="getDeal" resultType="Deal">
         select * from store.deal
-        where goods_id=#{goodsId} and seller_id =#{sellerId} and buyer_id = #{buyerId}
-            and stage=#{stage}
+        where goods_id= #{goodsId} and seller_id = #{sellerId} and buyer_id = #{buyerId}
+            and stage= #{stage}
     </select>
 
     <insert id="addDeal" parameterType="Deal" useGeneratedKeys="true" keyProperty="dealId">
@@ -20,39 +20,89 @@
     <update id="updateDeal" parameterType="Deal">
         update store."goods"
         <set>
-            <if test="stage != null"> stage=#{stage},</if>
-            <if test="Goods != null">goods_id=#{goods.goodsId},</if>
-            <if test="buyer != null">buyer_id=#{buyer.userId},</if>
-            <if test="seller != null">seller_id=#{seller.userId},</if>
-            <if test="mailingNumber != null">mailing_number=#{mailingNumber},</if>
-            <if test="shippingAddress != null">shipping_address=#{shippingAddress},</if>
+            <if test="stage != null"> stage= #{stage},</if>
+            <if test="Goods != null">goods_id= #{goods.goodsId},</if>
+            <if test="buyer != null">buyer_id= #{buyer.userId},</if>
+            <if test="seller != null">seller_id= #{seller.userId},</if>
+            <if test="mailingNumber != null">mailing_number= #{mailingNumber},</if>
+            <if test="shippingAddress != null">shipping_address= #{shippingAddress},</if>
         </set>
-        where goods_id=#{goodsId}
+        where goods_id= #{goodsId}
     </update>
 
 
     <select id="getDealById">
-        select * from store.deal where deal_id=#{dealId}
+        select * from store.deal where deal_id= #{dealId}
     </select>
 
-    <select id="getDealStageBySellerIdAndDealId">
+    <select id="getDealStageBySellerIdAndDealId" resultType="Integer">
         select stage
-        from store.deal where seller_id=#{sellerId} and deal_id=#{dealId};
+        from store.deal where seller_id= #{sellerId} and deal_id= #{dealId};
     </select>
 
-    <select id="getDealStageByBuyerIdAndDealId">
+    <select id="getDealStageByBuyerIdAndDealId" resultType="Integer">
         select stage
-        from store.deal where buyer_id=#{buyerId} and deal_id=#{dealId};
+        from store.deal where buyer_id= #{buyerId} and deal_id= #{dealId};
     </select>
 
-    <select id="getBuyerIdByDealId">
+    <select id="getBuyerIdByDealId" resultType="Integer">
         select buyer_id
-        from store.deal where deal_id=#{dealId};
+        from store.deal where deal_id= #{dealId};
     </select>
 
-    <select id="getSellerIdByDealId">
+    <select id="getSellerIdByDealId" resultType="Integer">
         select seller_id
-        from store.deal where deal_id=#{dealId};
+        from store.deal where deal_id= #{dealId};
+    </select>
+
+    <select id="getDealStageByDealId" resultType="Integer">
+        select stage
+        from store.deal where deal_id= #{dealId};
+    </select>
+
+    <update id="changeDealStage">
+        update store.deal set stage = #{stage} where deal_id= #{dealId};
+    </update>
+
+    <select id="getGoodsPrice" resultType="Float">
+        select price
+        from store.deal join store.goods on deal_id = #{dealId} and deal.goods_id = goods.goods_id;
+    </select>
+
+    <update id="addMailingNumber">
+        update store.deal set mailing_number = #{mailingNumber},need_mailing = true
+        where deal_id = #{dealId};
+    </update>
+
+    <update id="notNeedMailingNumber">
+        update store.deal set need_mailing = false
+        where deal_id = #{dealId};
+    </update>
+
+    <select id="checkUserHadComment" resultType="Boolean">
+        select case(count(*)) when 0 then false else true end as hadComment
+        from (select belong_user_id
+        from store.users_comment
+        where belong_deal_id= #{dealId} and
+        belong_user_id = #{userId}) cnt ;
+    </select>
+
+
+    <insert id="addUserComment">
+        insert into store.users_comment(belong_user_id,
+                                        comment_user_id,
+                                        comment_date,
+                                        content,
+                                        belong_deal_id)
+                                         VALUES
+                                         (#{targetUserId},#{commentUserId},#{date},#{content},#{dealId})
+    </insert>
+
+
+    <select id="hasDeliver" resultType="Boolean">
+        select need_mailing is not null
+        from store.deal
+        where deal_id = #{dealId};
     </select>
 
 </mapper>

@@ -61,16 +61,17 @@ public class GoodsController {
             @ApiParam("标题") @RequestParam("title") String title,
             @ApiParam("价格") @RequestParam("price") Float price,
             @ApiParam("标签") @RequestParam("labels") List<String> labels,
-            @ApiParam("商品介绍") @RequestParam("introduce") String introduce
-
-            ){
+            @ApiParam("商品介绍") @RequestParam("introduce") String introduce,
+            @ApiParam("是卖出还是买入") @RequestParam("isSell") Boolean isSell
+        ){
         MultipartFile[] photos = new MultipartFile[1];
         photos[0] = photo;
         if(labels.size()>LABELS_MAX_AMOUNT||photos==null||photos.length>GOODS_MAX_PICTURE){
             return new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
         Goods goods = Goods.builder().labels(labels).price(price).introduce(introduce)
-                .announcer(Users.builder().userId(userService.queryUserByEmail(principal.getName())).build()).title(title).build();
+                .announcer(Users.builder().userId(userService.queryUserByEmail(principal.getName())).build()).
+                        title(title).isSell(isSell).build();
         Integer id = goodsService.addGoods(photos, goods);
         if(id==null||id<0){
             return new CommonResult(4040,"添加商品失败");
@@ -88,7 +89,8 @@ public class GoodsController {
             @ApiParam("价格") @RequestParam("price") Float price,
             @ApiParam("标签") @RequestParam("labels") List<String> labels,
             @ApiParam("商品介绍") @RequestParam("introduce") String introduce,
-            @ApiParam("商品图片") @RequestParam("photos") MultipartFile photo
+            @ApiParam("商品图片") @RequestParam("photos") MultipartFile photo,
+            @ApiParam("是卖出还是买入") @RequestParam("isSell") Boolean isSell
     ){
         MultipartFile[] photos = new MultipartFile[1];
         photos[0] = photo;
@@ -103,7 +105,7 @@ public class GoodsController {
             return new CommonResult(ResultCode.FORBIDDEN);
         }
         Goods goods = Goods.builder().labels(labels).price(price).introduce(introduce).title(title)
-                .goodsId(goodsId).build();
+                .goodsId(goodsId).isSell(isSell).build();
         Integer id = goodsService.editGoods(photos, goods);
         return new CommonResult(ResultCode.SUCCESS,id);
     }

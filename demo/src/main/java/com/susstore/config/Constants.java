@@ -18,4 +18,6 @@ public class Constants {
 
     public static final Integer SEARCH_PAGE_SIZE = 10;
 
+    public static final String WEBSITE_COMMUNICATE_EMAIL = "1315953661@qq.com";
+
 }

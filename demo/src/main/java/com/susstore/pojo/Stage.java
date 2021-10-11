@@ -9,5 +9,6 @@ public enum Stage {
     DEAL_SUCCESS,
     DEAL_CLOSE,
     REFUNDING,
-    APPEALING
+    APPEALING,
+    APPEALED
 }

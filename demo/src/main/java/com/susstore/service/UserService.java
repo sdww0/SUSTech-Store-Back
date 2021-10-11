@@ -140,5 +140,12 @@ public class UserService {
         return usersMapper.clearUserCheckCodeByEmail(email);
     }
 
+    public Float getUserMoney(Integer userId){
+        return  usersMapper.getUserMoney(userId);
+    }
+
+    public Integer changeUserMoney(Integer userId,Float delta){
+        return usersMapper.changeUserMoney(userId,delta);
+    }
 
 }

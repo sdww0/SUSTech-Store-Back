@@ -21,6 +21,7 @@ public class Goods {
     private List<String> labels;
     private String introduce;
     private Users announcer;
+    private Boolean isSell;
 
     private List<Comment> comments;
     private Integer want;

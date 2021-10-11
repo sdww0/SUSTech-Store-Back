@@ -7,10 +7,10 @@
     <insert id="addGoods" parameterType="Goods" useGeneratedKeys="true" keyProperty="goodsId">
         insert into store."goods"
             (title,price,introduce,announcer_id,want,
-             announce_time,goods_state,picture_amount)
+             announce_time,goods_state,picture_amount,is_sell)
         values (#{title},#{price},#{introduce},#{announcer.userId},
                 #{want},#{announceTime},#{goodsState},
-                #{pictureAmount})
+                #{pictureAmount},#{isSell})
                 returning goods_id;
     </insert>
 
@@ -24,7 +24,8 @@
             <if test="announceTime != null">announce_time=#{announceTime},</if>
             <if test="goodsState != null">goods_state=#{goodsState},</if>
             <if test="pictureAmount != null">picture_amount=#{pictureAmount},</if>
-            <if test="title != null">title=#{title}</if>
+            <if test="title != null">title=#{title},</if>
+            <if test="isSell != null">is_sell=#{isSell}</if>
         </set>
         where goods_id=#{goodsId}
     </update>
