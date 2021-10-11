@@ -31,7 +31,7 @@
     </update>
 
 
-    <select id="getDealById">
+    <select id="getDealById" resultType="Deal">
         select * from store.deal where deal_id= #{dealId}
     </select>
 

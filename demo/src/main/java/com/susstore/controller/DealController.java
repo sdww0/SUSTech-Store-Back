@@ -46,19 +46,19 @@ public class DealController {
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId
     ){
-
-        //获取当前user 看看是不是订单id user的一个
-        //不满足返回无权限
-        Deal deal = dealService.getDealById(dealId);
-        int currentUserId = userService.queryUserByEmail(principal.getName());
-        if (currentUserId!=deal.getBuyer().getUserId()
-                &&currentUserId!=deal.getSeller().getUserId()){
-            return new CommonResult(ResultCode.FORBIDDEN);
-        }
         //查看订单是否存在
         if (dealService.getDealById(dealId)==null){
             return new CommonResult(ResultCode.DEAL_NOT_EXIST);
         }
+
+        //获取当前user 看看是不是订单id user的一个
+        //不满足返回无权限
+        int currentUserId = userService.queryUserByEmail(principal.getName());
+        if (currentUserId!= dealService.getBuyerIdByDealId(dealId)
+                &&currentUserId!=dealService.getSellerIdByDealId(dealId)){
+            return new CommonResult(ResultCode.FORBIDDEN);
+        }
+        Deal deal= dealService.getDealById(dealId);
         return new CommonResult(ResultCode.SUCCESS,deal);
 
     }
