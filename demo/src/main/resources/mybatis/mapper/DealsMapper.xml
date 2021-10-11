@@ -35,4 +35,24 @@
         select * from store.deal where deal_id=#{dealId}
     </select>
 
+    <select id="getDealStageBySellerIdAndDealId">
+        select stage
+        from store.deal where seller_id=#{sellerId} and deal_id=#{dealId};
+    </select>
+
+    <select id="getDealStageByBuyerIdAndDealId">
+        select stage
+        from store.deal where buyer_id=#{buyerId} and deal_id=#{dealId};
+    </select>
+
+    <select id="getBuyerIdByDealId">
+        select buyer_id
+        from store.deal where deal_id=#{dealId};
+    </select>
+
+    <select id="getSellerIdByDealId">
+        select seller_id
+        from store.deal where deal_id=#{dealId};
+    </select>
+
 </mapper>

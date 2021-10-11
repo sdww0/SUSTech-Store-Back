@@ -31,6 +31,7 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
         String jwt = jwtUtil.generateToken(authentication.getName());
         //把生成的jwt放在请求头中返回，前端以后访问后端接口请求头都需要带上它
         httpServletResponse.setHeader(jwtUtil.getHeader(),jwt);
+        httpServletResponse.setHeader("Access-Control-Expose-Headers", jwtUtil.getHeader());
         httpServletResponse.setContentType("text/json;charset=utf-8");
         httpServletResponse.getWriter().write(JSON.toJSONString(result));
     }

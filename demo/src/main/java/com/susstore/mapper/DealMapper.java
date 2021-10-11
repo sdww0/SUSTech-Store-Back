@@ -15,4 +15,13 @@ public interface DealMapper {
     Integer updateDeal(Goods goods);
 
     Deal getDealById(int dealId);
+
+    Integer getDealStageBySellerIdAndDealId(Integer sellerId,Integer dealId);
+
+    Integer getDealStageByBuyerIdAndDealId(Integer buyerId,Integer dealId);
+
+    Integer getBuyerIdByDealId(Integer dealId);
+
+    Integer getSellerIdByDealId(Integer dealId);
+
 }

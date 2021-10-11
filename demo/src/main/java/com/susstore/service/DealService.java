@@ -11,7 +11,7 @@ public class DealService {
 
 
     @Autowired
-    DealMapper dealMapper;
+    private DealMapper dealMapper;
 
     public Deal getDeal(int sellerId, int buyerId, int goodsId,int stage){
         return dealMapper.getDeal(sellerId , buyerId , goodsId, stage);
@@ -25,7 +25,20 @@ public class DealService {
         return dealMapper.getDealById(dealId);
     }
 
+    public Integer getDealStageBySellerIdAndDealId(Integer sellerId,Integer dealId){
+        return dealMapper.getDealStageBySellerIdAndDealId(sellerId,dealId);
+    }
 
+    public Integer getDealStageByBuyerIdAndDealId(Integer buyerId,Integer dealId){
+        return dealMapper.getDealStageByBuyerIdAndDealId(buyerId,dealId);
+    }
 
+    public Integer getBuyerIdByDealId(Integer dealId){
+        return dealMapper.getBuyerIdByDealId(dealId);
+    }
+
+    public Integer getSellerIdByDealId(Integer dealId){
+        return dealMapper.getSellerIdByDealId(dealId);
+    }
 
 }

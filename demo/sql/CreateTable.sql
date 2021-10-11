@@ -82,6 +82,7 @@ create table if not exists store.chat_content(
      belong_to_deal_id int not null ,
      is_seller_speak bool not null ,
      speak_date date not null,
+     content varchar not null ,
      constraint belong_to_deal_id_fkey foreign key (belong_to_deal_id) references store.deal (deal_id)
 );
 
