@@ -21,9 +21,12 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
     @Autowired
     private TokenUtil jwtUtil;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
-        CommonResult result = new CommonResult(ResultCode.SUCCESS);
+        CommonResult result = new CommonResult(ResultCode.SUCCESS,userService.getUserByEmail(authentication.getName()));
         //生成jwt
         String jwt = jwtUtil.generateToken(authentication.getName());
         //把生成的jwt放在请求头中返回，前端以后访问后端接口请求头都需要带上它

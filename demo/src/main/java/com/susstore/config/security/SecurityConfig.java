@@ -6,6 +6,7 @@ import com.susstore.filter.ValidateCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.web.cors.CorsUtils;
 
 import javax.sql.DataSource;
 
@@ -86,13 +88,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/swagger-resources", "/swagger-resources/configuration/security",
                         "/swagger-ui.html", "/webjars/**").permitAll()
                 //.anyRequest().authenticated()
-                .and().rememberMe().tokenRepository(persistentTokenRepository())
-                .tokenValiditySeconds(3600)
+                .and()/*.rememberMe().tokenRepository(persistentTokenRepository())
+                .tokenValiditySeconds(3600)*/
                 .userDetailsService(userDetailService)
-                .and()
-                .logout().logoutSuccessUrl("/index").permitAll()
-                .and()
-                .csrf().disable();
+                .logout().logoutSuccessUrl("/index").permitAll();
 
         http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler)
@@ -109,6 +108,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.httpBasic();
+        http.cors().and().csrf().disable().authorizeRequests()
+        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+        .and().authorizeRequests().antMatchers(HttpMethod.OPTIONS).permitAll();
 
         http.headers().cacheControl();
         http.headers().frameOptions().disable();

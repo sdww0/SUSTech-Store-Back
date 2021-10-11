@@ -33,16 +33,15 @@ public class CrossConfig extends WebMvcConfigurationSupport {
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
-    @Bean
-    public FilterRegistrationBean corsFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setFilter(new CorsFilter());
-        registration.addUrlPatterns("/*");
-        registration.setName("corsFilter");
-        //将其注册在其他过滤器的前面
-        registration.setOrder(0);
-        return registration;
-    }
+//    @Bean
+//    public FilterRegistrationBean corsFilterRegistration() {
+//        FilterRegistrationBean registration = new FilterRegistrationBean();
+//        registration.setFilter(new CorsFilter());
+//        registration.addUrlPatterns("/*");
+//        registration.setName("corsFilter");
+//        //将其注册在其他过滤器的前面
+//        return registration;
+//    }
 
 
 

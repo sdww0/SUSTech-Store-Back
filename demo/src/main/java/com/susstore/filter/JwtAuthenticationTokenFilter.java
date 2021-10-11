@@ -36,6 +36,16 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain chain) throws ServletException, IOException {
+        //解决跨域问题，因为这个过滤器在跨域过滤器前面，所以直接放这了...
+        if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+            HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+            httpServletResponse.setHeader("Access-Control-Allow-Origin", "*");
+            httpServletResponse.setHeader("Access-Control-Allow-Methods",
+                    "POST, GET, OPTIONS, DELETE");
+            httpServletResponse.setHeader("Access-Control-Max-Age", "3600");
+            httpServletResponse.setHeader("Access-Control-Allow-Headers",
+                    "Content-Type, x-requested-with, X-Custom-Header, Authorization");
+        }
         String authToken = request.getHeader(this.tokenHeader);
         if(authToken==null){
             authToken = request.getParameter(this.tokenHeader);
