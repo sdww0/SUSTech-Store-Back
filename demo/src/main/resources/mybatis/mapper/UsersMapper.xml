@@ -149,4 +149,8 @@
         update store.users set money = (money+${delta}) where user_id=#{userId};
     </update>
 
+    <select id="searchUsers" parameterType="map"  resultType="Users">
+        select * from store.users where users.user_name like concat('%',#{userName,jdbcType=VARCHAR},'%')
+        order by user_name limit #{pageSize} offset (${pageSize}*(${pageIndex}-1))
+    </select>
 </mapper>
