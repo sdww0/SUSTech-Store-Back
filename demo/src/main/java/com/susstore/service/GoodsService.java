@@ -4,18 +4,17 @@ import com.susstore.config.Constants;
 import com.susstore.mapper.GoodsMapper;
 import com.susstore.pojo.Goods;
 import com.susstore.pojo.GoodsAbbreviation;
+import com.susstore.pojo.GoodsPicture;
 import com.susstore.pojo.GoodsState;
 import com.susstore.util.ImageUtil;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.susstore.config.Constants.GOODS_MAX_PICTURE;
 
@@ -50,25 +49,27 @@ public class GoodsService {
         if(count==0||count>GOODS_MAX_PICTURE){
             return -1;
         }
-        goods.setPictureAmount(count);
         goods.setAnnounceTime(new Date());
         goods.setWant(0);
         goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
-        Integer id = goodsMapper.addGoods(goods);
-        String picturePath = Constants.GOODS_UPLOAD_PATH+id+"/image/";
-         count = 1;
-        for(MultipartFile photo:photos) {
+        List<GoodsPicture> picturePaths = new ArrayList<>();
+        for(int n = 0;n<count;n++){
+            picturePaths.add(new GoodsPicture(UUID.randomUUID().toString(),n==0));
+        }
+        goodsMapper.addGoods(goods);
+        goodsMapper.addGoodsPicture(goods.getGoodsId(),picturePaths);
+        String picturePath = Constants.GOODS_UPLOAD_PATH+goods.getGoodsId()+"/image/";
+        for(int n = 0;n<count;n++) {
             try {
-                FileInputStream in = (FileInputStream) photo.getInputStream();
+                FileInputStream in = (FileInputStream) photos[n].getInputStream();
                 BufferedImage srcImage = javax.imageio.ImageIO.read(in);
-                ImageUtil.storeImage(srcImage, picturePath + count + ".png");
+                ImageUtil.storeImage(srcImage, picturePath + picturePaths.get(n).getPath() + ".png");
             } catch (Exception e) {
                 System.out.println("读取图片文件出错！" + e.getMessage());
                 e.printStackTrace();
             }
-            count++;
         }
-        return id;
+        return goods.getGoodsId();
     }
 
 
@@ -79,11 +80,8 @@ public class GoodsService {
      */
     public Goods showGoods(Integer goodsId){
         Goods goods = goodsMapper.queryGoodsById(goodsId);
-        List<String> picturePath = new ArrayList<>();
-        for(int n = 1;n<=goods.getPictureAmount();n++){
-            picturePath.add("goods/"+goodsId+"/image/"+n+".png");
-        }
-        goods.setPicturePath(picturePath);
+        goods.setAnnouncer(goodsMapper.getAnnounceUser(goodsId));
+        goods.setPicturePath(goodsMapper.getGoodsPicturePath(goodsId));
         return goods;
     }
     /**
@@ -111,24 +109,26 @@ public class GoodsService {
         if(count==0||count>GOODS_MAX_PICTURE){
             return -1;
         }
-        goods.setPictureAmount(count);
-        goods.setWant(0);
-
+        List<GoodsPicture> picturePaths = new ArrayList<>();
+        for(int n = 0;n<count;n++){
+            picturePaths.add(new GoodsPicture(UUID.randomUUID().toString(),n==0));
+        }
         goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
-        Integer id = goodsMapper.updateGoods(goods);
-        String picturePath = Constants.GOODS_UPLOAD_PATH+id+"/image/";
-        count = 1;
-        for(MultipartFile photo:photos) {
+
+        String picturePath = Constants.GOODS_UPLOAD_PATH+goods.getGoodsId()+"/image/";
+        for(int n = 0;n<count;n++) {
             try {
-                FileInputStream in = (FileInputStream) photo.getInputStream();
+                FileInputStream in = (FileInputStream) photos[n].getInputStream();
                 BufferedImage srcImage = javax.imageio.ImageIO.read(in);
-                ImageUtil.storeImage(srcImage, picturePath + count + ".png");
+                ImageUtil.storeImage(srcImage, picturePath + picturePaths.get(n).getPath() + ".png");
             } catch (Exception e) {
                 System.out.println("读取图片文件出错！" + e.getMessage());
                 e.printStackTrace();
             }
-            count++;
         }
+        goodsMapper.updateGoods(goods);
+        goodsMapper.deactivateGoodsPicture(goods.getGoodsId());
+        goodsMapper.addGoodsPicture(goods.getGoodsId(),picturePaths);
         return 0;
     }
 
@@ -168,4 +168,9 @@ public class GoodsService {
     public int ifOnShelfById(int goodsId){
         return goodsMapper.ifOnShelfById(goodsId);
     }
+
+    public String getDefaultPicturePath(Integer goodsId){
+        return goodsMapper.getDefaultPicturePath(goodsId);
+    }
+
 }

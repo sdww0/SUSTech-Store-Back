@@ -12,7 +12,7 @@ import java.util.Date;
 @Builder
 public class ChatContent {
 
-
+    private Integer chatContentId;
     private Boolean isSpeakUser;
     private String content;
     private Date date;

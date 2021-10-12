@@ -2,7 +2,9 @@ package com.susstore.controller;
 
 import com.susstore.config.Constants;
 import com.susstore.method.StageControlMethod;
+import com.susstore.pojo.Address;
 import com.susstore.pojo.Deal;
+import com.susstore.pojo.GoodsState;
 import com.susstore.pojo.Stage;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
@@ -75,7 +77,7 @@ public class DealController {
             @ApiParam("卖家id") @RequestParam("sellerId") Integer sellerId
     ){
         //查看商品是不是已经下架
-        if (goodsService.ifOnShelfById(goodsId)==0){
+        if (goodsService.ifOnShelfById(goodsId)== GoodsState.OFF_SHELL.ordinal()){
             return new CommonResult(ResultCode.DEAL_OFF_SHELF);
         }
         //查看相同订单是否已存在
@@ -107,9 +109,16 @@ public class DealController {
     @ApiOperation("确认拍下")
     public CommonResult check(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
-            @ApiParam("订单id") @PathVariable("dealId") Integer dealId
+            @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
+            @ApiParam("选择的地址id") @RequestParam("addressId") Integer addressId
     ){
-        StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> 0;
+        StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
+            if(!userService.checkUserHasInputAddress(userId,addressId)){
+                return 1;
+            }
+            dealService.setAddress(dealId1,addressId);
+            return 0;
+        };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.BUY_NOT_PAY,true,method);
         Integer code = (Integer)map.get("code");
         if(code!=0){

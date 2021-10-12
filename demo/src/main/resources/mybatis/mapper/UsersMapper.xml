@@ -149,4 +149,9 @@
         update store.users set money = (money+${delta}) where user_id=#{userId};
     </update>
 
+    <select id="checkUserHasInputAddress" resultType="Boolean">
+        select case(count(*)) when 0 then false else true end from (select *
+        from store.address where address_id = #{addressId} and belong_user_id= #{userId}) cnt;
+    </select>
+
 </mapper>

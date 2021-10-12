@@ -87,6 +87,10 @@ public class DealService {
         return dealMapper.hasDeliver(dealId);
     }
 
+    public Integer setAddress(Integer dealId,Integer addressId){
+        return dealMapper.setAddress(dealId, addressId);
+    }
+
     /**
      *
      * @param email 邮箱

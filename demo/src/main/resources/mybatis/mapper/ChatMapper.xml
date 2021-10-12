@@ -4,9 +4,104 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.susstore.mapper.ChatMapper" >
 
+    <resultMap type="com.susstore.pojo.chat.Chat" id="initContentMap">
+        <id property="goodsId" column="goods_id" />
+        <result property="goodsPicturePath" column="goods_picture_path"/>
+        <result property="goodsPrice" column="goods_price" />
+
+        <result property="speakUserId" column="speak_user_id" />
+        <result property="speakUserName" column="speak_user_name" />
+        <result property="speakUserPicturePath" column="speak_user_picture_path" />
+
+        <result property="otherUserId" column="other_user_id" />
+        <result property="otherUserName" column="other_user_name" />
+        <result property="otherUserPicturePath" column="other_user_picture_path" />
+
+        <!-- 一对多级联查询，ofType表示集合中的元素类型 -->
+        <collection property="chatContents"
+                    ofType="com.susstore.pojo.chat.ChatContent">
+            <id property="chatContentId" column="chat_content_id"/>
+            <result property="isSpeakUser" column="is_speak_user" />
+            <result property="content" column="content" />
+            <result property="date" column="date"/>
+        </collection>
+    </resultMap>
+
     <insert id="insertNewChatContent" useGeneratedKeys="true" >
         insert into store.chat_content(belong_to_deal_id, is_seller_speak, speak_date, content) VALUES
         (#{belongDealId},#{isSellerSpeak},#{speakDate},#{content}) returning chat_content_id
     </insert>
+
+    <select id="getInitContent" resultMap="initContentMap">
+
+        select deal.goods_id goods_id, goods.price goods_price, goods_picture.picture_path goods_picture_path,
+               other.user_id other_user_id, other.user_name other_user_name, other.picture_path other_user_picture_path,
+        speaker.user_id speak_user_id, speaker.user_name speak_user_name, speaker.picture_path speak_user_picture_path,
+               chat_content_id,
+               case(deal.seller_id = #{userId}) when true then (is_seller_speak) else (not is_seller_speak) end as is_speak_user,
+               content,speak_date as date
+        from (select * from store.deal on deal_id = #{dealId}) deal
+            left join store.chat_content
+                on chat_content.belong_to_deal_id = deal.deal_id
+            join store.goods on deal.goods_id = goods.goods_id
+            join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_activate and is_default_picture
+            join
+            <if test="isSeller">
+            (select *
+            from store.deal
+                join store.users
+                    on deal.deal_id = #{dealId} and deal.buyer_id = users.user_id) </if>
+            <if test="!isSeller">
+            (select *
+            from store.deal
+            join store.users
+            on deal.deal_id = #{dealId} and deal.seller_id = users.user_id) </if>
+            other on other.deal_id = deal.deal_id
+            join
+            <if test="isSeller">
+                (select *
+                from store.deal
+                join store.users
+                on deal.deal_id = #{dealId} and deal.seller_id = users.user_id) </if>
+            <if test="!isSeller">
+                (select *
+                from store.deal
+                join store.users
+                on deal.deal_id = #{dealId} and deal.buyer_id = users.user_id) </if>
+            speaker on speaker.deal_id = deal.deal_id;
+    </select>
+
+
+    <select id="getUserChatHistory" resultType="com.susstore.pojo.chat.ChatHistory">
+        with buy_list as (select * from store.deal where buyer_id = #{userId})
+           , sell_list as (select * from store.deal where seller_id = #{userId})
+        select deal_id,user_id other_user_id,user_name other_user_name,
+               picture_path other_user_picture_path, content last_message_content,
+               speak_date last_message_date
+        from ((select deal_id, users.user_id, users.user_name, users.picture_path
+               from buy_list
+                        join store.users
+                             on seller_id = users.user_id)
+              union
+              (select deal_id, users.user_id, users.user_name, users.picture_path
+               from sell_list
+                        join store.users
+                             on buyer_id = users.user_id)) other
+                 join
+             (select belong_to_deal_id,content,speak_date from
+                 ((select min(chat_content_id) id,max(speak_date)
+                   from buy_list
+                            join store.chat_content
+                                 on belong_to_deal_id = deal_id
+                                     and is_seller_speak = true group by belong_to_deal_id)
+                  union
+                  (select min(chat_content_id) id,max(speak_date)
+                   from sell_list
+                            join store.chat_content
+                                 on belong_to_deal_id = deal_id
+                                     and is_seller_speak = false group by belong_to_deal_id)
+                 ) chat1 join store.chat_content on chat1.id=chat_content.chat_content_id
+             ) chat on chat.belong_to_deal_id = other.deal_id;
+    </select>
 
 </mapper>

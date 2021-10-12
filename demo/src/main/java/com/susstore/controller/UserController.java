@@ -56,7 +56,7 @@ public class UserController {
             @ApiResponse(code = 2001,message = "查询成功")
     })
     public CommonResult getUserInformation(
-            @ApiParam("SpringSecurity用户信息认证") Authentication authentication,
+            @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("用户id") @PathVariable("queryUserId")Integer id){
         Users user = userService.queryUserById(id);
 
@@ -64,8 +64,8 @@ public class UserController {
             return new CommonResult(ResultCode.NOT_FOUND);
         }
         Integer loginId = -1;
-        if(authentication!=null){
-            loginId = userService.queryUserByEmail(authentication.getName());
+        if(principal!=null){
+            loginId = userService.queryUserByEmail(principal.getName());
         }
         if(loginId==user.getUserId()){
             user.setPassword("");
@@ -82,7 +82,7 @@ public class UserController {
             @ApiResponse(code = 200,message = "修改成功"),
     })
     public CommonResult updateUser(
-                @ApiParam("SpringSecurity用户信息认证") Authentication authentication,
+                @ApiParam("SpringSecurity用户信息认证") Principal principal,
                 @ApiParam("用户照片") @RequestParam("photo")MultipartFile photo,
                 @ApiParam("新用户名") @RequestParam("name") String name,
                 @ApiParam("个性签名") @RequestParam("sign") String sign,
@@ -99,7 +99,7 @@ public class UserController {
             default:return new CommonResult(4020,"参数错误，请检查参数");
         }
 
-        String email = authentication.getName();
+        String email = principal.getName();
         name = name.length() == 0 ? null : name;
         sign = sign.length() == 0 ? null : sign;
 
@@ -107,7 +107,7 @@ public class UserController {
                 .birthday(birthday).userName(name).build();
 
         if(userService.updateUserWithPhoto(photo,users)){
-            return getUserInformation(authentication,users.getUserId());
+            return getUserInformation(principal,users.getUserId());
         }
         return new CommonResult(ResultCode.FAILED);
     }
@@ -165,8 +165,7 @@ public class UserController {
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("收货人名") @RequestParam("recipientName")String recipientName,
             @ApiParam("地址名") @RequestParam("addressName")String addressName,
-            @ApiParam("手机号") @RequestParam("phone")Long phone,
-            @ApiParam("是否是默认地址") @RequestParam("isDefault")Boolean isDefault){
+            @ApiParam("手机号") @RequestParam("phone")Long phone){
         if(principal==null){
             return new CommonResult(ResultCode.USER_NOT_LOGIN);
         }
@@ -175,7 +174,6 @@ public class UserController {
                 Address.builder().recipientName(recipientName)
                 .addressName(addressName)
                 .phone(phone)
-                .isDefault(isDefault)
                 .belongToUserId(userService.queryUserByEmail(principal.getName()))
                 .build());
         return new CommonResult(ResultCode.SUCCESS);

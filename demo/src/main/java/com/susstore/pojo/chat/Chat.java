@@ -18,6 +18,11 @@ public class Chat {
     private Integer otherUserId;
     private String otherUserName;
     private String otherUserPicturePath;
+
+    private Integer goodsId;
+    private String goodsPicturePath;
+    private String goodsPrice;
+
     private List<ChatContent> chatContents;
 
 }

@@ -1,20 +1,31 @@
 package com.susstore.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.susstore.pojo.ChatMessage;
+import com.susstore.pojo.chat.Chat;
+import com.susstore.result.CommonResult;
+import com.susstore.result.ResultCode;
 import com.susstore.service.ChatService;
 import com.susstore.service.DealService;
+import com.susstore.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.Date;
 
 @RestController
+@Api(value = "聊天",tags = {"聊天访问接口"})
 public class ChatController {
 
     @Autowired
@@ -25,6 +36,9 @@ public class ChatController {
 
     @Autowired
     private DealService dealService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * 用户模式
@@ -56,10 +70,26 @@ public class ChatController {
 
     }
 
+    /**
+     * 订阅模式，只是在订阅的时候触发，可以理解为：访问——>返回数据
+     * @return json格式化的数据
+     */
+    @SubscribeMapping("/subscribe/chat")
+    public String subscribe(Principal principal) {
+        String[] str = principal.getName().split("/");
+        Integer userId = Integer.parseInt(str[0]);
+        Integer dealId = Integer.parseInt(str[1]);
+        boolean isSeller = Integer.parseInt(str[2])==0;
+        Chat chat = chatService.getInitContent(dealId,userId,isSeller);
+        return JSON.toJSONString(chat);
+    }
 
-
-
-
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("获得登录用户的所有聊天历史最新记录")
+    @GetMapping("/chat/list")
+    public CommonResult chatList(Principal principal){
+        return new CommonResult(ResultCode.SUCCESS,chatService.getUserChatHistory(userService.queryUserByEmail(principal.getName())));
+    }
 
 
 
@@ -79,14 +109,6 @@ public class ChatController {
 //    }
 //
 //
-//    /**
-//     * 订阅模式，只是在订阅的时候触发，可以理解为：访问——>返回数据
-//     * @param id
-//     * @return
-//     */
-//    @SubscribeMapping("/subscribe/{dealId}")
-//    public String subscribe(Principal principal,@DestinationVariable Long dealId) {
-//        return "success, "+principal.getName();
-//    }
+
 
 }

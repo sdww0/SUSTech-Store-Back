@@ -13,6 +13,7 @@ import java.util.Date;
 public class ChatHistory {
 
     private Integer dealId;
+    private Integer otherUserId;
     private String otherUserName;
     private String otherUserPicturePath;
     private String lastMessageContent;

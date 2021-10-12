@@ -19,6 +19,11 @@
         <label>用户消息：</label><input id="userMsg" type="text" disabled="disabled">
     </div>
 
+    <div>
+        <h3>订阅形式</h3>
+        <label>订阅消息：</label><input id="subscribeMsg" type="text" disabled="disabled">
+    </div>
+
 </body>
 <script>
     var stomp = null;
@@ -28,12 +33,16 @@
         stomp = Stomp.over(socket);
         //连接
         stomp.connect(
-		{"Authorization":'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxNDE5ODcwOTkyQHFxLmNvbSIsImNydCI6MTYzMzkzOTA0NTg1NywiZXhwIjoxNjMzOTQyNjQ1fQ.tF-PRlV6AaQCLORhp_B2ZbpYcjaMWPcAyLbK38-ct7gHsixAhDTej_-2_pryLv8sbk0dzpNEfkCl7P-3UmOvFw',
-            "dealId":2}
+		{"Authorization":'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxNDE5ODcwOTkyQHFxLmNvbSIsImNydCI6MTYzNDA0NTU4NDkyMywiZXhwIjoxNjM0MDQ5MTg0fQ.jbYmBk6PrLCgSoR4ygElfwLaXiwWiuswXXM4aaxk88qv66cS82lThZFY7l6Df57-74n-3sngi4FQ8FR3iTz8Lw',
+            "dealId":1}
 		, function (frame) {
             //用户模式
             stomp.subscribe("/user/queue", function (res) {
                 $("#userMsg").val(res.body);
+            });
+            //订阅，一般只有订阅的时候在返回
+            stomp.subscribe("/app/subscribe/chat", function (res) {
+                $("#subscribeMsg").val(res.body);
             });
             setConnect(true);
         });

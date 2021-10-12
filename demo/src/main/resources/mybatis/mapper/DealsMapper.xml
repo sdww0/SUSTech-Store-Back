@@ -27,7 +27,7 @@
             <if test="mailingNumber != null">mailing_number= #{mailingNumber},</if>
             <if test="shippingAddress != null">shipping_address= #{shippingAddress},</if>
         </set>
-        where goods_id= #{goodsId}
+        where goods_id= #{goodsId.}
     </update>
 
 
@@ -104,5 +104,10 @@
         from store.deal
         where deal_id = #{dealId};
     </select>
+
+    <update id="setAddress" >
+        update store.deal set shipping_address_id = #{addressId} where deal_id = #{dealId};
+    </update>
+
 
 </mapper>

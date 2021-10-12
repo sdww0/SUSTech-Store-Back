@@ -4,15 +4,25 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.susstore.mapper.GoodsMapper" >
 
-    <insert id="addGoods" parameterType="Goods" useGeneratedKeys="true" keyProperty="goodsId">
+    <insert id="addGoods" parameterType="Goods" useGeneratedKeys="true" keyProperty="goodsId" keyColumn="goods_id">
         insert into store."goods"
             (title,price,introduce,announcer_id,want,
-             announce_time,goods_state,picture_amount,is_sell)
+             announce_time,goods_state,is_sell)
         values (#{title},#{price},#{introduce},#{announcer.userId},
-                #{want},#{announceTime},#{goodsState},
-                #{pictureAmount},#{isSell})
+                #{want},#{announceTime},#{goodsState},#{isSell})
                 returning goods_id;
     </insert>
+    
+    <insert id="addGoodsPicture" >
+        insert into store.goods_picture(goods_id,picture_path,is_activate,is_default_picture) values (#{goodsId},
+        <foreach collection="pictures" item="picture" separator=",">
+            #{picture.path},true,#{picture.isDefaultPicture})
+        </foreach>
+    </insert>
+
+    <update id="deactivateGoodsPicture">
+        update store.goods_picture set is_activate = false where goods_id = #{goodsId} and is_activate = true;
+    </update>
 
     <update id="updateGoods" parameterType="Goods">
         update store."goods"
@@ -23,20 +33,30 @@
             <if test="want != null">want=#{want},</if>
             <if test="announceTime != null">announce_time=#{announceTime},</if>
             <if test="goodsState != null">goods_state=#{goodsState},</if>
-            <if test="pictureAmount != null">picture_amount=#{pictureAmount},</if>
             <if test="title != null">title=#{title},</if>
             <if test="isSell != null">is_sell=#{isSell}</if>
         </set>
         where goods_id=#{goodsId}
     </update>
 
-
-    <delete id="deleteGoods" parameterType="int">
-        delete from store."goods" where goods_id=#{id}
-    </delete>
+    <update id="deleteGoods" parameterType="int">
+        update store.goods set goods_state = 0 where goods_id = #{goodsId};
+    </update>
 
     <select id="queryGoodsById" parameterType="int" resultType="Goods">
-        select * from store."goods" where goods_id=#{id};
+        select * from store.goods where goods_id = #{goodsId};
+    </select>
+
+    <select id="getGoodsPicturePath" resultType="com.susstore.pojo.GoodsPicture">
+        select picture_path,is_default_picture from store.goods_picture where goods_id = #{goodsId} and is_activate = true;
+    </select>
+
+    <select id="getDefaultPicturePath" resultType="String">
+        select picture_path from store.goods_picture where goods_id = #{goodsId} and is_default_picture and is_activate;
+    </select>
+
+    <select id="getAnnounceUser" resultType="com.susstore.pojo.Users">
+        select * from store.goods join store.users on  goods_id = #{goodsId} and goods.announcer_id = users.user_id;
     </select>
 
     <select id="queryGoodsByUserId" parameterType="int" resultType="GoodsAbbreviation">

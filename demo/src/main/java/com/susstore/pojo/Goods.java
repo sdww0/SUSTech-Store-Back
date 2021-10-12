@@ -17,7 +17,7 @@ public class Goods {
     private Integer goodsId;
     private Float price;
     private String title;
-    private List<String> picturePath;
+    private List<GoodsPicture> picturePath;
     private List<String> labels;
     private String introduce;
     private Users announcer;
@@ -27,6 +27,5 @@ public class Goods {
     private Integer want;
     private Date announceTime;
     private Integer goodsState;//GoodsState 0--in shelf 1-off shelf
-    private Integer pictureAmount;
 
 }

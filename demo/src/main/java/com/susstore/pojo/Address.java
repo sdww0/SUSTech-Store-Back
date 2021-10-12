@@ -14,6 +14,5 @@ public class Address {
     private String recipientName;
     private String addressName;
     private Long phone;
-    private Boolean isDefault;
 
 }

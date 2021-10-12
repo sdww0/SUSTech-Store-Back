@@ -10,6 +10,7 @@ drop table if exists store.goods_label cascade ;
 drop table if exists store.goods_comment cascade ;
 drop table if exists store.deal cascade;
 drop table if exists store.users_comment cascade ;
+drop table if exists store.goods_picture cascade ;
 --主要的大类
 
 create table if not exists store.users(
@@ -55,17 +56,18 @@ create table if not exists store.goods(
     want int not null ,
     announce_time timestamp  not null,
     goods_state int not null ,
-    picture_amount int not null ,
     is_sell bool not null ,
     constraint announcer_id_fkey foreign key (announcer_id) references store.users(user_id)
 );
 --
--- create table if not exists store.goods_picture(
---     goods_id int not null ,
---     picture_path varchar not null ,
---     constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
---     primary key (goods_id,picture_path)
--- );
+create table if not exists store.goods_picture(
+    goods_id int not null ,
+    picture_path varchar not null ,
+    is_activate bool not null ,
+    is_default_picture bool not null ,
+    constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
+    primary key (goods_id,picture_path)
+);
 
 
 create table if not exists store.deal(
@@ -105,6 +107,14 @@ create table if not exists store.chat_content(
 );
 
 -- 一些小类
+
+create table if not exists store.users_collection(
+    user_id int not null ,
+    goods_id int not null ,
+    constraint user_id_fkey foreign key (user_id) references store.users (user_id),
+    constraint goods_id_fkey foreign key (goods_id) references store.goods (goods_id)
+);
+
 create table if not exists store.label(
     label_id serial primary key ,
     content varchar not null

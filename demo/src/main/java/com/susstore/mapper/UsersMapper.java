@@ -131,4 +131,6 @@ public interface UsersMapper {
 
      Integer changeUserMoney(Integer userId,Float delta);
 
+     Boolean checkUserHasInputAddress(Integer userId,Integer addressId);
+
 }

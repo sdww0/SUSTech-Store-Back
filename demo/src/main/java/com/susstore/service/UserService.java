@@ -148,4 +148,9 @@ public class UserService {
         return usersMapper.changeUserMoney(userId,delta);
     }
 
+    public Boolean checkUserHasInputAddress(Integer userId,Integer addressId){
+        return usersMapper.checkUserHasInputAddress(userId, addressId);
+    }
+
+
 }

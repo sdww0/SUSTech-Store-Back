@@ -14,7 +14,7 @@ public interface DealMapper {
 
     int addDeal(Deal deal);
 
-    Integer updateDeal(Goods goods);
+    Integer updateDeal(Deal deal);
 
     Deal getDealById(int dealId);
 
@@ -52,6 +52,8 @@ public interface DealMapper {
     Boolean checkUserHadComment(Integer dealId,Integer userId);
 
     Boolean hasDeliver(Integer dealId);
+
+    Integer setAddress(Integer dealId,Integer addressId);
 
 
 
