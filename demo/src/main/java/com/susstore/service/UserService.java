@@ -12,8 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.Map;
 
 import static com.susstore.config.Constants.RANDOM_STRING_SIZE;
+import static com.susstore.config.Constants.SEARCH_PAGE_SIZE;
 
 @Service
 public class UserService {
@@ -153,4 +155,7 @@ public class UserService {
     }
 
 
+    public List<Users> searchUsers(String userName, int pageSize, int pageIndex){
+        return usersMapper.searchUsers(Map.of("userName",userName,"pageSize",pageSize,"pageIndex",pageIndex));
+    }
 }

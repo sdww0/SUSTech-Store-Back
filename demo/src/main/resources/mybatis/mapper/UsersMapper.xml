@@ -154,4 +154,8 @@
         from store.address where address_id = #{addressId} and belong_user_id= #{userId}) cnt;
     </select>
 
+    <select id="searchUsers" parameterType="map"  resultType="Users">
+        select * from store.users where users.user_name like concat('%',#{userName,jdbcType=VARCHAR},'%')
+        order by user_name limit #{pageSize} offset (${pageSize}*(${pageIndex}-1))
+    </select>
 </mapper>

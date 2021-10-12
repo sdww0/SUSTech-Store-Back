@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 @Repository
@@ -131,6 +132,7 @@ public interface UsersMapper {
 
      Integer changeUserMoney(Integer userId,Float delta);
 
-     Boolean checkUserHasInputAddress(Integer userId,Integer addressId);
+     List<Users> searchUsers(Map<String,Object> map);
 
+     Boolean checkUserHasInputAddress(Integer userId,Integer addressId);
 }

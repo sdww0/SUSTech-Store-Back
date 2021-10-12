@@ -1,9 +1,11 @@
 package com.susstore.controller;
 
 import com.susstore.pojo.GoodsAbbreviation;
+import com.susstore.pojo.Users;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.GoodsService;
+import com.susstore.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -24,6 +26,8 @@ public class SearchController {
 
     @Autowired
     private GoodsService goodsService;
+    @Autowired
+    private UserService userService;
 
     //@PreAuthorize("hasRole('USER')")
     @GetMapping("/search/{content}/{currentPage}")
@@ -35,6 +39,18 @@ public class SearchController {
         List<GoodsAbbreviation> goodsAbbreviations = goodsService.searchGoods(content, SEARCH_PAGE_SIZE, currentPage);
         return new CommonResult(ResultCode.SUCCESS,goodsAbbreviations);
     }
+
+    @GetMapping("/searchUser/{userName}/{currentPage}")
+    @ApiOperation("搜索用户")
+    public CommonResult searchUser(
+            @ApiParam("搜索用户名") @PathVariable("userName")String userName,
+            @ApiParam("当前页") @PathVariable("currentPage")Integer currentPage
+    ){
+        List<Users> users = userService.searchUsers(userName, SEARCH_PAGE_SIZE, currentPage);
+        System.out.println(users.size());
+        return new CommonResult(ResultCode.SUCCESS,users);
+    }
+
 
 
 }
