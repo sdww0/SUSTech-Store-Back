@@ -57,6 +57,7 @@ create table if not exists store.goods(
     announce_time timestamp  not null,
     goods_state int not null ,
     is_sell bool not null ,
+    postage float not null ,
     constraint announcer_id_fkey foreign key (announcer_id) references store.users(user_id)
 );
 --
@@ -139,3 +140,5 @@ create table if not exists store.goods_label(
     constraint goods_id_fkey foreign key (goods_id) references store.goods (goods_id),
     constraint label_id_fkey foreign key (label_id) references store.label (label_id)
 );
+--务必运行一次下面的
+create rule  r_insert_label_ginore as on insert to store.label where exists(select 1 from store.label where content=new.content) do instead nothing ;

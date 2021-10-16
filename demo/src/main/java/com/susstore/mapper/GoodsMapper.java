@@ -1,9 +1,6 @@
 package com.susstore.mapper;
 
-import com.susstore.pojo.Goods;
-import com.susstore.pojo.GoodsAbbreviation;
-import com.susstore.pojo.GoodsPicture;
-import com.susstore.pojo.Users;
+import com.susstore.pojo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -75,5 +72,16 @@ public interface GoodsMapper {
     List<GoodsPicture> getGoodsPicturePath(Integer goodsId);
 
     String getDefaultPicturePath(Integer goodsId);
+
+    List<Comment> getGoodsComments(Integer goodsId);
+
+    Integer addGoodsLabels(Integer goodsId,List<Integer> labels);
+
+    List<Integer> getLabelsId(List<String> contents);
+
+    Integer addLabels(List<String> contents);
+
+    Integer deleteGoodsLabels(Integer goodsId);
+
 
 }

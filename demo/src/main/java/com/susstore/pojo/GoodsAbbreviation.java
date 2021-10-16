@@ -21,4 +21,6 @@ public class GoodsAbbreviation {
     private Users announcer;
     private Integer want;
     private Date announceTime;
+    private Float postage;
+    private Boolean isSell;
 }

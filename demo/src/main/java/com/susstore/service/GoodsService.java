@@ -52,18 +52,23 @@ public class GoodsService {
         goods.setAnnounceTime(new Date());
         goods.setWant(0);
         goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
-        List<GoodsPicture> picturePaths = new ArrayList<>();
-        for(int n = 0;n<count;n++){
-            picturePaths.add(new GoodsPicture(UUID.randomUUID().toString(),n==0));
-        }
+
         goodsMapper.addGoods(goods);
+        List<GoodsPicture> picturePaths = new ArrayList<>();
+        String[] uuids = new String[count];
+        for(int n = 0;n<count;n++){
+            uuids[n] = UUID.randomUUID().toString();
+            picturePaths.add(new GoodsPicture("goods/"+goods.getGoodsId()+"/image/"+uuids[n]+".png",n==0));
+        }
         goodsMapper.addGoodsPicture(goods.getGoodsId(),picturePaths);
+        goodsMapper.addLabels(goods.getLabels());
+        goodsMapper.addGoodsLabels(goods.getGoodsId(), goodsMapper.getLabelsId(goods.getLabels()));
         String picturePath = Constants.GOODS_UPLOAD_PATH+goods.getGoodsId()+"/image/";
         for(int n = 0;n<count;n++) {
             try {
                 FileInputStream in = (FileInputStream) photos[n].getInputStream();
                 BufferedImage srcImage = javax.imageio.ImageIO.read(in);
-                ImageUtil.storeImage(srcImage, picturePath + picturePaths.get(n).getPath() + ".png");
+                ImageUtil.storeImage(srcImage, picturePath + uuids[n] + ".png");
             } catch (Exception e) {
                 System.out.println("读取图片文件出错！" + e.getMessage());
                 e.printStackTrace();
@@ -79,10 +84,7 @@ public class GoodsService {
      * @return 商品
      */
     public Goods showGoods(Integer goodsId){
-        Goods goods = goodsMapper.queryGoodsById(goodsId);
-        goods.setAnnouncer(goodsMapper.getAnnounceUser(goodsId));
-        goods.setPicturePath(goodsMapper.getGoodsPicturePath(goodsId));
-        return goods;
+        return goodsMapper.queryGoodsById(goodsId);
     }
     /**
      * 编辑商品
@@ -110,17 +112,20 @@ public class GoodsService {
             return -1;
         }
         List<GoodsPicture> picturePaths = new ArrayList<>();
+        String[] uuids = new String[count];
         for(int n = 0;n<count;n++){
-            picturePaths.add(new GoodsPicture(UUID.randomUUID().toString(),n==0));
+            uuids[n] = UUID.randomUUID().toString();
+            picturePaths.add(new GoodsPicture("goods/"+goods.getGoodsId()+"/image/"+uuids[n]+".png",n==0));
         }
         goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
-
+        goodsMapper.deleteGoods(goods.getGoodsId());
+        goodsMapper.addGoodsLabels(goods.getGoodsId(), goodsMapper.getLabelsId(goods.getLabels()));
         String picturePath = Constants.GOODS_UPLOAD_PATH+goods.getGoodsId()+"/image/";
         for(int n = 0;n<count;n++) {
             try {
                 FileInputStream in = (FileInputStream) photos[n].getInputStream();
                 BufferedImage srcImage = javax.imageio.ImageIO.read(in);
-                ImageUtil.storeImage(srcImage, picturePath + picturePaths.get(n).getPath() + ".png");
+                ImageUtil.storeImage(srcImage, picturePath + uuids[n] + ".png");
             } catch (Exception e) {
                 System.out.println("读取图片文件出错！" + e.getMessage());
                 e.printStackTrace();

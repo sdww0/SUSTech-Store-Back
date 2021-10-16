@@ -1,5 +1,6 @@
 package com.susstore.controller;
 
+import com.susstore.config.Constants;
 import com.susstore.pojo.Goods;
 import com.susstore.pojo.Users;
 import com.susstore.result.CommonResult;
@@ -14,11 +15,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.List;
 
@@ -52,6 +60,21 @@ public class GoodsController {
         return new CommonResult(ResultCode.SUCCESS,goods);
     }
 
+    @GetMapping("/{goodsId}/image/{file}")
+    @ApiOperation("获取商品图片")
+    public void getImage(HttpServletResponse response,
+                         @ApiParam("商品id") @PathVariable("goodsId") Integer goodsId,
+                         @ApiParam("图片名称") @PathVariable("file")String  file) throws IOException {
+        response.setContentType("image/jpeg;charset=utf-8");
+        response.setHeader("Content-Disposition", "inline; filename=girls.png");
+        ServletOutputStream outputStream = response.getOutputStream();
+        outputStream.write(Files.readAllBytes(Path.of(Constants.GOODS_UPLOAD_PATH+goodsId+"/image/"+file)));
+        outputStream.flush();
+        outputStream.close();
+    }
+
+
+
     @ApiOperation("添加商品")
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/addGoods")
@@ -62,7 +85,8 @@ public class GoodsController {
             @ApiParam("价格") @RequestParam("price") Float price,
             @ApiParam("标签") @RequestParam("labels") List<String> labels,
             @ApiParam("商品介绍") @RequestParam("introduce") String introduce,
-            @ApiParam("是卖出还是买入") @RequestParam("isSell") Boolean isSell
+            @ApiParam("是卖出还是买入") @RequestParam("isSell") Boolean isSell,
+            @ApiParam("邮费") @RequestParam("postage") Float postage
         ){
         MultipartFile[] photos = new MultipartFile[1];
         photos[0] = photo;
@@ -71,7 +95,7 @@ public class GoodsController {
         }
         Goods goods = Goods.builder().labels(labels).price(price).introduce(introduce)
                 .announcer(Users.builder().userId(userService.queryUserByEmail(principal.getName())).build()).
-                        title(title).isSell(isSell).build();
+                        title(title).isSell(isSell).postage(postage).build();
         Integer id = goodsService.addGoods(photos, goods);
         if(id==null||id<0){
             return new CommonResult(4040,"添加商品失败");
@@ -90,7 +114,8 @@ public class GoodsController {
             @ApiParam("标签") @RequestParam("labels") List<String> labels,
             @ApiParam("商品介绍") @RequestParam("introduce") String introduce,
             @ApiParam("商品图片") @RequestParam("photos") MultipartFile photo,
-            @ApiParam("是卖出还是买入") @RequestParam("isSell") Boolean isSell
+            @ApiParam("是卖出还是买入") @RequestParam("isSell") Boolean isSell,
+            @ApiParam("邮费") @RequestParam("postage") Float postage
     ){
         MultipartFile[] photos = new MultipartFile[1];
         photos[0] = photo;
@@ -105,7 +130,7 @@ public class GoodsController {
             return new CommonResult(ResultCode.FORBIDDEN);
         }
         Goods goods = Goods.builder().labels(labels).price(price).introduce(introduce).title(title)
-                .goodsId(goodsId).isSell(isSell).build();
+                .goodsId(goodsId).isSell(isSell).postage(postage).build();
         Integer id = goodsService.editGoods(photos, goods);
         return new CommonResult(ResultCode.SUCCESS,id);
     }

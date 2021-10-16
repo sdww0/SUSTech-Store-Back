@@ -10,9 +10,9 @@ import java.util.Date;
 @Mapper
 @Repository
 public interface DealMapper {
-    Deal getDeal(int sellerId, int buyerId, int goodsId,int stage);
+    Deal checkExists(Integer userId,Integer goodsId);
 
-    int addDeal(Deal deal);
+    Integer addDeal(Deal deal);
 
     Integer updateDeal(Deal deal);
 

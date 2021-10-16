@@ -3,13 +3,41 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.susstore.mapper.GoodsMapper" >
+    
+    <resultMap id="goods1" type="com.susstore.pojo.Goods">
+        <id property="goodsId" column="goods_id1"/>
+        <result property="price" column="price"/>
+        <result property="title" column="title"/>
+        <result property="introduce" column="introduce"/>
+        <result property="isSell" column="is_sell"/>
+        <result property="postage" column="postage"/>
+        <result property="want" column="want"/>
+        <result property="announceTime" column="announce_time"/>
+        <result property="goodsState" column="goods_state"/>
+        <association property="announcer" javaType="com.susstore.pojo.Users">
+            <id property="userId" column="user_id"/>
+            <result property="sign" column="sign"/>
+            <result property="userName" column="user_name"/>
+            <result property="gender" column="gender"/>
+            <result property="credit" column="credit"/>
+            <result property="picturePath" column="picture_path1"/>
+        </association>
+        <collection ofType="com.susstore.pojo.GoodsPicture" property="picturePath">
+            <result column="path" property="path"/>
+            <result column="is_default_picture" property="isDefaultPicture"/>
+        </collection>
+        <collection ofType="string" property="labels">
+            <result column="labels"/>
+        </collection>
+    </resultMap>
+    
 
     <insert id="addGoods" parameterType="Goods" useGeneratedKeys="true" keyProperty="goodsId" keyColumn="goods_id">
         insert into store."goods"
             (title,price,introduce,announcer_id,want,
-             announce_time,goods_state,is_sell)
+             announce_time,goods_state,is_sell,postage)
         values (#{title},#{price},#{introduce},#{announcer.userId},
-                #{want},#{announceTime},#{goodsState},#{isSell})
+                #{want},#{announceTime},#{goodsState},#{isSell},#{postage})
                 returning goods_id;
     </insert>
     
@@ -19,6 +47,35 @@
             #{picture.path},true,#{picture.isDefaultPicture})
         </foreach>
     </insert>
+
+    <insert id="addLabels">
+        insert into store.label(content) values 
+        <foreach collection="contents" item="content" separator=",">
+            (#{content})
+        </foreach>
+    </insert>
+
+    <select id="getLabelsId" resultType="Integer">
+        select *
+        from store.label where content in(
+            <foreach collection="contents" item="content" separator=",">
+                #{content}
+            </foreach>
+            )
+    </select>
+    
+    <insert id="addGoodsLabels">
+        insert into store.goods_label (goods_id, label_id) VALUES
+        <foreach collection="labels" item="label" separator=",">
+            (#{goodsId},#{label})
+        </foreach>
+    </insert>
+
+    <delete id="deleteGoodsLabels">
+        delete
+        from store.goods_label
+        where goods_id = #{goodsId};
+    </delete>
 
     <update id="deactivateGoodsPicture">
         update store.goods_picture set is_activate = false where goods_id = #{goodsId} and is_activate = true;
@@ -43,8 +100,16 @@
         update store.goods set goods_state = 0 where goods_id = #{goodsId};
     </update>
 
-    <select id="queryGoodsById" parameterType="int" resultType="Goods">
-        select * from store.goods where goods_id = #{goodsId};
+    <select id="queryGoodsById" parameterType="int" resultMap="goods1">
+        select goods.goods_id goods_id1 ,price,title,introduce,is_sell,postage,want,announce_time,goods_state,
+               user_id,sign,gender,credit,money,users.picture_path picture_path1,
+               goods_picture.picture_path path, is_default_picture,content labels
+        from store.goods
+            join store.users
+                on goods_id = #{goodsId} and announcer_id = users.user_id
+            join store.goods_label on goods.goods_id = goods_label.goods_id
+            join store.label on goods_label.label_id = label.label_id
+            join store.goods_picture on goods.goods_id = goods_picture.goods_id;
     </select>
 
     <select id="getGoodsPicturePath" resultType="com.susstore.pojo.GoodsPicture">
@@ -73,11 +138,17 @@
     
     <select id="searchGoods" parameterType="map" resultType="GoodsAbbreviation">
         select * from store.goods where title like concat('%',#{searchContent,jdbcType=VARCHAR},'%')
-        order by goods_id limit #{pageSize} offset (${pageSize}*(${pageIndex}-1))
+        order by goods_id limit #{pageSize} offset (${pageSize}*(${pageIndex}-1));
     </select>
 
     <select id="ifOnShelfById" resultType="int">
-        select goods_state from store.goods where goods_id=#{goodsId}
+        select goods_state from store.goods where goods_id=#{goodsId};
     </select>
+
+    <select id="getGoodsComments" resultType="Comment">
+        select comment_id,content,user_name,user_id,picture_path,comment_date
+               from store.goods_comment join store.users on belong_goods_id = #{goodsId} and comment_user_id=users.user_id;
+    </select>
+
 
 </mapper>

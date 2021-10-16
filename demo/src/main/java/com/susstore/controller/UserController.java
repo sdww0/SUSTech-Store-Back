@@ -22,9 +22,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.Principal;
 import java.util.Date;
 
@@ -47,6 +51,31 @@ public class UserController {
 
     @Autowired
     private MailServiceThread mailService;
+
+    @GetMapping("/user_picture_default.png")
+    @ApiOperation("获取用户默认头像")
+    public void defaultImage(HttpServletResponse response) throws IOException {
+        response.setContentType("image/jpeg;charset=utf-8");
+        response.setHeader("Content-Disposition", "inline; filename=girls.png");
+        ServletOutputStream outputStream = response.getOutputStream();
+        outputStream.write(Files.readAllBytes(Path.of(Constants.USER_UPLOAD_PATH+"/user_picture_default.png")));
+        outputStream.flush();
+        outputStream.close();
+    }
+
+    @GetMapping("/{userId}/image/{file}")
+    @ApiOperation("获取用户头像")
+    public void getImage(HttpServletResponse response,
+                         @ApiParam("用户id") @PathVariable("userId") Integer userId,
+                         @ApiParam("图片名称") @PathVariable("file")String  file) throws IOException {
+        response.setContentType("image/jpeg;charset=utf-8");
+        response.setHeader("Content-Disposition", "inline; filename=girls.png");
+        ServletOutputStream outputStream = response.getOutputStream();
+        outputStream.write(Files.readAllBytes(Path.of(Constants.USER_UPLOAD_PATH+userId+"/image/"+file)));
+        outputStream.flush();
+        outputStream.close();
+    }
+
 
     @ApiOperation(value = "根据id获得用户信息")
     @GetMapping("/information/{queryUserId}")

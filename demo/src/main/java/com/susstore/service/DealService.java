@@ -4,8 +4,9 @@ import com.susstore.mapper.DealMapper;
 import com.susstore.mapper.UsersMapper;
 import com.susstore.method.StageControlMethod;
 import com.susstore.pojo.Deal;
-import com.susstore.pojo.Goods;
+import com.susstore.pojo.GoodsAbbreviation;
 import com.susstore.pojo.Stage;
+import com.susstore.pojo.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +24,17 @@ public class DealService {
     @Autowired
     private UsersMapper usersMapper;
 
-    public Deal getDeal(int sellerId, int buyerId, int goodsId, int stage) {
-        return dealMapper.getDeal(sellerId, buyerId, goodsId, stage);
+    public Deal checkExists(Integer userId, Integer goodsId) {
+        return dealMapper.checkExists(userId, goodsId);
     }
 
-    public int addDeal(Deal deal) {
-        return dealMapper.addDeal(deal);
+    public Integer addDeal(Integer sellerId,Integer buyerId,Integer goodsId) {
+        Deal deal = Deal.builder()
+                .seller(Users.builder().userId(sellerId).build())
+                .buyer(Users.builder().userId(buyerId).build())
+                .goodsAbbreviation(GoodsAbbreviation.builder().goodsId(goodsId).build()).build();
+        dealMapper.addDeal(deal);
+        return deal.getDealId();
     }
 
     public Deal getDealById(int dealId) {

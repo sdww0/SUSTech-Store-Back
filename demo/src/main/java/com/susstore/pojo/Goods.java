@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Goods {
-
+    //必须要传的
     private Integer goodsId;
     private Float price;
     private String title;
@@ -22,10 +22,13 @@ public class Goods {
     private String introduce;
     private Users announcer;
     private Boolean isSell;
-
-    private List<Comment> comments;
+    private Float postage;
     private Integer want;
     private Date announceTime;
     private Integer goodsState;//GoodsState 0--in shelf 1-off shelf
+
+
+    private List<Comment> comments;
+
 
 }
