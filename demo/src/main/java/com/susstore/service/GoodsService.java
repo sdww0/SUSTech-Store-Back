@@ -35,7 +35,7 @@ public class GoodsService {
     public Integer addGoods(MultipartFile[] photos, Goods goods){
         int count = 0;
         for(MultipartFile photo:photos){
-            String contentType = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
+            String contentType = Objects.requireNonNull(photo.getOriginalFilename()).substring(photo.getOriginalFilename().lastIndexOf("."));
             if(contentType.length()==0){
                 return -1;
             }

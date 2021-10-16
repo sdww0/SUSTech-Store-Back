@@ -48,7 +48,7 @@
     </select>
 
     <select id="getGoodsPicturePath" resultType="com.susstore.pojo.GoodsPicture">
-        select picture_path,is_default_picture from store.goods_picture where goods_id = #{goodsId} and is_activate = true;
+        select picture_path path,is_default_picture from store.goods_picture where goods_id = #{goodsId} and is_activate = true;
     </select>
 
     <select id="getDefaultPicturePath" resultType="String">

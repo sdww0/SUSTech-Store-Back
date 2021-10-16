@@ -87,10 +87,11 @@ public class UserController {
                 @ApiParam("新用户名") @RequestParam("name") String name,
                 @ApiParam("个性签名") @RequestParam("sign") String sign,
                 @ApiParam("性别,m代表男生，f代表女生，s代表秘密") @RequestParam("gender") String gender,
-                @ApiParam("生日") @RequestParam("birthday") Date birthday) {
+                @ApiParam("生日") @RequestParam("birthday") String birth) {
         if(gender.length()!=0){
             return new CommonResult(4020,"参数错误，请检查参数");
         }
+        Date birthday = new Date(birth);
         Gender gender1 ;
         switch (gender.charAt(0)){
             case 's':gender1 = Gender.SECRET;break;

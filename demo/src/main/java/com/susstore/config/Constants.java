@@ -10,7 +10,7 @@ public class Constants {
 
     public static final String WEBSITE_LINK = "http://localhost:8080";
 
-    public static final Integer RANDOM_STRING_SIZE = 16;
+    public static final Integer RANDOM_STRING_SIZE = 64;
 
     public static final Integer CHECK_CODE_SIZE = 6;
 

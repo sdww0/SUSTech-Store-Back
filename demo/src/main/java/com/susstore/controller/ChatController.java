@@ -41,7 +41,7 @@ public class ChatController {
     private UserService userService;
 
     /**
-     * 用户模式
+     * 传递消息，保存到数据库，并发到另外一个用户
      * @param requestMsg 消息
      * @param principal 登录信息userId/dealId/(0或1，0为seller，1为buyer)
      */
@@ -71,7 +71,7 @@ public class ChatController {
     }
 
     /**
-     * 订阅模式，只是在订阅的时候触发，可以理解为：访问——>返回数据
+     * 订阅,返回建立连接时需要的初始数据
      * @return json格式化的数据
      */
     @SubscribeMapping("/subscribe/chat")
