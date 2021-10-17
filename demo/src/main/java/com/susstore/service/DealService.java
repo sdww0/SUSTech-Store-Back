@@ -1,5 +1,6 @@
 package com.susstore.service;
 
+import com.susstore.config.Constants;
 import com.susstore.mapper.DealMapper;
 import com.susstore.mapper.UsersMapper;
 import com.susstore.method.StageControlMethod;
@@ -96,6 +97,15 @@ public class DealService {
     public Integer setAddress(Integer dealId,Integer addressId){
         return dealMapper.setAddress(dealId, addressId);
     }
+
+    public Integer goodComment(Integer userId){
+        return usersMapper.changeUserCredit(userId, Constants.GOOD_COMMENT_ADD);
+    }
+
+    public Integer badComment(Integer userId){
+        return usersMapper.changeUserCredit(userId,Constants.BAD_COMMENT_ADD);
+    }
+
 
     /**
      *

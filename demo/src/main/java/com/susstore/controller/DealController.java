@@ -194,12 +194,18 @@ public class DealController {
     public CommonResult comment(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
-            @ApiParam("评价内容") @RequestParam("content") String commentContent
+            @ApiParam("评价内容") @RequestParam("content") String commentContent,
+            @ApiParam("是否是好评") @RequestParam("isGood") Boolean isGood
     ){
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
             //查看对方是否被评价
             if(dealService.checkUserHadComment(dealId1,otherId)){
                 return 1;
+            }
+            if(isGood){
+                dealService.goodComment(otherId);
+            }else{
+                dealService.badComment(otherId);
             }
             dealService.addUserComment(dealId1,userId,otherId,new Date(System.currentTimeMillis()),commentContent);
             if(dealService.checkUserHadComment(dealId1,userId)){

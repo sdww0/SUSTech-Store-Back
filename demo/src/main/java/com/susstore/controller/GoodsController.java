@@ -87,7 +87,33 @@ public class GoodsController {
         outputStream.close();
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/comment")
+    @ApiParam("评价商品")
+    public CommonResult comment(
+            @ApiParam("SpringSecurity用户认证信息")Principal principal,
+            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId,
+            @ApiParam("评价信息") @RequestParam("content") String content
+    ){
+        if(goodsService.getBelongUserId(goodsId)==null){
+            return new CommonResult(ResultCode.NOT_FOUND);
+        }
+        goodsService.commentGoods(userService.queryUserByEmail(principal.getName()),goodsId,content);
+        return new CommonResult(ResultCode.SUCCESS);
+    }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/comment")
+    @ApiParam("删除商品评价")
+    public CommonResult delete(
+            @ApiParam("SpringSecurity用户认证信息")Principal principal,
+            @ApiParam("商品id") @RequestParam("commentId") Integer commentId
+    ){
+        if(goodsService.deleteGoodsComment(userService.queryUserByEmail(principal.getName()),commentId)==-1){
+            return new CommonResult(ResultCode.FORBIDDEN);
+        }
+        return new CommonResult(ResultCode.SUCCESS);
+    }
 
     @ApiOperation("添加商品")
     @PreAuthorize("hasRole('USER')")

@@ -14,7 +14,7 @@
 
     <insert id="addUser" parameterType="Users" useGeneratedKeys="true" keyProperty="userId">
         insert into store."users" (user_name,password,gender,credit,money,email,picture_path,is_activate,activate_code)
-        values (#{userName},#{password},#{gender},0,0.0,#{email},'user/user_picture_default.png',false,#{activateCode}) returning user_id;
+        values (#{userName},#{password},#{gender},0,10,#{email},'user/user_picture_default.png',false,#{activateCode}) returning user_id;
     </insert>
 
     <update id="updateUser" parameterType="Users" >
@@ -156,6 +156,12 @@
 
     <select id="searchUsers" parameterType="map"  resultType="Users">
         select * from store.users where users.user_name like concat('%',#{userName,jdbcType=VARCHAR},'%')
-        order by user_name limit #{pageSize} offset (${pageSize}*(${pageIndex}-1))
+        order by user_name limit #{pageSize} offset (${pageSize}*(${pageIndex}-1));
     </select>
+
+    <update id="changeUserCredit">
+        update store.users
+            set credit = credit+(${change}) where user_id = #{userId};
+    </update>
+
 </mapper>

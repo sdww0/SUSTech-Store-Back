@@ -4,6 +4,7 @@ import com.susstore.pojo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -87,5 +88,10 @@ public interface GoodsMapper {
 
     Integer increaseWant(Integer goodsId);
 
+    Integer commentGoods(Integer goodsId, Integer userId, String content, Date date);
+
+    Integer deleteGoodsComment(Integer commentId);
+
+    Integer whetherCanDeleteComment(Integer userId,Integer commentId);
 
 }

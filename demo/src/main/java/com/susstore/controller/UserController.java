@@ -284,6 +284,17 @@ public class UserController {
         return new CommonResult(200,"账户已激活");
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/charge")
+    @ApiOperation("充值")
+    public CommonResult charge(
+            @ApiParam("springSecurity认证信息") Principal principal,
+            @ApiParam("数量") @RequestParam("money") Float money
+    ){
+        userService.changeUserMoney(userService.queryUserByEmail(principal.getName()),money);
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
 
 
     static enum SecurityType{

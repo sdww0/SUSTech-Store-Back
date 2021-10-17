@@ -118,7 +118,7 @@ public class GoodsService {
             picturePaths.add(new GoodsPicture("goods/"+goods.getGoodsId()+"/image/"+uuids[n]+".png",n==0));
         }
         goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
-        goodsMapper.deleteGoods(goods.getGoodsId());
+        goodsMapper.deleteGoodsLabels(goods.getGoodsId());
         goodsMapper.addGoodsLabels(goods.getGoodsId(), goodsMapper.getLabelsId(goods.getLabels()));
         String picturePath = Constants.GOODS_UPLOAD_PATH+goods.getGoodsId()+"/image/";
         for(int n = 0;n<count;n++) {
@@ -184,6 +184,18 @@ public class GoodsService {
 
     public Integer increaseWant(Integer goodsId){
         return goodsMapper.increaseWant(goodsId);
+    }
+
+    public Integer commentGoods(Integer userId,Integer goodsId,String content){
+        return goodsMapper.commentGoods(userId,goodsId,content,new Date());
+    }
+
+    public Integer deleteGoodsComment(Integer userId,Integer commentId){
+        if(goodsMapper.whetherCanDeleteComment(userId,commentId)==null){
+            return -1;
+        }
+        return goodsMapper.deleteGoodsComment(commentId);
+
     }
 
 }

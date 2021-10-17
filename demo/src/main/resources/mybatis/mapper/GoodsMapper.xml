@@ -158,4 +158,24 @@
         update store.goods set view = view+1 where goods_id = #{goodsId}
     </update>
 
+    <insert id="commentGoods">
+        insert into store.goods_comment(content, comment_user_id, comment_date, belong_goods_id)
+        VALUES (#{content},#{userId},#{date},#{goodsId});
+
+    </insert>
+
+
+    <delete id="deleteGoodsComment">
+        delete
+        from store.goods_comment
+        where comment_id = #{commentId};
+    </delete>
+
+    <select id="whetherCanDeleteComment" resultType="Integer">
+        select comment_id from store.goods_comment
+            join store.goods g
+                on g.goods_id = goods_comment.belong_goods_id and goods_comment.comment_id = #{commentId}
+            where announcer_id = #{userId} or comment_user_id = #{userId};
+    </select>
+
 </mapper>

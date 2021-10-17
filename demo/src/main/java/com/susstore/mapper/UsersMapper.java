@@ -135,4 +135,7 @@ public interface UsersMapper {
      List<Users> searchUsers(Map<String,Object> map);
 
      Boolean checkUserHasInputAddress(Integer userId,Integer addressId);
+
+     Integer changeUserCredit(Integer userId,Integer change);
+
 }

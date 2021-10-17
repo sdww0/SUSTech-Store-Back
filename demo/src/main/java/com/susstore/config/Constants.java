@@ -20,4 +20,8 @@ public class Constants {
 
     public static final String WEBSITE_COMMUNICATE_EMAIL = "1315953661@qq.com";
 
+    public static final Integer GOOD_COMMENT_ADD = 1;
+
+    public static final Integer BAD_COMMENT_ADD = -5;
+
 }
