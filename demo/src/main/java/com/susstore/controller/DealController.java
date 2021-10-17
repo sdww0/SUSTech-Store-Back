@@ -90,7 +90,7 @@ public class DealController {
         if(id==null||id<0){
             return new CommonResult(ResultCode.DEAL_ADD_FAIL);
         }
-
+        goodsService.increaseView(goodsId);
         return new CommonResult(ResultCode.SUCCESS,id);
 
     }

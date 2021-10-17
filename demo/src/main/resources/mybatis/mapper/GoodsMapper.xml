@@ -35,9 +35,9 @@
     <insert id="addGoods" parameterType="Goods" useGeneratedKeys="true" keyProperty="goodsId" keyColumn="goods_id">
         insert into store."goods"
             (title,price,introduce,announcer_id,want,
-             announce_time,goods_state,is_sell,postage)
+             announce_time,goods_state,is_sell,postage,view)
         values (#{title},#{price},#{introduce},#{announcer.userId},
-                #{want},#{announceTime},#{goodsState},#{isSell},#{postage})
+                0,#{announceTime},#{goodsState},#{isSell},#{postage},0)
                 returning goods_id;
     </insert>
     
@@ -150,5 +150,12 @@
                from store.goods_comment join store.users on belong_goods_id = #{goodsId} and comment_user_id=users.user_id;
     </select>
 
+    <update id="increaseWant" >
+        update store.goods set want = want+1 where goods_id = #{goodsId}
+    </update>
+
+    <update id="increaseView" >
+        update store.goods set view = view+1 where goods_id = #{goodsId}
+    </update>
 
 </mapper>

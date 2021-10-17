@@ -178,4 +178,12 @@ public class GoodsService {
         return goodsMapper.getDefaultPicturePath(goodsId);
     }
 
+    public Integer increaseView(Integer goodsId){
+        return goodsMapper.increaseView(goodsId);
+    }
+
+    public Integer increaseWant(Integer goodsId){
+        return goodsMapper.increaseWant(goodsId);
+    }
+
 }

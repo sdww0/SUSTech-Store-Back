@@ -58,6 +58,7 @@ create table if not exists store.goods(
     goods_state int not null ,
     is_sell bool not null ,
     postage float not null ,
+    view int not null ,
     constraint announcer_id_fkey foreign key (announcer_id) references store.users(user_id)
 );
 --

@@ -58,6 +58,7 @@ public class GoodsController {
         if(goods==null){
             return new CommonResult(ResultCode.NOT_FOUND);
         }
+        goodsService.increaseView(Integer.valueOf(goodsId));
         return new CommonResult(ResultCode.SUCCESS,goods);
 //        JSONObject result = new JSONObject();
 //        if(goodsId==null|| !CommonUtil.isInteger(goodsId)){

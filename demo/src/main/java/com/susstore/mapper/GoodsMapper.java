@@ -83,5 +83,9 @@ public interface GoodsMapper {
 
     Integer deleteGoodsLabels(Integer goodsId);
 
+    Integer increaseView(Integer goodsId);
+
+    Integer increaseWant(Integer goodsId);
+
 
 }

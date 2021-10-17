@@ -27,6 +27,7 @@ public class Goods {
     private Boolean isSell;
     private Float postage;
     private Integer want;
+    private Integer view;
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date announceTime;
