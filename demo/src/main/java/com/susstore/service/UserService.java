@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.susstore.config.Constants.RANDOM_STRING_SIZE;
 import static com.susstore.config.Constants.SEARCH_PAGE_SIZE;
@@ -39,8 +40,9 @@ public class UserService {
 
     public boolean updateUserWithPhoto(MultipartFile photo,Users users){
         Integer id = usersMapper.queryUserByEmail(users.getEmail());
-        String path = Constants.USER_UPLOAD_PATH + id + "/image/"+ RandomStringUtils.random(RANDOM_STRING_SIZE)+".png";
-        users.setPicturePath(path);
+        String random = UUID.randomUUID().toString();
+        String path = Constants.USER_UPLOAD_PATH + id + "/image/"+ random+".png";
+        users.setPicturePath("user/"+id+"/image/"+random+".png");
         if (!photo.isEmpty()) {
             //获取文件的名称
             final String fileName = photo.getOriginalFilename();
@@ -64,6 +66,7 @@ public class UserService {
                 return false;
             }
         }
+        users.setUserId(id);
         usersMapper.updateUser(users);
         return true;
     }

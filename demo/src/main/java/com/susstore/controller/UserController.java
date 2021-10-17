@@ -1,5 +1,6 @@
 package com.susstore.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.susstore.config.Constants;
 import com.susstore.pojo.Address;
 import com.susstore.pojo.Gender;
@@ -14,6 +15,7 @@ import com.susstore.util.CommonUtil;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -115,19 +117,16 @@ public class UserController {
                 @ApiParam("用户照片") @RequestParam("photo")MultipartFile photo,
                 @ApiParam("新用户名") @RequestParam("name") String name,
                 @ApiParam("个性签名") @RequestParam("sign") String sign,
-                @ApiParam("性别,m代表男生，f代表女生，s代表秘密") @RequestParam("gender") String gender,
-                @ApiParam("生日") @RequestParam("birthday") String birth) {
-        if(gender.length()!=0){
+                @ApiParam("性别,m代表男生，f代表女生，s代表秘密") @RequestParam("gender") Integer gender,
+                @ApiParam("生日") @RequestParam("birthday")
+                @DateTimeFormat(pattern="yyyy-MM-dd")
+                @JsonFormat(pattern = "yyyy-MM-dd",timezone="GMT+8")
+                        Date birthday) {
+        if(gender>Gender.SECRET.ordinal()||gender<0){
             return new CommonResult(4020,"参数错误，请检查参数");
         }
-        Date birthday = new Date(birth);
-        Gender gender1 ;
-        switch (gender.charAt(0)){
-            case 's':gender1 = Gender.SECRET;break;
-            case 'm':gender1 = Gender.MALE;break;
-            case 'f':gender1 = Gender.FE_MALE;break;
-            default:return new CommonResult(4020,"参数错误，请检查参数");
-        }
+
+        Gender gender1 = Gender.values()[gender];
 
         String email = principal.getName();
         name = name.length() == 0 ? null : name;
@@ -137,7 +136,7 @@ public class UserController {
                 .birthday(birthday).userName(name).build();
 
         if(userService.updateUserWithPhoto(photo,users)){
-            return getUserInformation(principal,users.getUserId());
+            return new CommonResult(ResultCode.SUCCESS,userService.queryUserById(users.getUserId()));
         }
         return new CommonResult(ResultCode.FAILED);
     }
