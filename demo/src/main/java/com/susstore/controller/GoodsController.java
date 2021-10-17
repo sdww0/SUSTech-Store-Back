@@ -1,5 +1,6 @@
 package com.susstore.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.susstore.config.Constants;
 import com.susstore.pojo.Goods;
 import com.susstore.pojo.Users;
@@ -58,6 +59,18 @@ public class GoodsController {
             return new CommonResult(ResultCode.NOT_FOUND);
         }
         return new CommonResult(ResultCode.SUCCESS,goods);
+//        JSONObject result = new JSONObject();
+//        if(goodsId==null|| !CommonUtil.isInteger(goodsId)){
+//            result.put("result",new CommonResult(ResultCode.NOT_FOUND));
+//            return result.toJSONString();
+//        }
+//        Goods goods = goodsService.showGoods(Integer.valueOf(goodsId));
+//        if(goods==null){
+//            result.put("result",new CommonResult(ResultCode.NOT_FOUND));
+//            return result.toJSONString();
+//        }
+//        result.put("result",new CommonResult(ResultCode.SUCCESS,goods));
+//        return result.toJSONString();
     }
 
     @GetMapping("/{goodsId}/image/{file}")
