@@ -33,6 +33,7 @@ public class Users {
     //以下为非特殊需要不需要查询的
     private Boolean isActivate;
     private String activateCode;
+    private List<UsersComment> usersComments;
 
 
 

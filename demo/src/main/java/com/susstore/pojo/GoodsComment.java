@@ -10,7 +10,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Comment {
+public class GoodsComment {
 
     private Integer commentId;
     private String content;

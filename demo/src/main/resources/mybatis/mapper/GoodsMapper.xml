@@ -145,7 +145,7 @@
         select goods_state from store.goods where goods_id=#{goodsId};
     </select>
 
-    <select id="getGoodsComments" resultType="Comment">
+    <select id="getGoodsComments" resultType="GoodsComment">
         select comment_id,content,user_name,user_id,picture_path,comment_date
                from store.goods_comment join store.users on belong_goods_id = #{goodsId} and comment_user_id=users.user_id;
     </select>

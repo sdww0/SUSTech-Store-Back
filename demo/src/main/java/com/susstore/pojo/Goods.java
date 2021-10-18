@@ -1,6 +1,5 @@
 package com.susstore.pojo;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.sql.Time;
 import java.util.Date;
 import java.util.List;
 @Data
@@ -34,7 +32,7 @@ public class Goods {
     private Integer goodsState;//GoodsState 0--in shelf 1-off shelf
 
 
-    private List<Comment> comments;
+    private List<GoodsComment> goodsComments;
 
 
 }

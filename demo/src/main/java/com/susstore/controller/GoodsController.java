@@ -103,7 +103,7 @@ public class GoodsController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/comment")
+    @DeleteMapping("/comment")
     @ApiParam("删除商品评价")
     public CommonResult delete(
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
@@ -197,7 +197,7 @@ public class GoodsController {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    static class acceptGoods{
+    static class AcceptGoods{
         private Integer goodsId;
         private Float price;
         private String title;

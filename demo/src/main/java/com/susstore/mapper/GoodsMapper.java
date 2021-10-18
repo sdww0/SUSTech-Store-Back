@@ -74,7 +74,7 @@ public interface GoodsMapper {
 
     String getDefaultPicturePath(Integer goodsId);
 
-    List<Comment> getGoodsComments(Integer goodsId);
+    List<GoodsComment> getGoodsComments(Integer goodsId);
 
     Integer addGoodsLabels(Integer goodsId,List<Integer> labels);
 
