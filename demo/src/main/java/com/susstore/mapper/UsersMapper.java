@@ -4,6 +4,7 @@ import com.susstore.pojo.Users;
 import com.susstore.pojo.UsersComment;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public interface UsersMapper {
 
      Users ifExistById(int userId);
 
-     boolean ifActivatedById(int id);
+     Boolean ifActivatedById(int id);
      /**
       * 根据邮箱查询用户id
       * @param email 邮箱
@@ -145,5 +146,5 @@ public interface UsersMapper {
 
      List<UsersComment> getUsersComment(Integer userId);
 
-
+     Integer addUserComplain(Integer userId, String content, String picturePath, Integer complainerId);
 }

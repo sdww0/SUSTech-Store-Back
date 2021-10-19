@@ -25,11 +25,14 @@ public enum ResultCode {
     USER_NOT_EXIST(4003,"用户不存在"),
     REGISTER_FAIL(4010,"注册失败"),
     LOGIN_FAIL(4002,"登录失败"),
-    DEAL_ALREADY_EXISIT(4030,"订单已经存在"),
+    DEAL_ALREADY_EXISI(4030,"订单已经存在"),
     DEAL_OFF_SHELF(4031,"商品已经下架"),
     DEAL_NOT_EXIST(4032,"订单不存在"),
+    GOODS_NOT_EXIST(4033,"商品不存在"),
     DEAL_ADD_FAIL(4035,"订单添加失败"),
-    NOT_ACCEPTABLE(406,"参数不正确");
+    NOT_ACCEPTABLE(406,"参数不正确"),
+    COMMENT_FAIL(4015,"评论失败"),
+    COMPLAIN_FAIL(4016,"举报失败");
     private long code;
     private String message;
 

@@ -6,11 +6,14 @@ import com.susstore.pojo.Users;
 import com.susstore.pojo.UsersComment;
 import com.susstore.util.CommonUtil;
 import com.susstore.util.ImageUtil;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.util.List;
@@ -75,6 +78,40 @@ public class UserService {
         return true;
     }
 
+    public boolean addUserComplain(Integer userId,String content,MultipartFile picture,Integer complainerId) {
+        String random = UUID.randomUUID().toString();
+        String path = USER_COMPLAIN_PATH + complainerId + "/image/" + random + ".png";
+        if (!picture.isEmpty()) {
+            //获取文件的名称
+            final String fileName = picture.getOriginalFilename();
+            //限制文件上传的类型
+            String contentType = fileName.substring(fileName.lastIndexOf("."));
+            if (contentType.length() == 0) {
+                return false;
+            }
+            if (".jpeg".equals(contentType) || ".jpg".equals(contentType) || ".png".equals(contentType)) {
+                //完成文件的上传
+                BufferedImage srcImage = null;
+                try {
+                    FileInputStream in = (FileInputStream) picture.getInputStream();
+                    srcImage = ImageIO.read(in);
+                    ImageUtil.storeImage(srcImage, path);
+                } catch (Exception e) {
+                    System.out.println("读取图片文件出错！" + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                return false;
+            }
+        }
+        mailService.sendAttachmentMail(Constants.COMPLAIN_HANDING_EMAIL,"您有一份新的举报信息待处理！",
+                "\n举报内容:"+content
+                        +"\n 举报人："+complainerId
+                        +"\n 被举报人："+userId+"\n 举报图片见附件.",path);
+
+        usersMapper.addUserComplain(userId, content, path, complainerId);
+        return true;
+    }
 
     public int deleteUser(int id){
         return usersMapper.deleteUser(id);
@@ -84,7 +121,7 @@ public class UserService {
         return usersMapper.ifExistById(id);
     }
 
-    public boolean ifActivatedById(int id){
+    public Boolean ifActivatedById(int id){
         return usersMapper.ifActivatedById(id);
     }
 

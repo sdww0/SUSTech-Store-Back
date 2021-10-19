@@ -239,4 +239,9 @@
             and goods.goods_id in (select goods_id from store.goods where goods_state = 1 offset random() * (select count(*) from store.goods) limit 10) ;
     </select>
 
+    <insert id="addGoodsComment" parameterType="com.susstore.pojo.GoodsComment" useGeneratedKeys="true" keyProperty="commentId">
+        insert into store.goods_comment (content, comment_user_id, comment_date, belong_goods_id) values
+            (#{content},#{userId},#{commentDate},#{goodsId}) returning comment_id
+    </insert>
+
 </mapper>

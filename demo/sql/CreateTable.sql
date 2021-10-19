@@ -11,6 +11,8 @@ drop table if exists store.goods_comment cascade ;
 drop table if exists store.deal cascade;
 drop table if exists store.users_comment cascade ;
 drop table if exists store.goods_picture cascade ;
+drop table if exists store.complain_goods cascade ;
+drop table if exists store.complain_users cascade ;
 --主要的大类
 
 create table if not exists store.users(
@@ -29,7 +31,7 @@ create table if not exists store.users(
     picture_path varchar not null,
     check_code int, --验证码
     is_activate bool not null, --用户状态，未激活，激活等
-    activate_code varchar not null unique --激活码
+    activate_code varchar not null unique--激活码
 
 
 );
@@ -93,6 +95,7 @@ create table if not exists store.users_comment(
       comment_user_id int not null ,
       comment_date timestamp  not null ,
       content varchar not null ,
+      is_good boolean not null ,
       constraint belong_user_id_fkey1 foreign key (belong_user_id) references store.users (user_id),
       constraint belong_user_id_fkey2 foreign key (comment_user_id) references store.users (user_id),
       constraint belong_deal_id_fkey foreign key (belong_deal_id) references store.deal (deal_id),
@@ -140,6 +143,26 @@ create table if not exists store.goods_label(
     label_id int not null,
     constraint goods_id_fkey foreign key (goods_id) references store.goods (goods_id),
     constraint label_id_fkey foreign key (label_id) references store.label (label_id)
+);
+
+create table if not exists store.complain_goods(
+    record_id serial primary key,
+    goods_id int not null,
+    complainer_id int not null,
+    content varchar not null ,
+    picture varchar,
+    constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
+    constraint complain_id_fkey foreign key (complainer_id) references store.users(user_id)
+);
+
+create table if not exists store.complain_users(
+   record_id serial primary key,
+   users_id int not null,
+   complainer_id int not null,
+   content varchar not null ,
+   picture varchar,
+   constraint goods_id_fkey foreign key (users_id) references store.users(user_id),
+   constraint complainer_id_fkey foreign key (complainer_id) references store.users(user_id)
 );
 --务必运行一次下面的
 create rule  r_insert_label_ginore as on insert to store.label where exists(select 1 from store.label where content=new.content) do instead nothing ;

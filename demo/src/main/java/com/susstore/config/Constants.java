@@ -6,6 +6,10 @@ public class Constants {
 
     public static final String GOODS_UPLOAD_PATH = "D:/ooad/store/upload/goods/";
 
+    public static final String USER_COMPLAIN_PATH = "D:/ooad/store/complain/user/";
+
+    public static final String GOODS_COMPLAIN_PATH = "D:/ooad/store/complain/goods/";
+
     public static final Integer GOODS_MAX_PICTURE = 3;
 
     public static final String WEBSITE_LINK = "http://localhost:8080";
@@ -19,6 +23,8 @@ public class Constants {
     public static final Integer SEARCH_PAGE_SIZE = 10;
 
     public static final String WEBSITE_COMMUNICATE_EMAIL = "1315953661@qq.com";
+
+    public static final String COMPLAIN_HANDING_EMAIL= "1315953661@qq.com";
 
     public static final Integer GOOD_COMMENT_ADD = 1;
 

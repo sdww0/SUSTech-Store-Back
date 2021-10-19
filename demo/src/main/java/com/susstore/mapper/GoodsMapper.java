@@ -96,4 +96,5 @@ public interface GoodsMapper {
 
     List<GoodsAbbreviation> getRandomGoods();
 
+    int addGoodsComment(GoodsComment comment);
 }

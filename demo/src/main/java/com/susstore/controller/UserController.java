@@ -29,6 +29,8 @@ import java.security.Principal;
 import java.util.Date;
 import java.util.Random;
 
+import static com.susstore.config.Constants.USER_COMPLAIN_PATH;
+
 @RestController
 @Api(value = "用户控制器",tags = {"用户访问接口"})
 @RequestMapping("/user")
@@ -319,6 +321,31 @@ public class UserController {
             @ApiParam("数量") @RequestParam("money") Float money
     ){
         userService.changeUserMoney(userService.queryUserByEmail(principal.getName()),money);
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/complainUser")
+    @ApiOperation("举报用户")
+    public CommonResult complain(
+            @ApiParam("SpringSecurity认证信息")Principal principal,
+            @ApiParam("用户Id") @RequestParam("userId") Integer userId,
+            @ApiParam("举报内容") @RequestParam("content") String content,
+            @ApiParam("举报照片") @RequestParam("picture")MultipartFile picture
+    ){
+        //处理 未处理 撤销 管理员处理
+        //get rollback
+        //Users users =userService.queryUserById(userId);
+        if (!userService.ifActivatedById(userId)){
+            return new CommonResult(ResultCode.USER_NOT_ACTIVATED);
+        }
+        if (content.length()==0){
+            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        }
+        if (!userService.addUserComplain(userId,
+                content,picture,userService.getUserByEmail(principal.getName()).getUserId())){
+            return new CommonResult(ResultCode.COMPLAIN_FAIL);
+        }
         return new CommonResult(ResultCode.SUCCESS);
     }
 

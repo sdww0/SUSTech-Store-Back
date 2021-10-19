@@ -180,4 +180,8 @@
         and belong_user_id = #{userId};
     </select>
 
+    <insert id="addUserComplain">
+        insert into store.complain_users (users_id, complainer_id, content, picture)
+        values (#{userId},#{complainerId},#{content},#{picturePath});
+    </insert>
 </mapper>

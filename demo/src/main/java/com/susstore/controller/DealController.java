@@ -81,7 +81,7 @@ public class DealController {
         // check buyer&seller&goodsId&stage
         Deal deal = null;
         if ((deal=dealService.checkExists(userId,goodsId))!=null){
-            return new CommonResult(ResultCode.DEAL_ALREADY_EXISIT);
+            return new CommonResult(ResultCode.DEAL_ALREADY_EXISI);
         }
         Goods goods = goodsService.getGoodsById(goodsId);
         Integer sellerId = (!goods.getIsSell()) ? userId : goods.getAnnouncer().getUserId();

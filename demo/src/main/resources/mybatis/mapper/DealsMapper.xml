@@ -160,9 +160,9 @@
                                         comment_user_id,
                                         comment_date,
                                         content,
-                                        belong_deal_id)
+                                        belong_deal_id,is_good)
                                          VALUES
-                                         (#{targetUserId},#{commentUserId},#{date},#{content},#{dealId})
+                                         (#{targetUserId},#{commentUserId},#{date},#{content},#{dealId},#{isGood})
     </insert>
 
 

@@ -74,12 +74,6 @@ public class GoodsController {
 //        return result.toJSONString();
     }
 
-    @GetMapping("/random")
-    @ApiOperation("获取随机推荐的商品,一次返回十个")
-    public CommonResult randomGoods(){
-        return new CommonResult(ResultCode.SUCCESS,goodsService.getRandomGoods());
-    }
-
     @GetMapping("/{goodsId}/image/{file}")
     @ApiOperation("获取商品图片")
     public void getImage(HttpServletResponse response,
@@ -203,7 +197,7 @@ public class GoodsController {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    static class AcceptGoods{
+    static class acceptGoods{
         private Integer goodsId;
         private Float price;
         private String title;

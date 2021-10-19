@@ -2,10 +2,7 @@ package com.susstore.service;
 
 import com.susstore.config.Constants;
 import com.susstore.mapper.GoodsMapper;
-import com.susstore.pojo.Goods;
-import com.susstore.pojo.GoodsAbbreviation;
-import com.susstore.pojo.GoodsPicture;
-import com.susstore.pojo.GoodsState;
+import com.susstore.pojo.*;
 import com.susstore.util.ImageUtil;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -202,4 +199,7 @@ public class GoodsService {
         return goodsMapper.getRandomGoods();
     }
 
+    public int addGoodsComment(GoodsComment comment){
+        return goodsMapper.addGoodsComment(comment);
+    };
 }
