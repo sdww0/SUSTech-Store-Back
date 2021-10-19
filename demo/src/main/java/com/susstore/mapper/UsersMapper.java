@@ -1,6 +1,7 @@
 package com.susstore.mapper;
 
 import com.susstore.pojo.Users;
+import com.susstore.pojo.UsersComment;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -107,6 +108,10 @@ public interface UsersMapper {
 
      Integer clearUserCheckCodeByEmail(String email);
 
+     Integer changeUserCheckCodeById(Integer checkCode,Integer userId);
+
+     Integer deactivateUsers(Integer userId,String activateCode);
+
      /**
       * 根据用户id清除用户的验证码(设为-1)
       * @param id id
@@ -137,5 +142,8 @@ public interface UsersMapper {
      Boolean checkUserHasInputAddress(Integer userId,Integer addressId);
 
      Integer changeUserCredit(Integer userId,Integer change);
+
+     List<UsersComment> getUsersComment(Integer userId);
+
 
 }

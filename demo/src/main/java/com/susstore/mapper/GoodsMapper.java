@@ -94,4 +94,6 @@ public interface GoodsMapper {
 
     Integer whetherCanDeleteComment(Integer userId,Integer commentId);
 
+    List<GoodsAbbreviation> getRandomGoods();
+
 }

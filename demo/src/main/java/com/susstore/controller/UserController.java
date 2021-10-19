@@ -5,7 +5,6 @@ import com.susstore.config.Constants;
 import com.susstore.pojo.Address;
 import com.susstore.pojo.Gender;
 import com.susstore.pojo.Users;
-import com.susstore.service.MailService;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.AddressService;
@@ -13,19 +12,14 @@ import com.susstore.service.MailServiceThread;
 import com.susstore.service.UserService;
 import com.susstore.util.CommonUtil;
 import io.swagger.annotations.*;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Principal;
 import java.util.Date;
+import java.util.Random;
 
 @RestController
 @Api(value = "用户控制器",tags = {"用户访问接口"})
@@ -53,6 +48,8 @@ public class UserController {
 
     @Autowired
     private MailServiceThread mailService;
+
+    private Random random = new Random();
 
     @GetMapping("/user_picture_default.png")
     @ApiOperation("获取用户默认头像")
@@ -106,6 +103,20 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    @ApiOperation("根据登录用户查询用户的评价")
+    @GetMapping("/comment")
+    public CommonResult getComment(
+            @ApiParam("SpringSecurity用户信息认证") Principal principal){
+        Integer user = userService.queryUserByEmail(principal.getName());
+        if(user==null){
+            return new CommonResult(ResultCode.NOT_FOUND);
+        }
+        return new CommonResult(2001,"查询成功",userService.getUsersComment(user));
+    }
+
+
+
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/update")
     @ApiOperation(value = "更新用户信息，包含：个性签名，用户名，性别，生日，头像")
     @ApiResponses(value = {
@@ -117,7 +128,7 @@ public class UserController {
                 @ApiParam("用户照片") @RequestParam("photo")MultipartFile photo,
                 @ApiParam("新用户名") @RequestParam("name") String name,
                 @ApiParam("个性签名") @RequestParam("sign") String sign,
-                @ApiParam("性别,m代表男生，f代表女生，s代表秘密") @RequestParam("gender") Integer gender,
+                @ApiParam("性别,0-男性,1-女性,2-保密") @RequestParam("gender") Integer gender,
                 @ApiParam("生日") @RequestParam("birthday")
                 @DateTimeFormat(pattern="yyyy-MM-dd")
                 @JsonFormat(pattern = "yyyy-MM-dd",timezone="GMT+8")
@@ -259,11 +270,27 @@ public class UserController {
                 break;
             case EMAIL:
                 users.setEmail(content);
+                userService.deactivateUsers(id,content);
                 break;
             case MAX:
             default:new CommonResult(ResultCode.NOT_ACCEPTABLE);
         }
         userService.updateUserById(users);
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
+    @ApiOperation("向用户邮箱发送验证码")
+    @GetMapping("/checkCode")
+    public CommonResult check(
+            @ApiParam("邮箱") @RequestParam("email")String email
+    ){
+        Integer userId = userService.queryUserByEmail(email);
+        if(userId==null){
+            return new CommonResult(ResultCode.USER_NOT_EXIST);
+        }
+        Integer checkCode = random.nextInt(899999)+100000;
+        userService.changeUserCheckCodeById(userId,checkCode);
+        mailService.sendSimpleMail(email,"邮箱验证码","验证码为"+checkCode);
         return new CommonResult(ResultCode.SUCCESS);
     }
 

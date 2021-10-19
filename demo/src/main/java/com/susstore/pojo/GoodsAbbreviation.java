@@ -22,7 +22,10 @@ public class GoodsAbbreviation {
     private String picturePath;
     private List<String> labels;
     private Users announcer;
+    private Integer view;
     private Integer want;
+    private Integer goodsState;
+
 
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")

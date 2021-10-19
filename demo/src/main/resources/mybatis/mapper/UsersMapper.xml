@@ -117,6 +117,15 @@
             where user_id=#{id}
     </select>
 
+    <update id="changeUserCheckCodeById">
+        update store.users set check_code= #{checkCode} where user_id = #{userId};
+    </update>
+
+    <update id="deactivateUsers">
+        update store.users set is_activate = false , activate_code = #{activateCode}
+        where user_id = #{userId};
+    </update>
+
 
     <update id="clearUserCheckCodeById">
         update store."users"
@@ -163,5 +172,12 @@
         update store.users
             set credit = credit+(${change}) where user_id = #{userId};
     </update>
+
+    <select id="getUsersComment" resultType="com.susstore.pojo.UsersComment">
+        select content,comment_date,comment_user_id userId, picture_path,belong_deal_id dealId,
+               user_name
+               from store.users_comment join store.users on users_comment.comment_user_id = users.user_id
+        and belong_user_id = #{userId};
+    </select>
 
 </mapper>

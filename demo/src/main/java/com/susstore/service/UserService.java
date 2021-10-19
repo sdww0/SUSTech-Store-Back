@@ -3,6 +3,8 @@ package com.susstore.service;
 import com.susstore.config.Constants;
 import com.susstore.mapper.UsersMapper;
 import com.susstore.pojo.Users;
+import com.susstore.pojo.UsersComment;
+import com.susstore.util.CommonUtil;
 import com.susstore.util.ImageUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.susstore.config.Constants.RANDOM_STRING_SIZE;
-import static com.susstore.config.Constants.SEARCH_PAGE_SIZE;
+import static com.susstore.config.Constants.*;
 
 @Service
 public class UserService {
 
     @Autowired
     private UsersMapper usersMapper;
+
+    @Autowired
+    private MailServiceThread mailService;
 
 
     public List<Users> queryUserList(){
@@ -162,5 +166,19 @@ public class UserService {
         return usersMapper.searchUsers(Map.of("userName",userName,"pageSize",pageSize,"pageIndex",pageIndex));
     }
 
+    public List<UsersComment> getUsersComment(Integer userId){
+        return usersMapper.getUsersComment(userId);
+    }
+
+    public Integer changeUserCheckCodeById(Integer userId,Integer checkCode){
+        return usersMapper.changeUserCheckCodeById(checkCode,userId);
+    }
+
+    public Integer deactivateUsers(Integer userId,String newEmail){
+        String activateCode = newEmail+ CommonUtil.getRandomString(RANDOM_STRING_SIZE);
+        mailService.sendSimpleMail(newEmail,"请激活你的账户",
+                "激活链接:"+Constants.WEBSITE_LINK+"/user/activate?activateCode="+activateCode);
+        return usersMapper.deactivateUsers(userId,activateCode);
+    }
 
 }

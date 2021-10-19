@@ -198,4 +198,8 @@ public class GoodsService {
 
     }
 
+    public     List<GoodsAbbreviation> getRandomGoods(){
+        return goodsMapper.getRandomGoods();
+    }
+
 }

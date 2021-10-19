@@ -14,6 +14,7 @@
         <result property="want" column="want"/>
         <result property="announceTime" column="announce_time"/>
         <result property="goodsState" column="goods_state"/>
+        <result property="view" column="view"/>
         <association property="announcer" javaType="com.susstore.pojo.Users">
             <id property="userId" column="user_id"/>
             <result property="sign" column="sign"/>
@@ -26,6 +27,37 @@
             <result column="path" property="path"/>
             <result column="is_default_picture" property="isDefaultPicture"/>
         </collection>
+        <collection ofType="string" property="labels">
+            <result column="labels"/>
+        </collection>
+    </resultMap>
+<!--goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
+               user_id,sign,gender,credit,money,users.picture_path picture_path1,
+               goods_picture.picture_path path, is_default_picture,content labels
+        from store.goods join store.users
+                              on goods_id = #{goodsId} and announcer_id = users.user_id
+                         join store.goods_label on goods.goods_id = goods_label.goods_id
+                         join store.label on goods_label.label_id = label.label_id
+                         join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate-->
+    <resultMap id="goods2" type="com.susstore.pojo.GoodsAbbreviation">
+        <id property="goodsId" column="goods_id1"/>
+        <result property="price" column="price"/>
+        <result property="title" column="title"/>
+        <result property="isSell" column="is_sell"/>
+        <result property="postage" column="postage"/>
+        <result property="want" column="want"/>
+        <result property="view" column="view"/>
+        <result property="announceTime" column="announce_time"/>
+        <result property="goodsState" column="goods_state"/>
+        <result property="picturePath" column="picture_path"/>
+        <association property="announcer" javaType="com.susstore.pojo.Users">
+            <id property="userId" column="user_id"/>
+            <result property="sign" column="sign"/>
+            <result property="userName" column="user_name"/>
+            <result property="gender" column="gender"/>
+            <result property="credit" column="credit"/>
+            <result property="picturePath" column="picture_path1"/>
+        </association>
         <collection ofType="string" property="labels">
             <result column="labels"/>
         </collection>
@@ -101,7 +133,7 @@
     </update>
 
     <select id="queryGoodsById" parameterType="int" resultMap="goods1">
-        select goods.goods_id goods_id1 ,price,title,introduce,is_sell,postage,want,announce_time,goods_state,
+        select goods.goods_id goods_id1 ,view,price,title,introduce,is_sell,postage,want,announce_time,goods_state,
                user_id,sign,gender,credit,money,users.picture_path picture_path1,
                goods_picture.picture_path path, is_default_picture,content labels
         from store.goods
@@ -125,8 +157,15 @@
     </select>
 
     <select id="queryGoodsByUserId" parameterType="int" resultType="GoodsAbbreviation">
-        select * from store."goods"
-        where store."goods".announcer_id= #{userId};
+        select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
+               user_id,sign,gender,credit,money,users.picture_path picture_path1,
+               goods_picture.picture_path path, is_default_picture,content labels
+        from store.goods join store.users
+                              on goods_id = #{goodsId} and announcer_id = users.user_id
+                         join store.goods_label on goods.goods_id = goods_label.goods_id
+                         join store.label on goods_label.label_id = label.label_id
+                         join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
+        where store.goods.announcer_id= #{userId};
     </select>
 
     <select id="getBelongUserId" parameterType="int" resultType="int">
@@ -136,8 +175,16 @@
         where store."goods".goods_id= #{goodsId};
     </select>
     
-    <select id="searchGoods" parameterType="map" resultType="GoodsAbbreviation">
-        select * from store.goods where title like concat('%',#{searchContent,jdbcType=VARCHAR},'%')
+    <select id="searchGoods" parameterType="map" resultType="goods2">
+        select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
+               user_id,sign,gender,credit,money,users.picture_path picture_path1,
+               goods_picture.picture_path path, is_default_picture,content labels
+        from store.goods join store.users
+                              on goods_id = #{goodsId} and announcer_id = users.user_id
+                         join store.goods_label on goods.goods_id = goods_label.goods_id
+                         join store.label on goods_label.label_id = label.label_id
+                         join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
+                                                         and title like concat('%',#{searchContent,jdbcType=VARCHAR},'%')
         order by goods_id limit #{pageSize} offset (${pageSize}*(${pageIndex}-1));
     </select>
 
@@ -176,6 +223,20 @@
             join store.goods g
                 on g.goods_id = goods_comment.belong_goods_id and goods_comment.comment_id = #{commentId}
             where announcer_id = #{userId} or comment_user_id = #{userId};
+    </select>
+
+
+
+    <select id="getRandomGoods" resultMap="goods2">
+        select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
+               user_id,sign,gender,credit,money,users.picture_path picture_path1,
+               goods_picture.picture_path path, is_default_picture,content labels
+        from store.goods join store.users
+                              on goods_id = #{goodsId} and announcer_id = users.user_id
+                         join store.goods_label on goods.goods_id = goods_label.goods_id
+                         join store.label on goods_label.label_id = label.label_id
+                         join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
+            and goods.goods_id in (select goods_id from store.goods where goods_state = 1 offset random() * (select count(*) from store.goods) limit 10) ;
     </select>
 
 </mapper>
