@@ -60,6 +60,31 @@ public class MailService {
         }
     }
 
+    public void sendAttachmentMailWithFile(String to, String subject, String content, File file1) {
+
+        logger.info("发送带附件邮件开始：{},{},{},{}", to, subject, content, file1);
+        MimeMessage message = mailSender.createMimeMessage();
+
+        MimeMessageHelper helper;
+        try {
+            helper = new MimeMessageHelper(message, true);
+            //true代表支持多组件，如附件，图片等
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(content, true);
+            FileSystemResource file = new FileSystemResource(file1);
+            String fileName = file.getFilename();
+            helper.addAttachment(fileName, file);//添加附件，可多次调用该方法添加多个附件
+            mailSender.send(message);
+            logger.info("发送带附件邮件成功");
+        } catch (MessagingException e) {
+            logger.error("发送带附件邮件失败", e);
+        }
+
+
+    }
+
 
     public void sendAttachmentMail(String to, String subject, String content, String filePath) {
 

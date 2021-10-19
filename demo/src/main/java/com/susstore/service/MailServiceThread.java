@@ -41,6 +41,10 @@ public class MailServiceThread {
     }
 
 
+    public void sendAttachmentMailWithFile(String to, String subject, String content, File file) {
+        executorService.submit(() -> mailService.sendAttachmentMailWithFile(to,subject,content,file));
+    }
+
     public void sendInlineResourceMail(String to, String subject, String content, String rscPath, String rscId) {
         executorService.submit(() -> mailService.sendInlineResourceMail(to,subject,content,rscPath,rscId));
 
