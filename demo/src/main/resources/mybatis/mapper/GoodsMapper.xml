@@ -156,7 +156,7 @@
         select * from store.goods join store.users on  goods_id = #{goodsId} and goods.announcer_id = users.user_id;
     </select>
 
-    <select id="queryGoodsByUserId" parameterType="int" resultType="GoodsAbbreviation">
+    <select id="queryGoodsByUserId" parameterType="int" resultMap="goods2">
         select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
                user_id,sign,gender,credit,money,users.picture_path picture_path1,
                goods_picture.picture_path path, is_default_picture,content labels
@@ -175,7 +175,7 @@
         where store."goods".goods_id= #{goodsId};
     </select>
     
-    <select id="searchGoods" parameterType="map" resultType="goods2">
+    <select id="searchGoods" parameterType="map" resultMap="goods2">
         select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
                user_id,sign,gender,credit,money,users.picture_path picture_path1,
                goods_picture.picture_path path, is_default_picture,content labels
