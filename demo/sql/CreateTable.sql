@@ -13,6 +13,7 @@ drop table if exists store.users_comment cascade ;
 drop table if exists store.goods_picture cascade ;
 drop table if exists store.complain_goods cascade ;
 drop table if exists store.complain_users cascade ;
+drop table if exists store.chat cascade ;
 --主要的大类
 
 create table if not exists store.users(
@@ -89,6 +90,17 @@ create table if not exists store.deal(
     constraint shipping_address_id_fkey foreign key (shipping_address_id) references store.address(address_id)
 );
 
+create table if not exists store.chat(
+    chat_id serial primary key ,
+    goods_id int not null ,
+    initiator_id int not null ,
+    constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
+    constraint initiator_id_fkey foreign key (initiator_id) references store.users(user_id)
+
+);
+
+
+
 create table if not exists store.users_comment(
       belong_deal_id int not null ,
       belong_user_id int not null ,
@@ -104,11 +116,11 @@ create table if not exists store.users_comment(
 
 create table if not exists store.chat_content(
      chat_content_id serial primary key ,
-     belong_to_deal_id int not null ,
-     is_seller_speak bool not null ,
+     chat_id int not null ,
+     is_initiator_speak bool not null ,
      speak_date timestamp  not null,
      content varchar not null ,
-     constraint belong_to_deal_id_fkey foreign key (belong_to_deal_id) references store.deal (deal_id)
+     constraint chat_id_fkey foreign key (chat_id) references store.chat (chat_id)
 );
 
 -- 一些小类

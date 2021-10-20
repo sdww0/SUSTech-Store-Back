@@ -33,8 +33,8 @@
         stomp = Stomp.over(socket);
         //连接
         stomp.connect(
-		{"Authorization":'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxNDE5ODcwOTkyQHFxLmNvbSIsImNydCI6MTYzNDA0NTU4NDkyMywiZXhwIjoxNjM0MDQ5MTg0fQ.jbYmBk6PrLCgSoR4ygElfwLaXiwWiuswXXM4aaxk88qv66cS82lThZFY7l6Df57-74n-3sngi4FQ8FR3iTz8Lw',
-            "dealId":1}
+		{"Authorization":'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzE1OTUzNjYxQHFxLmNvbSIsImNydCI6MTYzNDc0NjcwOTIzMiwiZXhwIjoxNjM0NzUwMzA5fQ.Hkqh0JsoEPo_AfeHirffFOmTksz70zH9VyKuYvLvwGTFjhL_30gL9MaPdiRjKbOvFTrbsD6QuubkiXLVCBu9GA',
+            "chatId":1}
 		, function (frame) {
             //用户模式
             stomp.subscribe("/user/queue", function (res) {

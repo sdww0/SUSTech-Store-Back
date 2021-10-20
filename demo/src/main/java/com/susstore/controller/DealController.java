@@ -90,33 +90,32 @@ public class DealController {
         if(id==null||id<0){
             return new CommonResult(ResultCode.DEAL_ADD_FAIL);
         }
-        goodsService.increaseView(goodsId);
         return new CommonResult(ResultCode.SUCCESS,id);
 
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/check/{dealId}")
-    @ApiOperation("确认拍下")
-    public CommonResult check(
-            @ApiParam("SpringSecurity用户认证信息") Principal principal,
-            @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
-            @ApiParam("选择的地址id") @RequestParam("addressId") Integer addressId
-    ){
-        StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
-            if(!userService.checkUserHasInputAddress(userId,addressId)){
-                return 1;
-            }
-            dealService.setAddress(dealId1,addressId);
-            return 0;
-        };
-        Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.BUY_NOT_PAY,true,method);
-        Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
-        }
-        return new CommonResult(ResultCode.SUCCESS);
-    }
+//    @PreAuthorize("hasRole('USER')")
+//    @GetMapping(path="/check/{dealId}")
+//    @ApiOperation("确认拍下")
+//    public CommonResult check(
+//            @ApiParam("SpringSecurity用户认证信息") Principal principal,
+//            @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
+//            @ApiParam("选择的地址id") @RequestParam("addressId") Integer addressId
+//    ){
+//        StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
+//            if(!userService.checkUserHasInputAddress(userId,addressId)){
+//                return 1;
+//            }
+//            dealService.setAddress(dealId1,addressId);
+//            return 0;
+//        };
+//        Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.BUY_NOT_PAY,true,method);
+//        Integer code = (Integer)map.get("code");
+//        if(code!=0){
+//            return new CommonResult(ResultCode.FORBIDDEN);
+//        }
+//        return new CommonResult(ResultCode.SUCCESS);
+//    }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/pay/{dealId}")

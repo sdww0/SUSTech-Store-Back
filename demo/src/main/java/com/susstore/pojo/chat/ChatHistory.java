@@ -12,7 +12,7 @@ import java.util.Date;
 @Builder
 public class ChatHistory {
 
-    private Integer dealId;
+    private Integer chatId;
     private Integer otherUserId;
     private String otherUserName;
     private String otherUserPicturePath;

@@ -21,7 +21,7 @@ public class Chat {
 
     private Integer goodsId;
     private String goodsPicturePath;
-    private String goodsPrice;
+    private Float goodsPrice;
 
     private List<ChatContent> chatContents;
 

@@ -2,11 +2,16 @@ package com.susstore.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.susstore.pojo.ChatMessage;
+import com.susstore.pojo.Deal;
+import com.susstore.pojo.Goods;
+import com.susstore.pojo.GoodsState;
 import com.susstore.pojo.chat.Chat;
+import com.susstore.pojo.chat.DataBaseChat;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.ChatService;
 import com.susstore.service.DealService;
+import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,8 +23,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Date;
@@ -35,15 +39,15 @@ public class ChatController {
     private ChatService chatService;
 
     @Autowired
-    private DealService dealService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    private GoodsService goodsService;
 
     /**
      * 传递消息，保存到数据库，并发到另外一个用户
      * @param requestMsg 消息
-     * @param principal 登录信息userId/dealId/(0或1，0为seller，1为buyer)
+     * @param principal 登录信息userId/chatId/(0或1，1为initiator(发起者)，0为announcer(发布者))
      */
     @MessageMapping("/chat")
     public void chat(ChatMessage requestMsg, Principal principal) {
@@ -52,20 +56,20 @@ public class ChatController {
         //messagingTemplate.convertAndSend( "/topic/broadcast", "hhh");
         String[] str = principal.getName().split("/");
         Integer userId = Integer.parseInt(str[0]);
-        Integer dealId = Integer.parseInt(str[1]);
-        boolean isSeller = Integer.parseInt(str[2])==0;
-        chatService.insertNewChatContent(dealId,isSeller,new Date(System.currentTimeMillis()),requestMsg.getBody());
+        Integer chatId = Integer.parseInt(str[1]);
+        boolean isInitiator = Integer.parseInt(str[2])==1;
+        chatService.insertNewChatContent(chatId,isInitiator,new Date(System.currentTimeMillis()),requestMsg.getBody());
         Integer otherUserId = -1;
         StringBuilder otherUserUrl = new StringBuilder();
-        if(isSeller){
-            otherUserId = dealService.getBuyerIdByDealId(dealId);
+        if(isInitiator){
+            otherUserId = chatService.getAnnouncerId(chatId);
         }else{
-            otherUserId = dealService.getSellerIdByDealId(dealId);
+            otherUserId = chatService.getInitiatorId(chatId);
         }
         otherUserUrl
                 .append(otherUserId).append("/")
-                .append(dealId).append("/")
-                .append((isSeller?1:0));
+                .append(chatId).append("/")
+                .append((isInitiator?0:1));
         messagingTemplate.convertAndSendToUser(otherUserUrl.toString(), "/queue", requestMsg.getBody());
 
     }
@@ -78,9 +82,9 @@ public class ChatController {
     public String subscribe(Principal principal) {
         String[] str = principal.getName().split("/");
         Integer userId = Integer.parseInt(str[0]);
-        Integer dealId = Integer.parseInt(str[1]);
-        boolean isSeller = Integer.parseInt(str[2])==0;
-        Chat chat = chatService.getInitContent(dealId,userId,isSeller);
+        Integer chatId = Integer.parseInt(str[1]);
+        boolean isInitiator = Integer.parseInt(str[2])==1;
+        Chat chat = chatService.getInitContent(chatId,userId,isInitiator);
         return JSON.toJSONString(chat);
     }
 
@@ -109,6 +113,28 @@ public class ChatController {
 //    }
 //
 //
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(path="/chat/want",method = {RequestMethod.POST,RequestMethod.OPTIONS})
+    @ApiOperation("生成聊天信息")
+    public CommonResult addDeal(
+            @ApiParam("SpringSecurity用户认证信息") Principal principal,
+            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
+    ){
+        //查看商品是不是已经下架
+        // check buyer&seller&goodsId&stage
+        Integer userId = userService.queryUserByEmail(principal.getName());
+        Integer chatId = null;
+        if ((chatId=chatService.getChatId(goodsId,goodsId))!=null){
+            return new CommonResult(ResultCode.SUCCESS,chatId);
+        }
+        Goods goods = goodsService.getGoodsById(goodsId);
+        Integer id = chatService.addChat(DataBaseChat.builder().initiatorId(userId).goodsId(goodsId).build());
+        if(id==null||id<0){
+            return new CommonResult(ResultCode.DEAL_ADD_FAIL);
+        }
+        goodsService.increaseWant(goodsId);
+        return new CommonResult(ResultCode.SUCCESS,id);
 
+    }
 
 }

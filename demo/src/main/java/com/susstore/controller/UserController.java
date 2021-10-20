@@ -282,8 +282,8 @@ public class UserController {
     }
 
     @ApiOperation("向用户邮箱发送验证码")
-    @GetMapping("/checkCode")
-    public CommonResult check(
+    @GetMapping("/sendCode")
+    public CommonResult sendCode(
             @ApiParam("邮箱") @RequestParam("email")String email
     ){
         Integer userId = userService.queryUserByEmail(email);

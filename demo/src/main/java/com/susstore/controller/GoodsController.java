@@ -89,7 +89,7 @@ public class GoodsController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/comment")
-    @ApiParam("评价商品")
+    @ApiOperation("评价商品")
     public CommonResult comment(
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
             @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId,
@@ -104,7 +104,7 @@ public class GoodsController {
 
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/comment")
-    @ApiParam("删除商品评价")
+    @ApiOperation("删除商品评价")
     public CommonResult delete(
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
             @ApiParam("商品id") @RequestParam("commentId") Integer commentId

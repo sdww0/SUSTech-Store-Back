@@ -136,8 +136,7 @@ public class DealService {
         Stage stage = Stage.values()[stageIndex];
         //检查是否为前置阶段
         switch (wantStage){
-            case NOT_BUY:return Map.of("code",-2);
-            case BUY_NOT_PAY:if(stage!=Stage.NOT_BUY)return Map.of("code",-2);break;//NOT_BUY  buyer
+            case BUY_NOT_PAY:return Map.of("code",-2);//NOT_BUY  buyer
             case BUY_PAY:if(stage!=Stage.BUY_NOT_PAY&&stage!=Stage.REFUNDING)return Map.of("code",-2);break;//BUY_NOT_PAY/REFUNDING  buyer
             case DELIVERING:if(stage!=Stage.REFUNDING&&stage!=Stage.BUY_PAY)return Map.of("code",-2);break;//REFUNDING/BUY_PAY  buyer/seller
             case COMMENT:if(stage!=Stage.DELIVERING)return Map.of("code",-2);break;//DELIVERING  buyer

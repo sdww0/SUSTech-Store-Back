@@ -30,7 +30,7 @@ public class SearchController {
     private UserService userService;
 
     //@PreAuthorize("hasRole('USER')")
-    @GetMapping("/search/{content}/{currentPage}")
+    @GetMapping("/searchGoods/{content}/{currentPage}")
     @ApiOperation("搜索内容")
     public CommonResult search(
             @ApiParam("搜索内容") @PathVariable("content")String content,

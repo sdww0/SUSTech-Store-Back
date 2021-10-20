@@ -2,6 +2,7 @@ package com.susstore.config.socket;
 
 import com.susstore.config.security.UserDetailServiceImpl;
 import com.susstore.pojo.Users;
+import com.susstore.service.ChatService;
 import com.susstore.service.DealService;
 import com.susstore.service.UserService;
 import com.susstore.util.CommonUtil;
@@ -38,7 +39,7 @@ public class AuthInterceptor implements ChannelInterceptor {
     @Autowired
     private UserDetailServiceImpl jwtUserDetailsService;
     @Autowired
-    private DealService dealService;
+    private ChatService chatService;
 
 
     /**
@@ -55,24 +56,27 @@ public class AuthInterceptor implements ChannelInterceptor {
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             //2、判断token
             List<String> nativeHeader = accessor.getNativeHeader("Authorization");
-            List<String> dealId = accessor.getNativeHeader("dealId");
+            List<String> chatId = accessor.getNativeHeader("chatId");
             if (nativeHeader != null && !nativeHeader.isEmpty()
-                    &&dealId!=null&&!dealId.isEmpty()&& CommonUtil.isInteger(dealId.get(0))) {
+                    &&chatId!=null&&!chatId.isEmpty()&& CommonUtil.isInteger(chatId.get(0))) {
                 String token = nativeHeader.get(0);
                 if (StringUtils.isNotBlank(token)) {
                     String userEmail = TokenUtil.getUserEmailFromToken(token);
                     if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                        Users user = userService.getUserByEmail(userEmail);
-                        boolean isSeller = true;
-                        Integer stage = dealService.getDealStageBySellerIdAndDealId(user.getUserId(),Integer.parseInt(dealId.get(0)));
-                        if(stage==null){
-                            stage = dealService.getDealStageByBuyerIdAndDealId(user.getUserId(),Integer.parseInt(dealId.get(0)));
-                            isSeller = false;
+                        Integer userId = userService.queryUserByEmail(userEmail);
+                        boolean isInitiator = false;
+                        Integer otherId = chatService.getAnnouncerId(Integer.parseInt(chatId.get(0)));
+                        if(otherId==null){
+                            return null;
                         }
-                        if(stage!=null) {
+                        if(!otherId.equals(userId)){
+                            otherId = chatService.getInitiatorId(Integer.parseInt(chatId.get(0)));
+                            isInitiator = true;
+                        }
+                        if(otherId!=null) {
                             UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(userEmail);
                             UserDetails userDetails1 = new User(
-                                    user.getUserId() + "/" + dealId.get(0)+ "/"+(isSeller?0:1),
+                                    userId + "/" + chatId.get(0)+ "/"+(isInitiator?1:0),
                                     userDetails.getPassword(), userDetails.getAuthorities());
 
                             if (TokenUtil.validateToken(token, userDetails)) {
