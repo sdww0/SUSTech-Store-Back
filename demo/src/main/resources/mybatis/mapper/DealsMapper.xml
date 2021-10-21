@@ -176,5 +176,54 @@
         update store.deal set shipping_address_id = #{addressId} where deal_id = #{dealId};
     </update>
 
+    <select id="getDealByBuyerAndStage" resultMap="deal1">
+        select deal_id,stage,mailing_number,need_mailing,
+               u1.user_id user_id1, u1.sign sign1,u1.user_name user_name1,u1.gender gender1,
+               u1.credit credit1,u1.picture_path picture_path1,
+               u2.user_id user_id2, u2.sign sign2,u2.user_name user_name2,u2.gender gender2,
+               u2.credit credit2,u2.picture_path picture_path2,
+               a.address_id address_id, recipient_name, address_name, a.phone phone,
+               g.goods_id goods_id1, price, title, is_sell, postage, gp.picture_path picture_path4,
+               u3.user_id user_id3, u3.sign sign3,u3.user_name user_name3,u3.gender gender3,
+               u3.credit credit3,u2.picture_path picture_path3
+        from store.deal d
+                 join store.goods g
+                      on d.goods_id = g.goods_id and d.buyer_id = #{userId} and d.stage = #{stage}
+                 left join store.goods_picture gp
+                           on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                 join store.users u1
+                      on u1.user_id = d.seller_id
+                 join store.users u2
+                      on u2.user_id = d.buyer_id
+                 join store.users u3
+                      on u3.user_id = g.announcer_id
+                 left join store.address a
+                           on a.address_id = d.shipping_address_id;
+    </select>
+
+    <select id="getDealBySellerAndStage" resultMap="deal1">
+        select deal_id,stage,mailing_number,need_mailing,
+               u1.user_id user_id1, u1.sign sign1,u1.user_name user_name1,u1.gender gender1,
+               u1.credit credit1,u1.picture_path picture_path1,
+               u2.user_id user_id2, u2.sign sign2,u2.user_name user_name2,u2.gender gender2,
+               u2.credit credit2,u2.picture_path picture_path2,
+               a.address_id address_id, recipient_name, address_name, a.phone phone,
+               g.goods_id goods_id1, price, title, is_sell, postage, gp.picture_path picture_path4,
+               u3.user_id user_id3, u3.sign sign3,u3.user_name user_name3,u3.gender gender3,
+               u3.credit credit3,u2.picture_path picture_path3
+        from store.deal d
+                 join store.goods g
+                      on d.goods_id = g.goods_id and d.seller_id = #{userId} and d.stage = #{stage}
+                 left join store.goods_picture gp
+                           on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                 join store.users u1
+                      on u1.user_id = d.seller_id
+                 join store.users u2
+                      on u2.user_id = d.buyer_id
+                 join store.users u3
+                      on u3.user_id = g.announcer_id
+                 left join store.address a
+                           on a.address_id = d.shipping_address_id;
+    </select>
 
 </mapper>

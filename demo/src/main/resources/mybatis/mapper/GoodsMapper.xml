@@ -229,13 +229,13 @@
 
     <select id="getRandomGoods" resultMap="goods2">
         select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
-               user_id,sign,gender,credit,money,users.picture_path picture_path1,
+               user_id,user_name,sign,gender,credit,users.picture_path picture_path1,
                goods_picture.picture_path path, is_default_picture,content labels
         from store.goods join store.users
-                              on goods_id = #{goodsId} and announcer_id = users.user_id
-                         join store.goods_label on goods.goods_id = goods_label.goods_id
-                         join store.label on goods_label.label_id = label.label_id
-                         join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
+                              on announcer_id = users.user_id
+                         left join store.goods_label on goods.goods_id = goods_label.goods_id
+                         left join store.label on goods_label.label_id = label.label_id
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
             and goods.goods_id in (select goods_id from store.goods where goods_state = 1 offset random() * (select count(*) from store.goods) limit 10) ;
     </select>
 

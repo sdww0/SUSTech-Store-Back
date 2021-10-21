@@ -202,4 +202,9 @@ public class GoodsService {
     public int addGoodsComment(GoodsComment comment){
         return goodsMapper.addGoodsComment(comment);
     };
+
+    public     List<GoodsAbbreviation> queryGoodsByUserId(Integer userId){
+        return goodsMapper.queryGoodsByUserId(userId);
+    }
+
 }

@@ -55,6 +55,9 @@ public interface DealMapper {
 
     Integer setAddress(Integer dealId,Integer addressId);
 
+    Deal getDealBySellerAndStage(Integer userId,Integer stage);
+
+    Deal getDealByBuyerAndStage(Integer userId,Integer stage);
 
 
 }

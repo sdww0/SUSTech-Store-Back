@@ -193,6 +193,12 @@ public class GoodsController {
         return new CommonResult(ResultCode.SUCCESS);
     }
 
+    @ApiOperation("获取随机商品")
+    @GetMapping("/random")
+    public CommonResult randomGoods(){
+        return new CommonResult(ResultCode.SUCCESS,goodsService.getRandomGoods());
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

@@ -46,6 +46,12 @@ public class UserService {
 
 
     public boolean updateUserWithPhoto(MultipartFile photo,Users users){
+        if(photo==null){
+            users.setUserId(usersMapper.queryUserByEmail(users.getEmail()));
+            usersMapper.updateUser(users);
+            return true;
+        }
+
         Integer id = usersMapper.queryUserByEmail(users.getEmail());
         String random = UUID.randomUUID().toString();
         String path = Constants.USER_UPLOAD_PATH + id + "/image/"+ random+".png";

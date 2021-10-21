@@ -209,6 +209,14 @@ public class DealService {
         return map;
     }
 
+    public Deal getDealBySellerAndStage(Integer userId,Integer stage){
+        return dealMapper.getDealBySellerAndStage(userId,stage);
+    }
+
+    public Deal getDealByBuyerAndStage(Integer userId,Integer stage){
+        return dealMapper.getDealByBuyerAndStage(userId,stage);
+    }
+
 
 
 

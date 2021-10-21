@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.susstore.config.Constants;
 import com.susstore.pojo.Address;
 import com.susstore.pojo.Gender;
+import com.susstore.pojo.Stage;
 import com.susstore.pojo.Users;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
-import com.susstore.service.AddressService;
-import com.susstore.service.MailServiceThread;
-import com.susstore.service.UserService;
+import com.susstore.service.*;
 import com.susstore.util.CommonUtil;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +49,13 @@ public class UserController {
 
     @Autowired
     private MailServiceThread mailService;
+
+    @Autowired
+    private DealService dealService;
+
+    @Autowired
+    private GoodsService goodsService;
+
 
     private Random random = new Random();
 
@@ -127,7 +133,7 @@ public class UserController {
     })
     public CommonResult updateUser(
                 @ApiParam("SpringSecurity用户信息认证") Principal principal,
-                @ApiParam("用户照片") @RequestParam("photo")MultipartFile photo,
+                @ApiParam("用户照片") @RequestParam(name="photo",required = false)MultipartFile photo,
                 @ApiParam("新用户名") @RequestParam("name") String name,
                 @ApiParam("个性签名") @RequestParam("sign") String sign,
                 @ApiParam("性别,0-男性,1-女性,2-保密") @RequestParam("gender") Integer gender,
@@ -235,49 +241,16 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/security")
-    @ApiOperation("账户安全,修改密码或者邮箱或者手机号")
-    public CommonResult security(
-            @ApiParam("SpringSecurity用户信息认证") Principal principal,
-            @ApiParam("是哪种类型，密码，邮箱还是手机号，见SecurityType") @RequestParam("type")Integer type,
-            @ApiParam("内容") @RequestParam("content")String content,
-            @ApiParam("邮箱验证码(纯数字)") @RequestParam("checkCode")Integer checkCode){
-        //预参数判断
-        if(principal==null){
-            return new CommonResult(ResultCode.USER_NOT_LOGIN);
-        }
-        if(type<0||type>=SecurityType.MAX.ordinal()){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
-        }
-        if(String.valueOf(checkCode).length()!=Constants.CHECK_CODE_SIZE){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
-        }
-        int id = userService.queryUserByEmail(principal.getName());
-        //检查验证码
-        if(userService.getUserCheckCodeById(id)!=checkCode){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
-        }
-        SecurityType securityType = SecurityType.values()[type];
-        Users users = new Users();
-        users.setUserId(id);
-        switch (securityType){
-            case PASSWORD:
-                users.setPassword(passwordEncoder.encode(content));
-                break;
-            case PHONE:
-                if(!CommonUtil.isInteger(content)){
-                    return new CommonResult(ResultCode.NOT_ACCEPTABLE);
-                }
-                users.setPhone(Long.parseLong(content));
-                break;
-            case EMAIL:
-                users.setEmail(content);
-                userService.deactivateUsers(id,content);
-                break;
-            case MAX:
-            default:new CommonResult(ResultCode.NOT_ACCEPTABLE);
-        }
-        userService.updateUserById(users);
+    @ApiOperation("向用户邮箱发送验证码,需要登录")
+    @GetMapping("/sendCode1")
+    public CommonResult sendCode1(
+            @ApiParam("登录信息") Principal principal,
+            @ApiParam("邮箱") @RequestParam("email")String email
+    ){
+        Integer userId = userService.queryUserByEmail(principal.getName());
+        Integer checkCode = random.nextInt(899999)+100000;
+        userService.changeUserCheckCodeById(userId,checkCode);
+        mailService.sendSimpleMail(email,"邮箱验证码","验证码为"+checkCode);
         return new CommonResult(ResultCode.SUCCESS);
     }
 
@@ -349,7 +322,95 @@ public class UserController {
         return new CommonResult(ResultCode.SUCCESS);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("获取用户购买的订单")
+    @GetMapping("/buyDeal/{type}")
+    public CommonResult getUserBuyDeal(
+            @ApiParam("SpringSecurity认证信息") Principal principal,
+            @ApiParam("类型") @PathVariable("type") Integer type
+    ){
+        if(type>= Stage.values().length||type<0){
+            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        }
+        return new CommonResult(ResultCode.SUCCESS,
+                dealService.getDealByBuyerAndStage(
+                        userService.queryUserByEmail(principal.getName()
+        ),type));
 
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("获取用户卖出的订单")
+    @GetMapping("/sellDeal/{type}")
+    public CommonResult getUserSellDeal(
+            @ApiParam("SpringSecurity认证信息") Principal principal,
+            @ApiParam("类型") @PathVariable("type") Integer type
+    ){
+        if(type>= Stage.values().length||type<0){
+            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        }
+        return new CommonResult(ResultCode.SUCCESS,
+                dealService.getDealBySellerAndStage(
+                        userService.queryUserByEmail(principal.getName()
+                        ),type));
+
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("获取用户发布的商品")
+    @GetMapping("/announceGoods")
+    public CommonResult getAnnounceGoods(
+            @ApiParam("SpringSecurity认证信息") Principal principal
+    ){
+        return new CommonResult(ResultCode.SUCCESS,goodsService.queryGoodsByUserId(userService.queryUserByEmail(principal.getName())));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/security")
+    @ApiOperation("账户安全,修改密码或者邮箱或者手机号")
+    public CommonResult security(
+            @ApiParam("SpringSecurity用户信息认证") Principal principal,
+            @ApiParam("是哪种类型，密码，邮箱还是手机号，见SecurityType") @RequestParam("type")Integer type,
+            @ApiParam("内容") @RequestParam("content")String content,
+            @ApiParam("邮箱验证码(纯数字)") @RequestParam(name="checkCode",required = false)Integer checkCode){
+        //预参数判断
+        if(type<0||type>=SecurityType.MAX.ordinal()){
+            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        }
+        if(checkCode!=null&&String.valueOf(checkCode).length()!=Constants.CHECK_CODE_SIZE){
+            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        }
+        Integer id = userService.queryUserByEmail(principal.getName());
+        //检查验证码
+        if(checkCode!=null&&userService.getUserCheckCodeById(id)!=checkCode){
+            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        }
+        SecurityType securityType = SecurityType.values()[type];
+        Users users = new Users();
+        users.setUserId(id);
+        switch (securityType){
+            case PASSWORD:
+                users.setPassword(passwordEncoder.encode(content));
+                break;
+            case PHONE:
+                if(!CommonUtil.isInteger(content)){
+                    return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+                }
+                users.setPhone(Long.parseLong(content));
+                break;
+            case EMAIL:
+                if(userService.queryUserByEmail(content)!=null){
+                    return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+                }
+                users.setEmail(content);
+                userService.deactivateUsers(id,content);
+                break;
+            case MAX:
+            default:new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        }
+        userService.updateUserById(users);
+        return new CommonResult(ResultCode.SUCCESS);
+    }
 
     static enum SecurityType{
         PASSWORD,

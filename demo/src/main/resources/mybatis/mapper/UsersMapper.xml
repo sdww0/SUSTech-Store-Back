@@ -72,8 +72,9 @@
             <if test="email != null">email=#{email},</if>
             <if test="IDCard != null">id_card=#{IDCard},</if>
             <if test="money != null">money=#{money},</if>
-            <if test="picturePath != null">picture_path=#{picturePath}</if>
-            <if test="email != null">email=#{email}</if>
+            <if test="picturePath != null">picture_path=#{picturePath},</if>
+            <if test="email != null">email=#{email},</if>
+            <if test="sign != null">sign = #{sign}</if>
         </set>
         where user_id=#{userId};
     </update>
