@@ -4,6 +4,31 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.susstore.mapper.UsersMapper">
 
+    <resultMap id="goods2" type="com.susstore.pojo.GoodsAbbreviation">
+        <id property="goodsId" column="goods_id1"/>
+        <result property="price" column="price"/>
+        <result property="title" column="title"/>
+        <result property="isSell" column="is_sell"/>
+        <result property="postage" column="postage"/>
+        <result property="want" column="want"/>
+        <result property="view" column="view"/>
+        <result property="announceTime" column="announce_time"/>
+        <result property="goodsState" column="goods_state"/>
+        <result property="picturePath" column="picture_path"/>
+        <association property="announcer" javaType="com.susstore.pojo.Users">
+            <id property="userId" column="user_id"/>
+            <result property="sign" column="sign"/>
+            <result property="userName" column="user_name"/>
+            <result property="gender" column="gender"/>
+            <result property="credit" column="credit"/>
+            <result property="picturePath" column="picture_path1"/>
+        </association>
+        <collection ofType="string" property="labels">
+            <result column="labels"/>
+        </collection>
+    </resultMap>
+
+
     <select id="queryUserList" resultType="Users">
         select * from store."users";
     </select>
@@ -90,6 +115,10 @@
 
     <select id="getUserByEmail" parameterType="String" resultType="com.susstore.pojo.Users">
         select user_id,password,is_activate from store."users" where email=#{email};
+    </select>
+
+    <select id="getUserRole" parameterType="String" resultType="Integer">
+        select role from store.users join store.user_role ur on users.user_id = ur.user_id and users.email = #{email};
     </select>
 
     <select id="getUserCheckCodeById" parameterType="int" resultType="int">
@@ -185,4 +214,32 @@
         insert into store.complain_users (users_id, complainer_id, content, picture)
         values (#{userId},#{complainerId},#{content},#{picturePath});
     </insert>
+
+    <insert id="registerRole">
+        insert into store.user_role(user_id, role)  values (#{userId},#{role});
+    </insert>
+
+    <insert id="addCollection">
+        insert into store.users_collection(user_id, goods_id) VALUES (#{userId},#{goodsId});
+    </insert>
+
+    <delete id="deleteCollection">
+        delete
+        from store.users_collection
+        where user_id = #{userId} and goods_id = #{goodsId};
+    </delete>
+
+    <select id="getUsersCollection" resultMap="goods2">
+        select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
+               users_collection.user_id user_id,sign,gender,credit,money,users.picture_path picture_path1,
+               goods_picture.picture_path path, is_default_picture,content labels
+        from store.goods join store.users
+                              on goods_id = #{goodsId} and announcer_id = users.user_id
+                         join store.goods_label on goods.goods_id = goods_label.goods_id
+                         join store.label on goods_label.label_id = label.label_id
+                         join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
+                          join store.users_collection on user_id = #{userId};
+    </select>
+
+
 </mapper>

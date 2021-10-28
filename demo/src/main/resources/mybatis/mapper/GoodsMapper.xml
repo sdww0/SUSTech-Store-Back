@@ -225,7 +225,10 @@
             where announcer_id = #{userId} or comment_user_id = #{userId};
     </select>
 
-
+    <insert id="addGoodsComplain">
+        insert into store.complain_goods (goods_id, complainer_id, content, picture)
+        values (#{goodsId},#{complainerId},#{content},#{picturePath});
+    </insert>
 
     <select id="getRandomGoods" resultMap="goods2">
         select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,

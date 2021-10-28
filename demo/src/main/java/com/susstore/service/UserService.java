@@ -2,6 +2,8 @@ package com.susstore.service;
 
 import com.susstore.config.Constants;
 import com.susstore.mapper.UsersMapper;
+import com.susstore.pojo.GoodsAbbreviation;
+import com.susstore.pojo.Role;
 import com.susstore.pojo.Users;
 import com.susstore.pojo.UsersComment;
 import com.susstore.util.CommonUtil;
@@ -41,7 +43,9 @@ public class UserService {
     }
 
     public Integer addUser(Users user){
-        return usersMapper.addUser(user);
+        usersMapper.addUser(user);
+        usersMapper.registerRole(user.getUserId(), Role.USER.ordinal());
+        return user.getUserId();
     }
 
 
@@ -222,6 +226,22 @@ public class UserService {
         mailService.sendSimpleMail(newEmail,"请激活你的账户",
                 "激活链接:"+Constants.WEBSITE_LINK+"/user/activate?activateCode="+activateCode);
         return usersMapper.deactivateUsers(userId,activateCode);
+    }
+
+    public List<Integer> getUserRole(String email){
+        return usersMapper.getUserRole(email);
+    }
+
+    public GoodsAbbreviation getUsersCollection(Integer userId){
+        return usersMapper.getUsersCollection(userId);
+    }
+
+    public Integer addCollection(Integer userId,Integer goodsId){
+        return usersMapper.addCollection(userId,goodsId);
+    }
+
+    public Integer deleteCollection(Integer userId,Integer goodsId){
+        return usersMapper.deleteCollection(userId,goodsId);
     }
 
 }

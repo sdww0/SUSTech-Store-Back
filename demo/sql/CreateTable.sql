@@ -14,6 +14,8 @@ drop table if exists store.goods_picture cascade ;
 drop table if exists store.complain_goods cascade ;
 drop table if exists store.complain_users cascade ;
 drop table if exists store.chat cascade ;
+drop table if exists store.user_role cascade ;
+drop table if exists store.users_collection cascade ;
 --主要的大类
 
 create table if not exists store.users(
@@ -99,6 +101,12 @@ create table if not exists store.chat(
 
 );
 
+create table if not exists store.user_role(
+    user_id int not null ,
+    role int not null ,
+    constraint user_id_fkey foreign key (user_id) references store.users(user_id),
+    primary key(user_id,role)
+);
 
 
 create table if not exists store.users_comment(
@@ -129,7 +137,9 @@ create table if not exists store.users_collection(
     user_id int not null ,
     goods_id int not null ,
     constraint user_id_fkey foreign key (user_id) references store.users (user_id),
-    constraint goods_id_fkey foreign key (goods_id) references store.goods (goods_id)
+    constraint goods_id_fkey foreign key (goods_id) references store.goods (goods_id),
+    primary key (user_id,goods_id)
+
 );
 
 create table if not exists store.label(

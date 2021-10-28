@@ -1,6 +1,7 @@
 package com.susstore.config.security;
 
 import com.susstore.config.security.exception.*;
+import com.susstore.pojo.Role;
 import com.susstore.pojo.Users;
 import com.susstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,16 @@ public class UserDetailServiceImpl implements UserDetailsService {
         if(!user.getIsActivate()){
             throw new UserNotActivateException("用户未激活");
         }
+        List<Integer> roles = userService.getUserRole(email);
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        for(Integer i : roles){
+            Role role = Role.values()[i];
+            switch (role){
+                case USER:authorities.add(new SimpleGrantedAuthority("ROLE_USER"));break;
+                case ADMIN:authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));break;
+                default:break;
+            }
+        }
         return new User(
                 email,
                 user.getPassword(),

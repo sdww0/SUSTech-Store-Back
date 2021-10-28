@@ -28,4 +28,13 @@ public class AddressService {
     public List<Address> getUserAddressByEmail(String email) {
         return addressMapper.getUserAddressByEmail(email);
     }
+
+    public Integer updateAddress(Address address ){
+        return addressMapper.updateAddress(address);
+    }
+
+    public Integer getAddress(Integer addressId){
+        return addressMapper.getAddress(addressId);
+    }
+
 }

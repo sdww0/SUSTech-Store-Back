@@ -207,23 +207,42 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/address")
+    @PutMapping("/address")
     @ApiOperation("添加用户地址信息")
     public CommonResult addAddress(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("收货人名") @RequestParam("recipientName")String recipientName,
             @ApiParam("地址名") @RequestParam("addressName")String addressName,
             @ApiParam("手机号") @RequestParam("phone")Long phone){
-        if(principal==null){
-            return new CommonResult(ResultCode.USER_NOT_LOGIN);
-        }
-
         addressService.addAddress(
                 Address.builder().recipientName(recipientName)
                 .addressName(addressName)
                 .phone(phone)
                 .belongToUserId(userService.queryUserByEmail(principal.getName()))
                 .build());
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/address")
+    @ApiOperation("更新用户地址信息")
+    public CommonResult editAddress(
+            @ApiParam("SpringSecurity用户信息认证") Principal principal,
+            @ApiParam("收货人名") @RequestParam("recipientName")String recipientName,
+            @ApiParam("地址名") @RequestParam("addressName")String addressName,
+            @ApiParam("手机号") @RequestParam("phone")Long phone,
+            @ApiParam("地址id") @RequestParam("addressId")Integer addressId)
+    {
+        if(addressService.getAddress(addressId)==null){
+            return new CommonResult(ResultCode.NOT_FOUND);
+        }
+        addressService.updateAddress(
+                Address.builder().recipientName(recipientName)
+                        .addressName(addressName)
+                        .phone(phone)
+                        .belongToUserId(userService.queryUserByEmail(principal.getName()))
+                        .addressId(addressId)
+                        .build());
         return new CommonResult(ResultCode.SUCCESS);
     }
 
@@ -410,6 +429,67 @@ public class UserController {
         }
         userService.updateUserById(users);
         return new CommonResult(ResultCode.SUCCESS);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("添加到收藏夹")
+    @PostMapping("/collection")
+    public CommonResult addCollection(
+            @ApiParam("SpringSecurity认证信息") Principal principal,
+            @ApiParam("商品id") @RequestParam("goodsId")Integer goodsId
+    ){
+        if(goodsService.getBelongUserId(goodsId)==null){
+            return new CommonResult(ResultCode.NOT_FOUND);
+        }
+        return new CommonResult(ResultCode.SUCCESS,userService.addCollection(userService.queryUserByEmail(principal.getName()),goodsId));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("获得收藏夹")
+    @GetMapping("/collection")
+    public CommonResult addCollection(
+            @ApiParam("SpringSecurity认证信息") Principal principal
+    ){
+        return new CommonResult(ResultCode.SUCCESS,userService.getUsersCollection(userService.queryUserByEmail(principal.getName())));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("删除收藏夹某个商品")
+    @DeleteMapping("/collection")
+    public CommonResult deleteCollection(
+            @ApiParam("SpringSecurity认证信息") Principal principal,
+            @ApiParam("商品id") @RequestParam("goodsId")Integer goodsId
+    ){
+        if(goodsService.getBelongUserId(goodsId)==null){
+            return new CommonResult(ResultCode.NOT_FOUND);
+        }
+        userService.deleteCollection(userService.queryUserByEmail(principal.getName()),goodsId );
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
+    @ApiOperation("检查邮箱")
+    @PostMapping("/checkEmail")
+    public CommonResult checkEmail(
+            @ApiParam("邮箱") @RequestParam("email") String email,
+            @ApiParam("验证码") @RequestParam("checkCode") Integer checkCode
+    ){
+        Integer check = userService.getUserCheckCodeByEmail(email);
+        if(check==null){
+            return new CommonResult(ResultCode.USER_NOT_EXIST);
+        }
+        if(check==checkCode){
+            return new CommonResult(ResultCode.SUCCESS,true);
+        }
+        return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("查看我的")
+    @GetMapping("/me")
+    public CommonResult me(
+            @ApiParam("SpringSecurity认证信息") Principal principal
+    ){
+        return new CommonResult(ResultCode.SUCCESS,userService.queryUserById(userService.queryUserByEmail(principal.getName())));
     }
 
     static enum SecurityType{

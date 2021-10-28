@@ -199,6 +199,32 @@ public class GoodsController {
         return new CommonResult(ResultCode.SUCCESS,goodsService.getRandomGoods());
     }
 
+    @ApiParam("投诉商品")
+    @PostMapping("/complain")
+    @PreAuthorize("hasRole('USER')")
+    public CommonResult complain(
+        @ApiParam("SpringSecurity认证信息")Principal principal,
+        @ApiParam("用户Id") @RequestParam("goodsId") Integer goodsId,
+        @ApiParam("举报内容") @RequestParam("content") String content,
+        @ApiParam("举报照片") @RequestParam("picture")MultipartFile picture
+    ){
+            //处理 未处理 撤销 管理员处理
+            //get rollback
+            //Users users =userService.queryUserById(userId);
+            if (goodsService.getBelongUserId(goodsId)==null){
+                return new CommonResult(ResultCode.NOT_FOUND);
+            }
+            if (content.length()==0){
+                return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+            }
+            if (!goodsService.addGoodsComplain(goodsId,
+                    content,picture,userService.getUserByEmail(principal.getName()).getUserId())){
+                return new CommonResult(ResultCode.COMPLAIN_FAIL);
+            }
+            return new CommonResult(ResultCode.SUCCESS);
+    }
+
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

@@ -9,17 +9,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.util.*;
 
 import static com.susstore.config.Constants.GOODS_MAX_PICTURE;
+import static com.susstore.config.Constants.USER_COMPLAIN_PATH;
 
 @Service
 public class GoodsService {
 
     @Autowired
     private GoodsMapper goodsMapper;
+
+    @Autowired
+    private MailServiceThread mailService;
 
     /**
      * 添加商品
@@ -205,6 +210,41 @@ public class GoodsService {
 
     public     List<GoodsAbbreviation> queryGoodsByUserId(Integer userId){
         return goodsMapper.queryGoodsByUserId(userId);
+    }
+
+    public boolean addGoodsComplain(Integer goodsId,String content,MultipartFile picture,Integer complainerId) {
+        String random = UUID.randomUUID().toString();
+        String path = USER_COMPLAIN_PATH + complainerId + "/image/" + random + ".png";
+        if (!picture.isEmpty()) {
+            //获取文件的名称
+            final String fileName = picture.getOriginalFilename();
+            //限制文件上传的类型
+            String contentType = fileName.substring(fileName.lastIndexOf("."));
+            if (contentType.length() == 0) {
+                return false;
+            }
+            if (".jpeg".equals(contentType) || ".jpg".equals(contentType) || ".png".equals(contentType)) {
+                //完成文件的上传
+                BufferedImage srcImage = null;
+                try {
+                    FileInputStream in = (FileInputStream) picture.getInputStream();
+                    srcImage = ImageIO.read(in);
+                    ImageUtil.storeImage(srcImage, path);
+                } catch (Exception e) {
+                    System.out.println("读取图片文件出错！" + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                return false;
+            }
+        }
+        mailService.sendAttachmentMail(Constants.COMPLAIN_HANDING_EMAIL,"您有一份新的举报信息待处理！",
+                "\n举报内容:"+content
+                        +"\n 举报人："+complainerId
+                        +"\n 举报商品id："+goodsId+"\n 举报图片见附件.",path);
+
+        goodsMapper.addGoodsComplain(goodsId, content, path, complainerId);
+        return true;
     }
 
 }

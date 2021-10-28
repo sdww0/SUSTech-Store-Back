@@ -97,4 +97,8 @@ public interface GoodsMapper {
     List<GoodsAbbreviation> getRandomGoods();
 
     int addGoodsComment(GoodsComment comment);
+
+    Integer addGoodsComplain(Integer goodsId, String content, String picturePath, Integer complainerId);
+
+
 }

@@ -1,20 +1,20 @@
 package com.susstore.result;
 
-public class CommonResult<T> {
+public class CommonResult {
     private long code;
     private String message;
-    private T data;
+    private Object data;
 
     public CommonResult() {
     }
 
-    public CommonResult(long code, String message, T data) {
+    public CommonResult(long code, String message, Object data) {
         this.code = code;
         this.message = message;
         this.data = data;
     }
 
-    public CommonResult(ResultCode resultCode,T data){
+    public CommonResult(ResultCode resultCode,Object data){
         this.code = resultCode.getCode();
         this.message = resultCode.getMessage();
         this.data = data;
@@ -48,11 +48,11 @@ public class CommonResult<T> {
         this.message = message;
     }
 
-    public T getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(T data) {
+    public void setData(Object data) {
         this.data = data;
     }
 

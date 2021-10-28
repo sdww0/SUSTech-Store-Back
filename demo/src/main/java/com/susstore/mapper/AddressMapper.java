@@ -49,5 +49,5 @@ public interface AddressMapper {
     Integer deleteAddress(Integer addressId);
 
 
-
+    Integer getAddress(Integer addressId);
 }

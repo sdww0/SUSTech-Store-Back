@@ -1,5 +1,6 @@
 package com.susstore.mapper;
 
+import com.susstore.pojo.GoodsAbbreviation;
 import com.susstore.pojo.Users;
 import com.susstore.pojo.UsersComment;
 import org.apache.ibatis.annotations.Mapper;
@@ -147,4 +148,16 @@ public interface UsersMapper {
      List<UsersComment> getUsersComment(Integer userId);
 
      Integer addUserComplain(Integer userId, String content, String picturePath, Integer complainerId);
+
+     List<Integer> getUserRole(String email);
+
+     Integer registerRole(Integer userId,Integer role);
+
+     GoodsAbbreviation getUsersCollection(Integer userId);
+
+     Integer addCollection(Integer userId,Integer goodsId);
+
+     Integer deleteCollection(Integer userId,Integer goodsId);
+
+
 }
