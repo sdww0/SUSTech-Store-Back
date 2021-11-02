@@ -6,9 +6,7 @@ import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +30,9 @@ public class SearchController {
     //@PreAuthorize("hasRole('USER')")
     @GetMapping("/searchGoods/{content}/{currentPage}")
     @ApiOperation("搜索内容")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult search(
             @ApiParam("搜索内容") @PathVariable("content")String content,
             @ApiParam("当前页") @PathVariable("currentPage")Integer currentPage
@@ -42,6 +43,9 @@ public class SearchController {
 
     @GetMapping("/searchUser/{userName}/{currentPage}")
     @ApiOperation("搜索用户")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult searchUser(
             @ApiParam("搜索用户名") @PathVariable("userName")String userName,
             @ApiParam("当前页") @PathVariable("currentPage")Integer currentPage

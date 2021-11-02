@@ -13,9 +13,7 @@ import com.susstore.service.ChatService;
 import com.susstore.service.DealService;
 import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -91,32 +89,21 @@ public class ChatController {
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("获得登录用户的所有聊天历史最新记录")
     @GetMapping("/chat/list")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult chatList(Principal principal){
         return new CommonResult(ResultCode.SUCCESS,chatService.getUserChatHistory(userService.queryUserByEmail(principal.getName())));
     }
 
-
-
-
-
-
-    //    /**
-//     * 广播模式
-//     * @param requestMsg
-//     * @return
-//     */
-//    @MessageMapping("/broadcast")
-//    @SendTo("/topic/broadcast")
-//    public String broadcast(Object requestMsg) {
-//        //这里是有return，如果不写@SendTo默认和/topic/broadcast一样
-//        return "server:" + requestMsg.toString();
-//    }
-//
-//
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(path="/chat/want",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("生成聊天信息")
-    public CommonResult addDeal(
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4090,message = "聊天已存在")
+    })
+    public CommonResult addChat(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
     ){
@@ -124,17 +111,16 @@ public class ChatController {
         // check buyer&seller&goodsId&stage
         Integer userId = userService.queryUserByEmail(principal.getName());
         Integer chatId = null;
-        if ((chatId=chatService.getChatId(goodsId,goodsId))!=null){
-            return new CommonResult(ResultCode.SUCCESS,chatId);
+        if ((chatId=chatService.getChatId(goodsId,userId))!=null){
+            return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS,chatId);
         }
         Goods goods = goodsService.getGoodsById(goodsId);
         Integer id = chatService.addChat(DataBaseChat.builder().initiatorId(userId).goodsId(goodsId).build());
         if(id==null||id<0){
-            return new CommonResult(ResultCode.DEAL_ADD_FAIL);
+            return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS);
         }
         goodsService.increaseWant(goodsId);
         return new CommonResult(ResultCode.SUCCESS,id);
-
     }
 
 }

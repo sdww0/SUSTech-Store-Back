@@ -180,12 +180,12 @@
                user_id,sign,gender,credit,money,users.picture_path picture_path1,
                goods_picture.picture_path path, is_default_picture,content labels
         from store.goods join store.users
-                              on goods_id = #{goodsId} and announcer_id = users.user_id
+                              on goods.goods_id = #{goodsId} and goods.announcer_id = users.user_id
                          join store.goods_label on goods.goods_id = goods_label.goods_id
                          join store.label on goods_label.label_id = label.label_id
                          join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
                                                          and title like concat('%',#{searchContent,jdbcType=VARCHAR},'%')
-        order by goods_id limit #{pageSize} offset (${pageSize}*(${pageIndex}-1));
+        order by goods.goods_id limit #{pageSize} offset (${pageSize}*(${pageIndex}-1));
     </select>
 
     <select id="ifOnShelfById" resultType="int">

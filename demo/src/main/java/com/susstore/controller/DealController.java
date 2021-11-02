@@ -12,9 +12,7 @@ import com.susstore.service.DealService;
 import com.susstore.service.GoodsService;
 import com.susstore.service.MailServiceThread;
 import com.susstore.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +41,11 @@ public class DealController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/{dealId}")
     @ApiOperation("获得订单信息")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult getDeal(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId
@@ -50,15 +53,15 @@ public class DealController {
         //查看订单是否存在
         Deal deal = null;
         if ((deal=dealService.getDealById(dealId))==null){
-            return new CommonResult(ResultCode.DEAL_NOT_EXIST);
+            return new CommonResult(ResultCode.DEAL_NOT_EXISTS);
         }
 
         //获取当前user 看看是不是订单id user的一个
         //不满足返回无权限
         Integer currentUserId = userService.queryUserByEmail(principal.getName());
-        if (currentUserId!= deal.getBuyer().getUserId()
-                &&currentUserId!=deal.getSeller().getUserId()){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        if (!currentUserId.equals(deal.getBuyer().getUserId())
+                && !currentUserId.equals(deal.getSeller().getUserId())){
+            return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         return new CommonResult(ResultCode.SUCCESS,deal);
 
@@ -68,6 +71,11 @@ public class DealController {
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(path="/addDeal",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("生成订单信息")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4051,message = "商品下架"),
+            @ApiResponse(code = 4071,message = "添加订单失败")
+    })
     public CommonResult addDeal(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
@@ -75,14 +83,10 @@ public class DealController {
         //查看商品是不是已经下架
         Integer userId = userService.queryUserByEmail(principal.getName());
         if (goodsService.ifOnShelfById(goodsId)== GoodsState.OFF_SHELL.ordinal()){
-            return new CommonResult(ResultCode.DEAL_OFF_SHELF);
+            return new CommonResult(ResultCode.GOODS_OFF_SHELL);
         }
         //查看相同订单是否已存在
         // check buyer&seller&goodsId&stage
-        Deal deal = null;
-        if ((deal=dealService.checkExists(userId,goodsId))!=null){
-            return new CommonResult(ResultCode.DEAL_ALREADY_EXISI);
-        }
         Goods goods = goodsService.getGoodsById(goodsId);
         Integer sellerId = (!goods.getIsSell()) ? userId : goods.getAnnouncer().getUserId();
         Integer buyerId = goods.getIsSell() ? userId : goods.getAnnouncer().getUserId();
@@ -94,32 +98,16 @@ public class DealController {
 
     }
 
-//    @PreAuthorize("hasRole('USER')")
-//    @GetMapping(path="/check/{dealId}")
-//    @ApiOperation("确认拍下")
-//    public CommonResult check(
-//            @ApiParam("SpringSecurity用户认证信息") Principal principal,
-//            @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
-//            @ApiParam("选择的地址id") @RequestParam("addressId") Integer addressId
-//    ){
-//        StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
-//            if(!userService.checkUserHasInputAddress(userId,addressId)){
-//                return 1;
-//            }
-//            dealService.setAddress(dealId1,addressId);
-//            return 0;
-//        };
-//        Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.BUY_NOT_PAY,true,method);
-//        Integer code = (Integer)map.get("code");
-//        if(code!=0){
-//            return new CommonResult(ResultCode.FORBIDDEN);
-//        }
-//        return new CommonResult(ResultCode.SUCCESS);
-//    }
-
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/pay/{dealId}")
     @ApiOperation("付款")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问"),
+            @ApiResponse(code = 4073,message = "没有足够的钱")
+    })
     public CommonResult pay(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId
@@ -137,15 +125,23 @@ public class DealController {
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(),dealId,Stage.BUY_PAY,true,method);
         Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        ResultCode resultCode = preCheck(code);
+        if(resultCode!=null){
+            return new CommonResult(resultCode);
+        }else{
+            return new CommonResult(ResultCode.NOT_ENOUGH_MONEY);
         }
-        return new CommonResult(ResultCode.SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/deliver/{dealId}")
     @ApiOperation("填写邮递单号")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult deliver(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
@@ -161,15 +157,23 @@ public class DealController {
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(),dealId,Stage.DELIVERING,true,method);
         Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        ResultCode resultCode = preCheck(code);
+        if(resultCode!=null){
+            return new CommonResult(resultCode);
+        }else{
+            return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        return new CommonResult(ResultCode.SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/confirm/{dealId}")
     @ApiOperation("确认收货")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult confirm(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId
@@ -181,15 +185,24 @@ public class DealController {
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.COMMENT,true,method);
         Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        ResultCode resultCode = preCheck(code);
+        if(resultCode!=null){
+            return new CommonResult(resultCode);
+        }else{
+            return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        return new CommonResult(ResultCode.SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/comment/{dealId}")
     @ApiOperation("评价")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问"),
+            @ApiResponse(code = 4074,message = "已经评价")
+    })
     public CommonResult comment(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
@@ -215,15 +228,23 @@ public class DealController {
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.DEAL_SUCCESS,false, method);
         Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        ResultCode resultCode = preCheck(code);
+        if(resultCode!=null){
+            return new CommonResult(resultCode);
+        }else{
+            return new CommonResult(ResultCode.ALREADY_COMMENT);
         }
-        return new CommonResult(ResultCode.SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/refund/{dealId}")
     @ApiOperation("希望退货")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult refund(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId
@@ -231,15 +252,23 @@ public class DealController {
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> 0;
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.REFUNDING,true,method);
         Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        ResultCode resultCode = preCheck(code);
+        if(resultCode!=null){
+            return new CommonResult(resultCode);
+        }else{
+            return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        return new CommonResult(ResultCode.SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/cancelRefund/{dealId}")
     @ApiOperation("取消退货")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult cancelRefund(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId
@@ -254,16 +283,24 @@ public class DealController {
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.DELIVERING,false,method);
         Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        ResultCode resultCode = preCheck(code);
+        if(resultCode!=null){
+            return new CommonResult(resultCode);
+        }else{
+            return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        return new CommonResult(ResultCode.SUCCESS);
     }
 
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/agreeRefund/{dealId}")
     @ApiOperation("卖家是否同意退货")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult agreeRefund(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
@@ -282,15 +319,23 @@ public class DealController {
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.DEAL_CLOSE,false,method);
         Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        ResultCode resultCode = preCheck(code);
+        if(resultCode!=null){
+            return new CommonResult(resultCode);
+        }else{
+            return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        return new CommonResult(ResultCode.SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/appealing/{dealId}")
     @ApiOperation("买家申诉")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4070,message = "订单不存在"),
+            @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult appealing(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
@@ -303,10 +348,24 @@ public class DealController {
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.APPEALED,true,method);
         Integer code = (Integer)map.get("code");
-        if(code!=0){
-            return new CommonResult(ResultCode.FORBIDDEN);
+        ResultCode resultCode = preCheck(code);
+        if(resultCode!=null){
+            return new CommonResult(resultCode);
+        }else{
+            return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        return new CommonResult(ResultCode.SUCCESS);
+
+    }
+
+    private ResultCode preCheck(Integer code){
+        switch (code){
+            case 0:return ResultCode.SUCCESS;
+            case -1:return ResultCode.DEAL_NOT_EXISTS;
+            case -2:return ResultCode.STAGE_WRONG;
+            case -3:return ResultCode.ACCESS_DENIED;
+            default:return null;
+        }
+
     }
 
 }

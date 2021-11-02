@@ -19,9 +19,9 @@ public class CustomizeAuthenticationFailureHandler implements AuthenticationFail
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
         CommonResult result = new CommonResult(ResultCode.LOGIN_FAIL);
         if(e instanceof UserNotActivateException){
-            result = new CommonResult(4002,"用户未激活");
+            result = new CommonResult(ResultCode.USER_NOT_ACTIVATE);
         }else if(e instanceof ValidateCodeException){
-            result = new CommonResult(4000,"图形验证码错误");
+            result = new CommonResult(ResultCode.CHECK_CODE_WRONG);
         }
         httpServletResponse.setContentType("text/json;charset=utf-8");
         httpServletResponse.getWriter().write(JSON.toJSONString(result));

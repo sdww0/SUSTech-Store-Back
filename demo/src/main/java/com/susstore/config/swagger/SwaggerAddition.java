@@ -2,6 +2,7 @@ package com.susstore.config.swagger;
 
 import com.fasterxml.classmate.TypeResolver;
 import com.google.common.collect.Sets;
+import com.susstore.result.ResultCode;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import springfox.documentation.spring.web.readers.operation.CachingOperationName
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class SwaggerAddition implements ApiListingScannerPlugin {
@@ -61,16 +63,6 @@ public class SwaggerAddition implements ApiListingScannerPlugin {
                                 .modelRef(new ModelRef("string"))
                                 .build()
 //                        new ParameterBuilder()
-//                                .description("验证码唯一标识")
-//                                .type(new TypeResolver().resolve(String.class))
-//                                .name("randomKey")
-//                                .defaultValue("666666")
-//                                .parameterType("query")
-//                                .parameterAccess("access")
-//                                .required(true)
-//                                .modelRef(new ModelRef("string"))
-//                                .build(),
-//                        new ParameterBuilder()
 //                                .description("验证码")
 //                                .type(new TypeResolver().resolve(String.class))
 //                                .name("code")
@@ -81,17 +73,33 @@ public class SwaggerAddition implements ApiListingScannerPlugin {
 //                                .build(),
 
                                 ))
-                .responseMessages(Collections.singleton(
-                        new ResponseMessageBuilder().code(200).message("请求成功")
+                .responseMessages(Set.of(
+                        new ResponseMessageBuilder().code(ResultCode.SUCCESS.code)
+                                .message(ResultCode.SUCCESS.message)
                                 .responseModel(new ModelRef(
-                                        "xyz.gits.boot.common.core.response.RestResponse")
+                                        ResultCode.SUCCESS.message)
+                                ).build(),
+                        new ResponseMessageBuilder().code(ResultCode.CHECK_CODE_WRONG.code)
+                                .message(ResultCode.CHECK_CODE_WRONG.message)
+                                .responseModel(new ModelRef(
+                                        ResultCode.CHECK_CODE_WRONG.message)
+                                ).build(),
+                        new ResponseMessageBuilder().code(ResultCode.LOGIN_FAIL.code)
+                                .message(ResultCode.LOGIN_FAIL.message)
+                                .responseModel(new ModelRef(
+                                        ResultCode.LOGIN_FAIL.message)
+                                ).build(),
+                        new ResponseMessageBuilder().code(ResultCode.USER_NOT_ACTIVATE.code)
+                                .message(ResultCode.USER_NOT_ACTIVATE.message)
+                                .responseModel(new ModelRef(
+                                        ResultCode.USER_NOT_ACTIVATE.message)
                                 ).build()))
                 .build();
 
         ApiDescription loginApiDescription = new ApiDescription("login", "/login", "登录接口",
-                Arrays.asList(usernamePasswordOperation), false);
+                Collections.singletonList(usernamePasswordOperation), false);
 
-        return Arrays.asList(loginApiDescription);
+        return Collections.singletonList(loginApiDescription);
     }
 
     /**

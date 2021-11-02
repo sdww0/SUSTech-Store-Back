@@ -7,7 +7,8 @@ import com.susstore.pojo.Gender;
 import com.susstore.pojo.Stage;
 import com.susstore.pojo.Users;
 import com.susstore.result.CommonResult;
-import com.susstore.result.ResultCode;
+import static com.susstore.result.ResultCode.*;
+
 import com.susstore.service.*;
 import com.susstore.util.CommonUtil;
 import io.swagger.annotations.*;
@@ -87,39 +88,38 @@ public class UserController {
     @ApiOperation(value = "根据id获得用户信息")
     @GetMapping("/information/{queryUserId}")
     @ApiResponses(value = {
-            @ApiResponse(code = 404,message = "没找到用户"),
-            @ApiResponse(code = 2000,message = "查询成功,为当前登录用户"),
-            @ApiResponse(code = 2001,message = "查询成功")
+            @ApiResponse(code = 4012,message = "没找到用户"),
+            @ApiResponse(code = 2001,message = "查询成功,不是当前登录用户"),
+            @ApiResponse(code = 2002,message = "查询成功，为当前登录用户")
     })
     public CommonResult getUserInformation(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("用户id") @PathVariable("queryUserId")Integer id){
         Users user = userService.queryUserById(id);
-
         if(user==null){
-            return new CommonResult(ResultCode.NOT_FOUND);
+            return new CommonResult(USER_NOT_FOUND);
         }
         Integer loginId = -1;
         if(principal!=null){
             loginId = userService.queryUserByEmail(principal.getName());
         }
-        if(loginId==user.getUserId()){
+        if(loginId.equals(user.getUserId())){
             user.setPassword("");
-            return new CommonResult(2000,"查询成功,为当前登录用户",user);
+            return new CommonResult(QUERY_IS_LOGIN_USER,user);
         }
-        return new CommonResult(2001,"查询成功",user);
+        return new CommonResult(QUERY_NOT_LOGIN_USER,user);
     }
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("根据登录用户查询用户的评价")
     @GetMapping("/comment")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult getComment(
             @ApiParam("SpringSecurity用户信息认证") Principal principal){
         Integer user = userService.queryUserByEmail(principal.getName());
-        if(user==null){
-            return new CommonResult(ResultCode.NOT_FOUND);
-        }
-        return new CommonResult(2001,"查询成功",userService.getUsersComment(user));
+        return new CommonResult(SUCCESS,userService.getUsersComment(user));
     }
 
 
@@ -128,8 +128,8 @@ public class UserController {
     @PostMapping("/update")
     @ApiOperation(value = "更新用户信息，包含：个性签名，用户名，性别，生日，头像")
     @ApiResponses(value = {
-            @ApiResponse(code=4020,message = "参数错误，请检查参数"),
-            @ApiResponse(code = 200,message = "修改成功"),
+            @ApiResponse(code=4001,message = "参数错误，请检查参数"),
+            @ApiResponse(code = 2000,message = "成功")
     })
     public CommonResult updateUser(
                 @ApiParam("SpringSecurity用户信息认证") Principal principal,
@@ -142,7 +142,7 @@ public class UserController {
                 @JsonFormat(pattern = "yyyy-MM-dd",timezone="GMT+8")
                         Date birthday) {
         if(gender>Gender.SECRET.ordinal()||gender<0){
-            return new CommonResult(4020,"参数错误，请检查参数");
+            return new CommonResult(PARAM_NOT_VALID);
         }
 
         Gender gender1 = Gender.values()[gender];
@@ -155,26 +155,29 @@ public class UserController {
                 .birthday(birthday).userName(name).build();
 
         if(userService.updateUserWithPhoto(photo,users)){
-            return new CommonResult(ResultCode.SUCCESS,userService.queryUserById(users.getUserId()));
+            return new CommonResult(SUCCESS,userService.queryUserById(users.getUserId()));
         }
-        return new CommonResult(ResultCode.FAILED);
+        return new CommonResult(PARAM_NOT_VALID);
     }
 
 
 
     @RequestMapping(path="/register",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("注册用户")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult register(
             @ApiParam("用户名")@RequestParam("username")String username,
             @ApiParam("邮箱") @RequestParam("email") String email,
             @ApiParam("密码") @RequestParam("password") String password,
             @ApiParam("性别") @RequestParam("gender") Integer gender
     ) {
-        if(username==null||password==null||email==null||username.length()==0||password.length()==0||email.length()==0){
-            return new CommonResult(ResultCode.REGISTER_FAIL);
+        if(username.length()==0||password.length()==0||email.length()==0){
+            return new CommonResult(PARAM_NOT_VALID);
         }
         if(userService.queryUserByEmail(email)!=null){
-            return new CommonResult(ResultCode.REGISTER_FAIL);
+            return new CommonResult(EMAIL_EXIST);
         }
         Users user = new Users();
         user.setUserName(username);
@@ -185,30 +188,33 @@ public class UserController {
         userService.addUser(user);
         int id = 0;
         if((id=user.getUserId())==-1){
-            return new CommonResult(ResultCode.REGISTER_FAIL);
+            return new CommonResult(PARAM_NOT_VALID);
         }
         mailService.sendSimpleMail(email,"欢迎注册南科闲鱼！",
                 "激活链接:"+Constants.WEBSITE_LINK+"/user/activate?activateCode="+user.getActivateCode());
         String path = Constants.USER_UPLOAD_PATH+id+"/image/";
         File file = new File(path);
         file.mkdirs();
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/address")
     @ApiOperation("查看登录用户所有地址")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult address(
             @ApiParam("SpringSecurity用户信息认证") Principal principal){
-        if(principal==null){
-            return new CommonResult(ResultCode.USER_NOT_LOGIN);
-        }
-        return new CommonResult(ResultCode.SUCCESS,addressService.getUserAddressByEmail(principal.getName()));
+        return new CommonResult(SUCCESS,addressService.getUserAddressByEmail(principal.getName()));
     }
 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/address")
     @ApiOperation("添加用户地址信息")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult addAddress(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("收货人名") @RequestParam("recipientName")String recipientName,
@@ -220,12 +226,17 @@ public class UserController {
                 .phone(phone)
                 .belongToUserId(userService.queryUserByEmail(principal.getName()))
                 .build());
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/address")
     @ApiOperation("更新用户地址信息")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4030,message = "用户地址不存在"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult editAddress(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("收货人名") @RequestParam("recipientName")String recipientName,
@@ -234,7 +245,10 @@ public class UserController {
             @ApiParam("地址id") @RequestParam("addressId")Integer addressId)
     {
         if(addressService.getAddress(addressId)==null){
-            return new CommonResult(ResultCode.NOT_FOUND);
+            return new CommonResult(ADDRESS_NOT_EXISTS);
+        }
+        if(!addressService.isBelongAddress(principal.getName(),addressId)){
+            return new CommonResult(ACCESS_DENIED);
         }
         addressService.updateAddress(
                 Address.builder().recipientName(recipientName)
@@ -243,25 +257,32 @@ public class UserController {
                         .belongToUserId(userService.queryUserByEmail(principal.getName()))
                         .addressId(addressId)
                         .build());
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/address")
     @ApiOperation("删除地址")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+    })
     public CommonResult deleteAddress(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("地址id") @RequestParam("addressId")Integer addressId){
-        if(principal==null){
-            return new CommonResult(ResultCode.USER_NOT_LOGIN);
+        if(!addressService.isBelongAddress(principal.getName(),addressId)){
+            return new CommonResult(ACCESS_DENIED);
         }
         addressService.deleteAddress(addressId);
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("向用户邮箱发送验证码,需要登录")
     @GetMapping("/sendCode1")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult sendCode1(
             @ApiParam("登录信息") Principal principal,
             @ApiParam("邮箱") @RequestParam("email")String email
@@ -270,55 +291,73 @@ public class UserController {
         Integer checkCode = random.nextInt(899999)+100000;
         userService.changeUserCheckCodeById(userId,checkCode);
         mailService.sendSimpleMail(email,"邮箱验证码","验证码为"+checkCode);
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @ApiOperation("向用户邮箱发送验证码")
     @GetMapping("/sendCode")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4021,message = "邮箱不存在")
+
+    })
     public CommonResult sendCode(
             @ApiParam("邮箱") @RequestParam("email")String email
     ){
         Integer userId = userService.queryUserByEmail(email);
         if(userId==null){
-            return new CommonResult(ResultCode.USER_NOT_EXIST);
+            return new CommonResult(EMAIL_NOT_FOUND);
         }
         Integer checkCode = random.nextInt(899999)+100000;
         userService.changeUserCheckCodeById(userId,checkCode);
         mailService.sendSimpleMail(email,"邮箱验证码","验证码为"+checkCode);
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @PostMapping("/activate/{activateCode}")
     @ApiOperation("根据激活码激活账户")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4022,message = "激活码不存在"),
+            @ApiResponse(code = 4023,message = "用户已经激活")
+    })
     public CommonResult activate(
             @ApiParam("激活码") @PathVariable("activateCode") String activateCode
     ){
         Integer integer = userService.getActivateUser(activateCode);
         if(integer==null){
-            return new CommonResult(4005,"未有此激活码");
-
+            return new CommonResult(ACTIVATE_CODE_ILLEGAL);
         }else
         if(integer==-2){
-            return new CommonResult(4006,"账户已激活");
+            return new CommonResult(ADDRESS_NOT_EXISTS);
         }
         userService.activateUser(integer);
-        return new CommonResult(200,"账户已激活");
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/charge")
     @ApiOperation("充值")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult charge(
             @ApiParam("springSecurity认证信息") Principal principal,
             @ApiParam("数量") @RequestParam("money") Float money
     ){
         userService.changeUserMoney(userService.queryUserByEmail(principal.getName()),money);
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/complainUser")
     @ApiOperation("举报用户")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误"),
+            @ApiResponse(code = 4100,message = "投诉失败"),
+            @ApiResponse(code = 4101,message = "举报用户不存在")
+    })
     public CommonResult complain(
             @ApiParam("SpringSecurity认证信息")Principal principal,
             @ApiParam("用户Id") @RequestParam("userId") Integer userId,
@@ -328,30 +367,34 @@ public class UserController {
         //处理 未处理 撤销 管理员处理
         //get rollback
         //Users users =userService.queryUserById(userId);
-        if (!userService.ifActivatedById(userId)){
-            return new CommonResult(ResultCode.USER_NOT_ACTIVATED);
-        }
         if (content.length()==0){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+            return new CommonResult(PARAM_NOT_VALID);
+        }
+        if(userService.getUserMoney(userId)==null){
+            return new CommonResult(COMPLAIN_USER_NOT_EXISTS);
         }
         if (!userService.addUserComplain(userId,
                 content,picture,userService.getUserByEmail(principal.getName()).getUserId())){
-            return new CommonResult(ResultCode.COMPLAIN_FAIL);
+            return new CommonResult(COMPLAIN_FAIL);
         }
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("获取用户购买的订单")
     @GetMapping("/buyDeal/{type}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误")
+    })
     public CommonResult getUserBuyDeal(
             @ApiParam("SpringSecurity认证信息") Principal principal,
             @ApiParam("类型") @PathVariable("type") Integer type
     ){
         if(type>= Stage.values().length||type<0){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+            return new CommonResult(PARAM_NOT_VALID);
         }
-        return new CommonResult(ResultCode.SUCCESS,
+        return new CommonResult(SUCCESS,
                 dealService.getDealByBuyerAndStage(
                         userService.queryUserByEmail(principal.getName()
         ),type));
@@ -361,14 +404,18 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("获取用户卖出的订单")
     @GetMapping("/sellDeal/{type}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误")
+    })
     public CommonResult getUserSellDeal(
             @ApiParam("SpringSecurity认证信息") Principal principal,
             @ApiParam("类型") @PathVariable("type") Integer type
     ){
         if(type>= Stage.values().length||type<0){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+            return new CommonResult(PARAM_NOT_VALID);
         }
-        return new CommonResult(ResultCode.SUCCESS,
+        return new CommonResult(SUCCESS,
                 dealService.getDealBySellerAndStage(
                         userService.queryUserByEmail(principal.getName()
                         ),type));
@@ -378,15 +425,23 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("获取用户发布的商品")
     @GetMapping("/announceGoods")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult getAnnounceGoods(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(ResultCode.SUCCESS,goodsService.queryGoodsByUserId(userService.queryUserByEmail(principal.getName())));
+        return new CommonResult(SUCCESS,goodsService.queryGoodsByUserId(userService.queryUserByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/security")
     @ApiOperation("账户安全,修改密码或者邮箱或者手机号")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误"),
+            @ApiResponse(code = 4000,message = "验证码出错")
+    })
     public CommonResult security(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("是哪种类型，密码，邮箱还是手机号，见SecurityType") @RequestParam("type")Integer type,
@@ -394,15 +449,15 @@ public class UserController {
             @ApiParam("邮箱验证码(纯数字)") @RequestParam(name="checkCode",required = false)Integer checkCode){
         //预参数判断
         if(type<0||type>=SecurityType.MAX.ordinal()){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+            return new CommonResult(PARAM_NOT_VALID);
         }
         if(checkCode!=null&&String.valueOf(checkCode).length()!=Constants.CHECK_CODE_SIZE){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+            return new CommonResult(PARAM_NOT_VALID);
         }
         Integer id = userService.queryUserByEmail(principal.getName());
         //检查验证码
-        if(checkCode!=null&&userService.getUserCheckCodeById(id)!=checkCode){
-            return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        if(checkCode!=null&& !userService.getUserCheckCodeById(id).equals(checkCode)){
+            return new CommonResult(CHECK_CODE_WRONG);
         }
         SecurityType securityType = SecurityType.values()[type];
         Users users = new Users();
@@ -413,83 +468,102 @@ public class UserController {
                 break;
             case PHONE:
                 if(!CommonUtil.isInteger(content)){
-                    return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+                    return new CommonResult(PARAM_NOT_VALID);
                 }
                 users.setPhone(Long.parseLong(content));
                 break;
             case EMAIL:
                 if(userService.queryUserByEmail(content)!=null){
-                    return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+                    return new CommonResult(PARAM_NOT_VALID);
                 }
                 users.setEmail(content);
                 userService.deactivateUsers(id,content);
                 break;
             case MAX:
-            default:new CommonResult(ResultCode.NOT_ACCEPTABLE);
+            default:new CommonResult(PARAM_NOT_VALID);
         }
         userService.updateUserById(users);
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("添加到收藏夹")
     @PostMapping("/collection")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误")
+    })
     public CommonResult addCollection(
             @ApiParam("SpringSecurity认证信息") Principal principal,
             @ApiParam("商品id") @RequestParam("goodsId")Integer goodsId
     ){
         if(goodsService.getBelongUserId(goodsId)==null){
-            return new CommonResult(ResultCode.NOT_FOUND);
+            return new CommonResult(PARAM_NOT_VALID);
         }
-        return new CommonResult(ResultCode.SUCCESS,userService.addCollection(userService.queryUserByEmail(principal.getName()),goodsId));
+        return new CommonResult(SUCCESS,userService.addCollection(userService.queryUserByEmail(principal.getName()),goodsId));
     }
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("获得收藏夹")
     @GetMapping("/collection")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult addCollection(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(ResultCode.SUCCESS,userService.getUsersCollection(userService.queryUserByEmail(principal.getName())));
+        return new CommonResult(SUCCESS,userService.getUsersCollection(userService.queryUserByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("删除收藏夹某个商品")
     @DeleteMapping("/collection")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误")
+    })
     public CommonResult deleteCollection(
             @ApiParam("SpringSecurity认证信息") Principal principal,
             @ApiParam("商品id") @RequestParam("goodsId")Integer goodsId
     ){
         if(goodsService.getBelongUserId(goodsId)==null){
-            return new CommonResult(ResultCode.NOT_FOUND);
+            return new CommonResult(PARAM_NOT_VALID);
         }
         userService.deleteCollection(userService.queryUserByEmail(principal.getName()),goodsId );
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(SUCCESS);
     }
 
     @ApiOperation("检查邮箱")
     @PostMapping("/checkEmail")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误"),
+            @ApiResponse(code = 4012,message = "用户不存在")
+    })
     public CommonResult checkEmail(
             @ApiParam("邮箱") @RequestParam("email") String email,
             @ApiParam("验证码") @RequestParam("checkCode") Integer checkCode
     ){
         Integer check = userService.getUserCheckCodeByEmail(email);
         if(check==null){
-            return new CommonResult(ResultCode.USER_NOT_EXIST);
+            return new CommonResult(USER_NOT_FOUND);
         }
-        if(check==checkCode){
-            return new CommonResult(ResultCode.SUCCESS,true);
+        if(check.equals(checkCode)){
+            return new CommonResult(SUCCESS,true);
         }
-        return new CommonResult(ResultCode.NOT_ACCEPTABLE);
+        return new CommonResult(PARAM_NOT_VALID);
     }
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("查看我的")
     @GetMapping("/me")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult me(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(ResultCode.SUCCESS,userService.queryUserById(userService.queryUserByEmail(principal.getName())));
+        return new CommonResult(SUCCESS,userService.queryUserById(userService.queryUserByEmail(principal.getName())));
     }
 
     static enum SecurityType{

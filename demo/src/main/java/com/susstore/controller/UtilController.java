@@ -4,6 +4,8 @@ import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +25,9 @@ public class UtilController {
 
     @ApiOperation("获得轮播图地址以及链接")
     @GetMapping("/carousel")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
     public CommonResult carousel(){
         return new CommonResult(ResultCode.SUCCESS, List.of(
                 new Carousel("https://www.sustech.edu.cn/uploads/images/2020/09/29150224_67522.jpg",

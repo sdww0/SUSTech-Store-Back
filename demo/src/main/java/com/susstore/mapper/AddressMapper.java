@@ -49,5 +49,8 @@ public interface AddressMapper {
     Integer deleteAddress(Integer addressId);
 
 
+
     Integer getAddress(Integer addressId);
+
+    Boolean isBelongAddress(String email, Integer addressId);
 }

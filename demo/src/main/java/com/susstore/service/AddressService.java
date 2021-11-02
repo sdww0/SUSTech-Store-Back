@@ -37,4 +37,10 @@ public class AddressService {
         return addressMapper.getAddress(addressId);
     }
 
+    public Boolean isBelongAddress(String email,Integer addressId){
+        Boolean temp = addressMapper.isBelongAddress(email,addressId);
+        return temp != null && temp;
+    }
+
+
 }

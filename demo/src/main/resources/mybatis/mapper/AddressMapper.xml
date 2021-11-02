@@ -47,4 +47,8 @@
         select * from store.address where address_id = #{addressId};
     </select>
 
+    <select id="isBelongAddress" resultType="Boolean">
+        select true from store.address join store.users on address.belong_user_id = users.user_id and users.email = #{email} and address_id = #{addressId};
+    </select>
+
 </mapper>
