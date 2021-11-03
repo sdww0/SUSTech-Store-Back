@@ -39,7 +39,11 @@ public class SwaggerConfig {
                 new ResponseMessageBuilder().
                         code(ResultCode.USER_NOT_LOGIN.code).
                         message(ResultCode.USER_NOT_LOGIN.getMessage()).
-                        responseModel(new ModelRef(ResultCode.USER_NOT_LOGIN.getMessage())).build()
+                        responseModel(new ModelRef(ResultCode.USER_NOT_LOGIN.getMessage())).build(),
+                new ResponseMessageBuilder().
+                        code(ResultCode.SUCCESS.code).
+                        message(ResultCode.SUCCESS.getMessage()).
+                        responseModel(new ModelRef(ResultCode.SUCCESS.getMessage())).build()
         );
 
 
