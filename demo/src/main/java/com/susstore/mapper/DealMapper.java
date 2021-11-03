@@ -59,5 +59,8 @@ public interface DealMapper {
 
     Deal getDealByBuyerAndStage(Integer userId,Integer stage);
 
+    Integer addAppealingContent(Integer dealId,String content,String picturePath);
+
+    Float getDealPrice(Integer dealId);
 
 }

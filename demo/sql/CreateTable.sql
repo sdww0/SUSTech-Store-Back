@@ -16,6 +16,7 @@ drop table if exists store.complain_users cascade ;
 drop table if exists store.chat cascade ;
 drop table if exists store.user_role cascade ;
 drop table if exists store.users_collection cascade ;
+drop table if exists store.complain_deal cascade ;
 --主要的大类
 
 create table if not exists store.users(
@@ -34,6 +35,7 @@ create table if not exists store.users(
     picture_path varchar not null,
     check_code int, --验证码
     is_activate bool not null, --用户状态，未激活，激活等
+    is_ban bool not null ,
     activate_code varchar not null unique--激活码
 
 
@@ -172,7 +174,8 @@ create table if not exists store.complain_goods(
     goods_id int not null,
     complainer_id int not null,
     content varchar not null ,
-    picture varchar,
+    picturePath varchar,
+    is_process bool not null ,
     constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
     constraint complain_id_fkey foreign key (complainer_id) references store.users(user_id)
 );
@@ -182,9 +185,20 @@ create table if not exists store.complain_users(
    users_id int not null,
    complainer_id int not null,
    content varchar not null ,
-   picture varchar,
+   picturePath varchar,
+   is_process bool not null ,
    constraint goods_id_fkey foreign key (users_id) references store.users(user_id),
    constraint complainer_id_fkey foreign key (complainer_id) references store.users(user_id)
+);
+
+create table if not exists store.appealing_deal(
+    record_id serial primary key ,
+    deal_id int not null ,
+    content varchar not null ,
+    picturePath varchar,
+    is_process bool not null ,
+    constraint deal_id_fkey foreign key (deal_id) references store.deal(deal_id)
+
 );
 --务必运行一次下面的
 create rule  r_insert_label_ginore as on insert to store.label where exists(select 1 from store.label where content=new.content) do instead nothing ;

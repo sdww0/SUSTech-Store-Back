@@ -10,6 +10,8 @@ public class Constants {
 
     public static final String GOODS_COMPLAIN_PATH = "D:/ooad/store/complain/goods/";
 
+    public static final String DEAL_APPEALING_PATH = "D:/ooad/store/appealing/deal/";
+
     public static final Integer GOODS_MAX_PICTURE = 3;
 
     public static final String WEBSITE_LINK = "http://localhost:8080";

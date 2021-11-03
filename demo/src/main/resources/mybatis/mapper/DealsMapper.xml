@@ -225,5 +225,13 @@
                  left join store.address a
                            on a.address_id = d.shipping_address_id;
     </select>
+    
+    <insert id="addAppealingContent" >
+        insert into store.appealing_deal(deal_id, content, picture,is_process) VALUES (#{dealId},#{content},#{picturePath},false);
+    </insert>
+    
+    <select id="getDealPrice" resultType="Float">
+        select (price+postage) from store.deal join store.goods on deal.goods_id = goods.goods_id and deal_id = #{dealId}
+    </select>
 
 </mapper>

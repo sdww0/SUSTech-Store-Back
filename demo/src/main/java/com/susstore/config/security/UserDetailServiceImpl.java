@@ -34,6 +34,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
         if(!user.getIsActivate()){
             throw new UserNotActivateException("用户未激活");
         }
+        if(user.getIsBan()){
+            throw new UserHasBannedException("用户封禁");
+        }
         List<Integer> roles = userService.getUserRole(email);
         List<GrantedAuthority> authorities = new ArrayList<>();
         for(Integer i : roles){

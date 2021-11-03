@@ -93,6 +93,11 @@ public class SwaggerAddition implements ApiListingScannerPlugin {
                                 .message(ResultCode.USER_NOT_ACTIVATE.message)
                                 .responseModel(new ModelRef(
                                         ResultCode.USER_NOT_ACTIVATE.message)
+                                ).build(),
+                        new ResponseMessageBuilder().code(ResultCode.USER_BANNED.code)
+                                .message(ResultCode.USER_BANNED.message)
+                                .responseModel(new ModelRef(
+                                        ResultCode.USER_BANNED.message)
                                 ).build()))
                 .build();
 

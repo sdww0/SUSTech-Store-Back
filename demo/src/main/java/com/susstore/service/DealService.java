@@ -217,7 +217,12 @@ public class DealService {
         return dealMapper.getDealByBuyerAndStage(userId,stage);
     }
 
+    public Integer addAppealingContent(Integer dealId,String content,String picturePath){
+        return dealMapper.addAppealingContent(dealId,content,picturePath);
+    }
 
-
+    public Float getDealPrice(Integer dealId){
+        return dealMapper.getDealPrice(dealId);
+    }
 
 }

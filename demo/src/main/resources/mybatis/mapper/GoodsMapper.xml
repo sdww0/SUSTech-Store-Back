@@ -226,8 +226,8 @@
     </select>
 
     <insert id="addGoodsComplain">
-        insert into store.complain_goods (goods_id, complainer_id, content, picture)
-        values (#{goodsId},#{complainerId},#{content},#{picturePath});
+        insert into store.complain_goods (goods_id, complainer_id, content, picture,is_process)
+        values (#{goodsId},#{complainerId},#{content},#{picturePath},false);
     </insert>
 
     <select id="getRandomGoods" resultMap="goods2">

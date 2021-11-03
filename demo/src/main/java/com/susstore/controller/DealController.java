@@ -12,14 +12,17 @@ import com.susstore.service.DealService;
 import com.susstore.service.GoodsService;
 import com.susstore.service.MailServiceThread;
 import com.susstore.service.UserService;
+import com.susstore.util.ImageUtil;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @Api(value = "商品控制器",tags = {"订单访问接口"})
@@ -329,21 +332,32 @@ public class DealController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/appealing/{dealId}")
-    @ApiOperation("买家申诉")
+    @ApiOperation("买家填写申诉信息")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4070,message = "订单不存在"),
             @ApiResponse(code = 4072,message = "订单不能跨越阶段"),
-            @ApiResponse(code = 4003,message = "权限不足不允许访问")
+            @ApiResponse(code = 4003,message = "权限不足不允许访问"),
+            @ApiResponse(code = 4001,message = "参数有误")
     })
     public CommonResult appealing(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
             @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
-            @ApiParam("申诉信息") @RequestParam("content") String content
+            @ApiParam("申诉信息") @RequestParam("content") String content,
+            @ApiParam("申诉图片（仅限一张）可有可无") @RequestParam(value = "picture",required = false)
+            MultipartFile picture
     ){
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
+            String contentPath = null;
+            if(picture!=null) {
+                String uuid = UUID.randomUUID().toString();
+                String path = Constants.DEAL_APPEALING_PATH + dealId1 +"/"+ uuid + ".png";
+                ImageUtil.storeImage(picture, path);
+                contentPath = dealId1 +"/"+ uuid + ".png";
+            }
             mailService.sendSimpleMail(Constants.WEBSITE_COMMUNICATE_EMAIL,"订单申诉，单号:"+dealId1,
                     "详细描述:"+content);
+            dealService.addAppealingContent(dealId1,content,contentPath);
             return 0;
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.APPEALED,true,method);
@@ -352,7 +366,7 @@ public class DealController {
         if(resultCode!=null){
             return new CommonResult(resultCode);
         }else{
-            return new CommonResult(ResultCode.ACCESS_DENIED);
+            return new CommonResult(ResultCode.PARAM_NOT_VALID);
         }
 
     }

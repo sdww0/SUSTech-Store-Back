@@ -32,6 +32,7 @@ public class Users {
     private List<Address> addresses;
     //以下为非特殊需要不需要查询的
     private Boolean isActivate;
+    private Boolean isBan;
     private String activateCode;
     private List<UsersComment> usersComments;
 

@@ -1,5 +1,7 @@
 package com.susstore.util;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -28,6 +30,19 @@ public class ImageUtil {
         Itemp = ato.filter(bufImg, null);
         try {
             ImageIO.write((BufferedImage) Itemp,dest.substring(dest.lastIndexOf(".")+1), destFile); //写入缩减后的图片
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void storeImage(MultipartFile multipartFile, String dest){
+        File destFile = new File(dest);
+        destFile.mkdirs();
+        if (destFile.exists()){
+            destFile.delete(); // here i'm checking if file exists and if yes then i'm deleting it but its not working
+        }
+        try {
+            ImageIO.write(ImageIO.read(multipartFile.getInputStream()),dest.substring(dest.lastIndexOf(".")+1), destFile); //写入缩减后的图片
         } catch (Exception ex) {
             ex.printStackTrace();
         }

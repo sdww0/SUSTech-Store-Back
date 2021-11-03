@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susstore.mapper.AdminMapper" >
+
+    <select id="getAllNotProcessComplainUser" resultType="com.susstore.pojo.process.ComplainUsers">
+        select * from store.complain_users where not is_process
+    </select>
+
+    <select id="getAllComplainUser" resultType="com.susstore.pojo.process.ComplainUsers">
+        select * from store.complain_users
+    </select>
+
+    <select id="getAllNotProcessComplainGoods" resultType="com.susstore.pojo.process.ComplainGoods">
+        select * from store.appealing_deal where not is_process
+    </select>
+
+    <select id="getAllComplainGoods" resultType="com.susstore.pojo.process.ComplainGoods">
+        select * from store.appealing_deal
+    </select>
+
+    <select id="getAllNotProcessAppealingDeal" resultType="com.susstore.pojo.process.AppealingDeal">
+        select * from store.appealing_deal where not is_process
+    </select>
+
+    <select id="getAllAppealingDeal" resultType="com.susstore.pojo.process.AppealingDeal">
+        select * from store.appealing_deal
+    </select>
+
+    <select id="getComplainUser" resultType="com.susstore.pojo.process.ComplainUsers">
+        select * from store.complain_users where record_id = #{recordId}
+    </select>
+
+    <select id="getComplainGoods" resultType="com.susstore.pojo.process.ComplainGoods">
+        select * from store.appealing_deal where record_id = #{recordId}
+    </select>
+
+    <select id="getAppealingDeal" resultType="com.susstore.pojo.process.AppealingDeal">
+        select * from store.appealing_deal where record_id = #{recordId}
+    </select>
+
+    <update id="processComplainGoods" >
+        update store.complain_goods set is_process = true where record_id = #{recordId}
+    </update>
+
+    <update id="processComplainUsers" >
+        update store.complain_users set is_process = true where record_id = #{recordId}
+    </update>
+
+    <update id="processAppealingDeal" >
+        update store.appealing_deal set is_process = true where record_id = #{recordId}
+    </update>
+
+    <update id="banGoods">
+        update store.goods set goods_state = #{banState} where goods_id = #{goodsId}
+    </update>
+
+    <update id="banUser">
+        update store.users set is_ban = true where user_id = #{userId}
+    </update>
+
+    <update id="updateDealState">
+        update store.deal set stage = #{stage} where deal_id = #{dealId}
+    </update>
+
+</mapper>

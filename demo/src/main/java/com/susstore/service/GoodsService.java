@@ -14,8 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.util.*;
 
-import static com.susstore.config.Constants.GOODS_MAX_PICTURE;
-import static com.susstore.config.Constants.USER_COMPLAIN_PATH;
+import static com.susstore.config.Constants.*;
 
 @Service
 public class GoodsService {
@@ -214,7 +213,7 @@ public class GoodsService {
 
     public boolean addGoodsComplain(Integer goodsId,String content,MultipartFile picture,Integer complainerId) {
         String random = UUID.randomUUID().toString();
-        String path = USER_COMPLAIN_PATH + complainerId + "/image/" + random + ".png";
+        String path = GOODS_COMPLAIN_PATH + complainerId + "/image/" + random + ".png";
         if (!picture.isEmpty()) {
             //获取文件的名称
             final String fileName = picture.getOriginalFilename();

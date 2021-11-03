@@ -1,6 +1,7 @@
 package com.susstore.config.security;
 
 import com.alibaba.fastjson.JSON;
+import com.susstore.config.security.exception.UserHasBannedException;
 import com.susstore.config.security.exception.UserNotActivateException;
 import com.susstore.config.security.exception.ValidateCodeException;
 import com.susstore.result.CommonResult;
@@ -22,6 +23,8 @@ public class CustomizeAuthenticationFailureHandler implements AuthenticationFail
             result = new CommonResult(ResultCode.USER_NOT_ACTIVATE);
         }else if(e instanceof ValidateCodeException){
             result = new CommonResult(ResultCode.CHECK_CODE_WRONG);
+        }else if(e instanceof UserHasBannedException){
+            result = new CommonResult(ResultCode.USER_BANNED);
         }
         httpServletResponse.setContentType("text/json;charset=utf-8");
         httpServletResponse.getWriter().write(JSON.toJSONString(result));
