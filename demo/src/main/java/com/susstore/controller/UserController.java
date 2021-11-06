@@ -216,15 +216,10 @@ public class UserController {
     })
     public CommonResult addAddress(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
-            @ApiParam("收货人名") @RequestParam("recipientName")String recipientName,
-            @ApiParam("地址名") @RequestParam("addressName")String addressName,
-            @ApiParam("手机号") @RequestParam("phone")Long phone){
-        addressService.addAddress(
-                Address.builder().recipientName(recipientName)
-                .addressName(addressName)
-                .phone(phone)
-                .belongToUserId(userService.queryUserIdByEmail(principal.getName()))
-                .build());
+            @ApiParam("地址") @RequestBody Address address
+    ){
+        address.setBelongToUserId(userService.queryUserIdByEmail(principal.getName()));
+        addressService.addAddress(address);
         return new CommonResult(SUCCESS);
     }
 

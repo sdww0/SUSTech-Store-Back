@@ -57,5 +57,12 @@ public class ControllerReceiveClass {
         public List<String> labels;
     }
 
-
+    /**
+     * 订单分类
+     */
+    protected static class DealComment{
+        public Integer dealId;
+        public String content;
+        public Boolean isGood;
+    }
 }

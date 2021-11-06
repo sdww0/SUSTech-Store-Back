@@ -225,8 +225,8 @@ public class GoodsController {
         return new CommonResult(ResultCode.SUCCESS,goodsService.getRandomGoods());
     }
 
-    @ApiParam("举报商品")
-    @PostMapping("/complain")
+    @ApiOperation("举报商品")
+    @RequestMapping(value = "/complain",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @PreAuthorize("hasRole('USER')")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
