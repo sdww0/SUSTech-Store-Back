@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 @Mapper
 @Repository
@@ -55,9 +56,9 @@ public interface DealMapper {
 
     Integer setAddress(Integer dealId,Integer addressId);
 
-    Deal getDealBySellerAndStage(Integer userId,Integer stage);
+    List<Deal> getDealBySellerAndStage(Integer userId, Integer stage);
 
-    Deal getDealByBuyerAndStage(Integer userId,Integer stage);
+    List<Deal> getDealByBuyerAndStage(Integer userId,Integer stage);
 
     Integer addAppealingContent(Integer dealId,String content,String picturePath);
 

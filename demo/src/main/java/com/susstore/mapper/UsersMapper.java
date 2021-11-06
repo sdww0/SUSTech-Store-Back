@@ -79,7 +79,7 @@ public interface UsersMapper {
       * @param email 邮箱
       * @return 用户id
       */
-     Integer queryUserByEmail(String email);
+     Integer queryUserIdByEmail(String email);
 
      /**
       * 根据用户邮箱查询用户

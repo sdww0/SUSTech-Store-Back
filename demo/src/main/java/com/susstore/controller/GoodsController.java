@@ -1,6 +1,5 @@
 package com.susstore.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.susstore.config.Constants;
 import com.susstore.pojo.Goods;
 import com.susstore.pojo.Users;
@@ -8,24 +7,22 @@ import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
-import com.susstore.util.CommonUtil;
 import io.swagger.annotations.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.susstore.controller.ControllerReceiveClass.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.List;
 
@@ -76,7 +73,7 @@ public class GoodsController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/comment")
+    @RequestMapping(value = "/comment",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("评价商品")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -84,13 +81,14 @@ public class GoodsController {
     })
     public CommonResult comment(
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
-            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId,
-            @ApiParam("评价信息") @RequestParam("content") String content
-    ){
-        if(goodsService.getBelongUserId(goodsId)==null){
+            @ApiParam("评价") @RequestBody CommentGoods commentGoods
+            ){
+        if(goodsService.getBelongUserId(commentGoods.goodsId)==null){
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
-        goodsService.commentGoods(userService.queryUserByEmail(principal.getName()),goodsId,content);
+        goodsService.commentGoods(userService.queryUserIdByEmail(principal.getName()),
+                commentGoods.goodsId,
+                commentGoods.content);
         return new CommonResult(ResultCode.SUCCESS);
     }
 
@@ -105,7 +103,7 @@ public class GoodsController {
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
             @ApiParam("商品id") @RequestParam("commentId") Integer commentId
     ){
-        if(goodsService.deleteGoodsComment(userService.queryUserByEmail(principal.getName()),commentId)==-1){
+        if(goodsService.deleteGoodsComment(userService.queryUserIdByEmail(principal.getName()),commentId)==-1){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         return new CommonResult(ResultCode.SUCCESS);
@@ -113,7 +111,7 @@ public class GoodsController {
 
     @ApiOperation("添加商品")
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/addGoods")
+    @RequestMapping(value = "/add",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4001,message = "填写的参数有误"),
@@ -121,32 +119,53 @@ public class GoodsController {
     })
     public CommonResult addGoods(
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
-            @ApiParam("商品图片") @RequestParam(name = "photos") MultipartFile photo,
-            @ApiParam("标题") @RequestParam("title") String title,
-            @ApiParam("价格") @RequestParam("price") Float price,
-            @ApiParam("标签") @RequestParam("labels") List<String> labels,
-            @ApiParam("商品介绍") @RequestParam("introduce") String introduce,
-            @ApiParam("是卖出还是买入") @RequestParam("isSell") Boolean isSell,
-            @ApiParam("邮费") @RequestParam("postage") Float postage
+            @ApiParam("商品") @RequestBody GoodsInfo goodsInfo
         ){
-        MultipartFile[] photos = new MultipartFile[1];
-        photos[0] = photo;
-        if(labels.size()>LABELS_MAX_AMOUNT||photos.length>GOODS_MAX_PICTURE){
+        if(goodsInfo.labels.size()>LABELS_MAX_AMOUNT){
             return new CommonResult(ResultCode.PARAM_NOT_VALID);
         }
-        Goods goods = Goods.builder().labels(labels).price(price).introduce(introduce)
-                .announcer(Users.builder().userId(userService.queryUserByEmail(principal.getName())).build()).
-                        title(title).isSell(isSell).postage(postage).build();
-        Integer id = goodsService.addGoods(photos, goods);
+        Goods goods = Goods.builder().labels(goodsInfo.labels)
+                .price(goodsInfo.price).introduce(goodsInfo.introduce)
+                .announcer(Users.builder().userId(userService.queryUserIdByEmail(principal.getName())).build()).
+                        title(goodsInfo.title).isSell(goodsInfo.isSell).postage(goodsInfo.postage).build();
+
+        Integer id = goodsService.addGoods(goods);
         if(id==null||id<0){
             return new CommonResult(ResultCode.ADD_GOODS_FAILED);
         }
         return new CommonResult(ResultCode.SUCCESS,id);
     }
 
-    @ApiOperation("编辑商品")
+    @ApiOperation("上传商品图片")
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/editGoods")
+    @RequestMapping(value = "/upload/picture",method = {RequestMethod.POST,RequestMethod.OPTIONS})
+    @ApiResponses(value={
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问"),
+            @ApiResponse(code = 4050,message = "商品不存在")
+    })
+    public CommonResult uploadPicture(
+            @ApiParam("SpringSecurity用户认证信息")Principal principal,
+            @ApiParam("商品图片") @RequestParam(name = "photos") MultipartFile photo,
+            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
+    ){
+        Integer userId = goodsService.getBelongUserId(goodsId);
+        if(userId==null){
+            return new CommonResult(ResultCode.GOODS_NOT_FOUND);
+        }
+        if(!(userId.equals(userService.queryUserIdByEmail(principal.getName())))){
+            return new CommonResult(ResultCode.ACCESS_DENIED);
+        }
+        MultipartFile[] photos = new MultipartFile[1];
+        photos[0] = photo;
+        Integer id = goodsService.addGoodsPicture(goodsId,photos);
+        return new CommonResult(ResultCode.SUCCESS,id);
+    }
+
+
+    @ApiOperation("更新商品，不需要图片")
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "/edit",method = {RequestMethod.OPTIONS,RequestMethod.POST})
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4001,message = "填写的参数有误"),
@@ -155,36 +174,28 @@ public class GoodsController {
     })
     public CommonResult editGoods(
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
-            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId,
-            @ApiParam("标题") @RequestParam("title") String title,
-            @ApiParam("价格") @RequestParam("price") Float price,
-            @ApiParam("标签") @RequestParam("labels") List<String> labels,
-            @ApiParam("商品介绍") @RequestParam("introduce") String introduce,
-            @ApiParam("商品图片") @RequestParam("photos") MultipartFile photo,
-            @ApiParam("是卖出还是买入") @RequestParam("isSell") Boolean isSell,
-            @ApiParam("邮费") @RequestParam("postage") Float postage
+            @ApiParam("商品") @RequestBody GoodsInfo goodsInfo
     ){
-        MultipartFile[] photos = new MultipartFile[1];
-        photos[0] = photo;
-        if(labels.size()>LABELS_MAX_AMOUNT||photos.length>GOODS_MAX_PICTURE){
+        if(goodsInfo.labels.size()>LABELS_MAX_AMOUNT){
             return new CommonResult(ResultCode.PARAM_NOT_VALID);
         }
-        Integer userId = goodsService.getBelongUserId(goodsId);
+        Integer userId = goodsService.getBelongUserId(goodsInfo.goodsId);
         if(userId==null){
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
-        if(!(userId==userService.queryUserByEmail(principal.getName()))){
+        if(!(userId.equals(userService.queryUserIdByEmail(principal.getName())))){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        Goods goods = Goods.builder().labels(labels).price(price).introduce(introduce).title(title)
-                .goodsId(goodsId).isSell(isSell).postage(postage).build();
-        Integer id = goodsService.editGoods(photos, goods);
+        Goods goods = Goods.builder().labels(goodsInfo.labels)
+                .price(goodsInfo.price).introduce(goodsInfo.introduce).title(goodsInfo.title)
+                .goodsId(goodsInfo.goodsId).isSell(goodsInfo.isSell).postage(goodsInfo.postage).build();
+        Integer id = goodsService.editGoods(goods);
         return new CommonResult(ResultCode.SUCCESS,id);
     }
 
     @ApiOperation("删除商品")
     @PreAuthorize("hasRole('USER')")
-    @DeleteMapping("/deleteGoods")
+    @DeleteMapping("/delete")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4001,message = "填写的参数有误"),
@@ -198,7 +209,7 @@ public class GoodsController {
         if(id==null){
             return new CommonResult(ResultCode.PARAM_NOT_VALID);
         }
-        if(!(id==userService.queryUserByEmail(principal.getName()))){
+        if(!(id==userService.queryUserIdByEmail(principal.getName()))){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         goodsService.deleteGoods(goodsId);
@@ -214,7 +225,7 @@ public class GoodsController {
         return new CommonResult(ResultCode.SUCCESS,goodsService.getRandomGoods());
     }
 
-    @ApiParam("投诉商品")
+    @ApiParam("举报商品")
     @PostMapping("/complain")
     @PreAuthorize("hasRole('USER')")
     @ApiResponses(value = {

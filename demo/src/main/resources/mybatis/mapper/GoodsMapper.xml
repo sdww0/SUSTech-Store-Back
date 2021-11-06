@@ -139,9 +139,9 @@
         from store.goods
             join store.users
                 on goods_id = #{goodsId} and announcer_id = users.user_id
-            join store.goods_label on goods.goods_id = goods_label.goods_id
-            join store.label on goods_label.label_id = label.label_id
-            join store.goods_picture on goods.goods_id = goods_picture.goods_id;
+            left join store.goods_label on goods.goods_id = goods_label.goods_id
+            left join store.label on goods_label.label_id = label.label_id
+            left join store.goods_picture on goods.goods_id = goods_picture.goods_id;
     </select>
 
     <select id="getGoodsPicturePath" resultType="com.susstore.pojo.GoodsPicture">

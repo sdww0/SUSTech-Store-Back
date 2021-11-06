@@ -2,22 +2,17 @@ package com.susstore.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.susstore.pojo.ChatMessage;
-import com.susstore.pojo.Deal;
 import com.susstore.pojo.Goods;
-import com.susstore.pojo.GoodsState;
 import com.susstore.pojo.chat.Chat;
 import com.susstore.pojo.chat.DataBaseChat;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.ChatService;
-import com.susstore.service.DealService;
 import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -93,7 +88,7 @@ public class ChatController {
             @ApiResponse(code = 2000,message = "成功")
     })
     public CommonResult chatList(Principal principal){
-        return new CommonResult(ResultCode.SUCCESS,chatService.getUserChatHistory(userService.queryUserByEmail(principal.getName())));
+        return new CommonResult(ResultCode.SUCCESS,chatService.getUserChatHistory(userService.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -109,7 +104,7 @@ public class ChatController {
     ){
         //查看商品是不是已经下架
         // check buyer&seller&goodsId&stage
-        Integer userId = userService.queryUserByEmail(principal.getName());
+        Integer userId = userService.queryUserIdByEmail(principal.getName());
         Integer chatId = null;
         if ((chatId=chatService.getChatId(goodsId,userId))!=null){
             return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS,chatId);

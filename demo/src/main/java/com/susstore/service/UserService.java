@@ -8,11 +8,8 @@ import com.susstore.pojo.Users;
 import com.susstore.pojo.UsersComment;
 import com.susstore.util.CommonUtil;
 import com.susstore.util.ImageUtil;
-import io.swagger.annotations.ApiParam;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -50,13 +47,7 @@ public class UserService {
 
 
     public boolean updateUserWithPhoto(MultipartFile photo,Users users){
-        if(photo==null){
-            users.setUserId(usersMapper.queryUserByEmail(users.getEmail()));
-            usersMapper.updateUser(users);
-            return true;
-        }
-
-        Integer id = usersMapper.queryUserByEmail(users.getEmail());
+        Integer id = usersMapper.queryUserIdByEmail(users.getEmail());
         String random = UUID.randomUUID().toString();
         String path = Constants.USER_UPLOAD_PATH + id + "/image/"+ random+".png";
         users.setPicturePath("user/"+id+"/image/"+random+".png");
@@ -135,8 +126,8 @@ public class UserService {
         return usersMapper.ifActivatedById(id);
     }
 
-    public Integer queryUserByEmail(String email){
-        return usersMapper.queryUserByEmail(email);
+    public Integer queryUserIdByEmail(String email){
+        return usersMapper.queryUserIdByEmail(email);
     }
 
 

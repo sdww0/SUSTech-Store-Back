@@ -80,7 +80,8 @@
             <if test="email != null">email=#{email},</if>
             <if test="IDCard != null">id_card=#{IDCard},</if>
             <if test="money != null">money=#{money},</if>
-            <if test="picturePath != null">picture_path=#{picturePath}</if>
+            <if test="picturePath != null">picture_path=#{picturePath},</if>
+            <if test="sign != null">sign = #{sign}</if>
         </set>
         where email=#{email};
     </update>
@@ -109,7 +110,7 @@
         delete from store."users" where user_id=#{userId};
     </delete>
 
-    <select id="queryUserByEmail" parameterType="String" resultType="int">
+    <select id="queryUserIdByEmail" parameterType="String" resultType="int">
         select user_id from store."users" where email=#{email};
     </select>
 

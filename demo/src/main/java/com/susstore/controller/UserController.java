@@ -1,6 +1,5 @@
 package com.susstore.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.susstore.config.Constants;
 import com.susstore.pojo.Address;
 import com.susstore.pojo.Gender;
@@ -13,11 +12,11 @@ import com.susstore.service.*;
 import com.susstore.util.CommonUtil;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.susstore.controller.ControllerReceiveClass.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -26,10 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Principal;
-import java.util.Date;
 import java.util.Random;
-
-import static com.susstore.config.Constants.USER_COMPLAIN_PATH;
 
 @RestController
 @Api(value = "用户控制器",tags = {"用户访问接口"})
@@ -101,7 +97,7 @@ public class UserController {
         }
         Integer loginId = -1;
         if(principal!=null){
-            loginId = userService.queryUserByEmail(principal.getName());
+            loginId = userService.queryUserIdByEmail(principal.getName());
         }
         if(loginId.equals(user.getUserId())){
             user.setPassword("");
@@ -118,49 +114,54 @@ public class UserController {
     })
     public CommonResult getComment(
             @ApiParam("SpringSecurity用户信息认证") Principal principal){
-        Integer user = userService.queryUserByEmail(principal.getName());
+        Integer user = userService.queryUserIdByEmail(principal.getName());
         return new CommonResult(SUCCESS,userService.getUsersComment(user));
     }
 
 
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/update")
-    @ApiOperation(value = "更新用户信息，包含：个性签名，用户名，性别，生日，头像")
+    @PutMapping("/update")
+    @ApiOperation(value = "更新用户信息，包含：个性签名，用户名，性别，生日")
     @ApiResponses(value = {
             @ApiResponse(code=4001,message = "参数错误，请检查参数"),
             @ApiResponse(code = 2000,message = "成功")
     })
     public CommonResult updateUser(
                 @ApiParam("SpringSecurity用户信息认证") Principal principal,
-                @ApiParam("用户照片") @RequestParam(name="photo",required = false)MultipartFile photo,
-                @ApiParam("新用户名") @RequestParam("name") String name,
-                @ApiParam("个性签名") @RequestParam("sign") String sign,
-                @ApiParam("性别,0-男性,1-女性,2-保密") @RequestParam("gender") Integer gender,
-                @ApiParam("生日") @RequestParam("birthday")
-                @DateTimeFormat(pattern="yyyy-MM-dd")
-                @JsonFormat(pattern = "yyyy-MM-dd",timezone="GMT+8")
-                        Date birthday) {
-        if(gender>Gender.SECRET.ordinal()||gender<0){
+                @ApiParam("更新结构体")  UpdateUser user
+    ) {
+        if(user.gender>Gender.SECRET.ordinal()||user.gender<0){
             return new CommonResult(PARAM_NOT_VALID);
         }
-
-        Gender gender1 = Gender.values()[gender];
+        Gender gender1 = Gender.values()[user.gender];
 
         String email = principal.getName();
-        name = name.length() == 0 ? null : name;
-        sign = sign.length() == 0 ? null : sign;
+        user.name = user.name.length() == 0 ? null : user.name;
+        user.sign = user.sign.length() == 0 ? null : user.sign;
 
-        Users users = Users.builder().email(email).sign(sign).gender(gender1.ordinal())
-                .birthday(birthday).userName(name).build();
+        Users users = Users.builder().userId(userService.queryUserIdByEmail(principal.getName())).sign(user.sign).gender(gender1.ordinal())
+                .birthday(user.birthday).userName(user.name).build();
+        userService.updateUserById(users);
+        return new CommonResult(PARAM_NOT_VALID);
+    }
 
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "/upload/face",method = {RequestMethod.POST,RequestMethod.OPTIONS})
+    @ApiOperation(value = "更新用户头像")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public CommonResult updateUserFace(
+            @ApiParam("SpringSecurity用户信息认证") Principal principal,
+            @ApiParam("用户照片") @RequestParam(name="photo")MultipartFile photo
+    ) {
+        Users users = Users.builder().email(principal.getName()).build();
         if(userService.updateUserWithPhoto(photo,users)){
             return new CommonResult(SUCCESS,userService.queryUserById(users.getUserId()));
         }
         return new CommonResult(PARAM_NOT_VALID);
     }
-
-
 
     @RequestMapping(path="/register",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("注册用户")
@@ -168,29 +169,27 @@ public class UserController {
             @ApiResponse(code = 2000,message = "成功")
     })
     public CommonResult register(
-            @ApiParam("用户名")@RequestParam("username")String username,
-            @ApiParam("邮箱") @RequestParam("email") String email,
-            @ApiParam("密码") @RequestParam("password") String password,
-            @ApiParam("性别") @RequestParam("gender") Integer gender
+            @ApiParam("注册结构体") @RequestBody Register register
     ) {
-        if(username.length()==0||password.length()==0||email.length()==0){
+
+        if(register.username.length()==0||register.password.length()==0||register.email.length()==0){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        if(userService.queryUserByEmail(email)!=null){
+        if(userService.queryUserIdByEmail(register.email)!=null){
             return new CommonResult(EMAIL_EXIST);
         }
         Users user = new Users();
-        user.setUserName(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setEmail(email);
-        user.setActivateCode(email+ CommonUtil.getRandomString(Constants.RANDOM_STRING_SIZE));
-        user.setGender(gender);
+        user.setUserName(register.username);
+        user.setPassword(passwordEncoder.encode(register.password));
+        user.setEmail(register.email);
+        user.setActivateCode(register.email+ CommonUtil.getRandomString(Constants.RANDOM_STRING_SIZE));
+        user.setGender(register.gender);
         userService.addUser(user);
         int id = 0;
         if((id=user.getUserId())==-1){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        mailService.sendSimpleMail(email,"欢迎注册南科闲鱼！",
+        mailService.sendSimpleMail(register.email,"欢迎注册南科闲鱼！",
                 "激活链接:"+Constants.WEBSITE_LINK+"/user/activate?activateCode="+user.getActivateCode());
         String path = Constants.USER_UPLOAD_PATH+id+"/image/";
         File file = new File(path);
@@ -210,7 +209,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/address")
+    @RequestMapping(value = "/address",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("添加用户地址信息")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功")
@@ -224,13 +223,13 @@ public class UserController {
                 Address.builder().recipientName(recipientName)
                 .addressName(addressName)
                 .phone(phone)
-                .belongToUserId(userService.queryUserByEmail(principal.getName()))
+                .belongToUserId(userService.queryUserIdByEmail(principal.getName()))
                 .build());
         return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/address")
+    @PutMapping("/address")
     @ApiOperation("更新用户地址信息")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -239,24 +238,17 @@ public class UserController {
     })
     public CommonResult editAddress(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
-            @ApiParam("收货人名") @RequestParam("recipientName")String recipientName,
-            @ApiParam("地址名") @RequestParam("addressName")String addressName,
-            @ApiParam("手机号") @RequestParam("phone")Long phone,
-            @ApiParam("地址id") @RequestParam("addressId")Integer addressId)
+            @ApiParam("地址") @RequestBody Address address
+    )
     {
-        if(addressService.getAddress(addressId)==null){
+        if(addressService.getAddress(address.getAddressId())==null){
             return new CommonResult(ADDRESS_NOT_EXISTS);
         }
-        if(!addressService.isBelongAddress(principal.getName(),addressId)){
+        if(!addressService.isBelongAddress(principal.getName(),address.getAddressId())){
             return new CommonResult(ACCESS_DENIED);
         }
-        addressService.updateAddress(
-                Address.builder().recipientName(recipientName)
-                        .addressName(addressName)
-                        .phone(phone)
-                        .belongToUserId(userService.queryUserByEmail(principal.getName()))
-                        .addressId(addressId)
-                        .build());
+        address.setBelongToUserId(userService.queryUserIdByEmail(principal.getName()));
+        addressService.updateAddress(address);
         return new CommonResult(SUCCESS);
     }
 
@@ -287,7 +279,7 @@ public class UserController {
             @ApiParam("登录信息") Principal principal,
             @ApiParam("邮箱") @RequestParam("email")String email
     ){
-        Integer userId = userService.queryUserByEmail(principal.getName());
+        Integer userId = userService.queryUserIdByEmail(principal.getName());
         Integer checkCode = random.nextInt(899999)+100000;
         userService.changeUserCheckCodeById(userId,checkCode);
         mailService.sendSimpleMail(email,"邮箱验证码","验证码为"+checkCode);
@@ -304,7 +296,7 @@ public class UserController {
     public CommonResult sendCode(
             @ApiParam("邮箱") @RequestParam("email")String email
     ){
-        Integer userId = userService.queryUserByEmail(email);
+        Integer userId = userService.queryUserIdByEmail(email);
         if(userId==null){
             return new CommonResult(EMAIL_NOT_FOUND);
         }
@@ -314,7 +306,7 @@ public class UserController {
         return new CommonResult(SUCCESS);
     }
 
-    @PostMapping("/activate/{activateCode}")
+    @PutMapping("/activate/{activateCode}")
     @ApiOperation("根据激活码激活账户")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -336,7 +328,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/charge")
+    @PutMapping("/charge")
     @ApiOperation("充值")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功")
@@ -345,12 +337,12 @@ public class UserController {
             @ApiParam("springSecurity认证信息") Principal principal,
             @ApiParam("数量") @RequestParam("money") Float money
     ){
-        userService.changeUserMoney(userService.queryUserByEmail(principal.getName()),money);
+        userService.changeUserMoney(userService.queryUserIdByEmail(principal.getName()),money);
         return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/complainUser")
+    @RequestMapping(value = "/complain",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("举报用户")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -396,7 +388,7 @@ public class UserController {
         }
         return new CommonResult(SUCCESS,
                 dealService.getDealByBuyerAndStage(
-                        userService.queryUserByEmail(principal.getName()
+                        userService.queryUserIdByEmail(principal.getName()
         ),type));
 
     }
@@ -417,7 +409,7 @@ public class UserController {
         }
         return new CommonResult(SUCCESS,
                 dealService.getDealBySellerAndStage(
-                        userService.queryUserByEmail(principal.getName()
+                        userService.queryUserIdByEmail(principal.getName()
                         ),type));
 
     }
@@ -431,11 +423,11 @@ public class UserController {
     public CommonResult getAnnounceGoods(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(SUCCESS,goodsService.queryGoodsByUserId(userService.queryUserByEmail(principal.getName())));
+        return new CommonResult(SUCCESS,goodsService.queryGoodsByUserId(userService.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/security")
+    @RequestMapping(value = "/security",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("账户安全,修改密码或者邮箱或者手机号")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -444,40 +436,40 @@ public class UserController {
     })
     public CommonResult security(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
-            @ApiParam("是哪种类型，密码，邮箱还是手机号，见SecurityType") @RequestParam("type")Integer type,
-            @ApiParam("内容") @RequestParam("content")String content,
-            @ApiParam("邮箱验证码(纯数字)") @RequestParam(name="checkCode",required = false)Integer checkCode){
+            @ApiParam("更新信息，type:是哪种类型，密码，邮箱还是手机号，见SecurityType, checkCode可以为null")
+            @RequestBody UserSecurity userSecurity
+        ){
         //预参数判断
-        if(type<0||type>=SecurityType.MAX.ordinal()){
+        if(userSecurity.type<0||userSecurity.type>=SecurityType.MAX.ordinal()){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        if(checkCode!=null&&String.valueOf(checkCode).length()!=Constants.CHECK_CODE_SIZE){
+        if(userSecurity.checkCode!=null&&String.valueOf(userSecurity.checkCode).length()!=Constants.CHECK_CODE_SIZE){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        Integer id = userService.queryUserByEmail(principal.getName());
+        Integer id = userService.queryUserIdByEmail(principal.getName());
         //检查验证码
-        if(checkCode!=null&& !userService.getUserCheckCodeById(id).equals(checkCode)){
+        if(userSecurity.checkCode!=null&& !userService.getUserCheckCodeById(id).equals(userSecurity.checkCode)){
             return new CommonResult(CHECK_CODE_WRONG);
         }
-        SecurityType securityType = SecurityType.values()[type];
+        SecurityType securityType = SecurityType.values()[userSecurity.type];
         Users users = new Users();
         users.setUserId(id);
         switch (securityType){
             case PASSWORD:
-                users.setPassword(passwordEncoder.encode(content));
+                users.setPassword(passwordEncoder.encode(userSecurity.content));
                 break;
             case PHONE:
-                if(!CommonUtil.isInteger(content)){
+                if(!CommonUtil.isInteger(userSecurity.content)){
                     return new CommonResult(PARAM_NOT_VALID);
                 }
-                users.setPhone(Long.parseLong(content));
+                users.setPhone(Long.parseLong(userSecurity.content));
                 break;
             case EMAIL:
-                if(userService.queryUserByEmail(content)!=null){
+                if(userService.queryUserIdByEmail(userSecurity.content)!=null){
                     return new CommonResult(PARAM_NOT_VALID);
                 }
-                users.setEmail(content);
-                userService.deactivateUsers(id,content);
+                users.setEmail(userSecurity.content);
+                userService.deactivateUsers(id,userSecurity.content);
                 break;
             case MAX:
             default:new CommonResult(PARAM_NOT_VALID);
@@ -488,7 +480,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("添加到收藏夹")
-    @PostMapping("/collection")
+    @PutMapping("/collection")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4001,message = "填写的参数有误")
@@ -500,7 +492,7 @@ public class UserController {
         if(goodsService.getBelongUserId(goodsId)==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        return new CommonResult(SUCCESS,userService.addCollection(userService.queryUserByEmail(principal.getName()),goodsId));
+        return new CommonResult(SUCCESS,userService.addCollection(userService.queryUserIdByEmail(principal.getName()),goodsId));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -512,7 +504,7 @@ public class UserController {
     public CommonResult addCollection(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(SUCCESS,userService.getUsersCollection(userService.queryUserByEmail(principal.getName())));
+        return new CommonResult(SUCCESS,userService.getUsersCollection(userService.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -529,12 +521,12 @@ public class UserController {
         if(goodsService.getBelongUserId(goodsId)==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        userService.deleteCollection(userService.queryUserByEmail(principal.getName()),goodsId );
+        userService.deleteCollection(userService.queryUserIdByEmail(principal.getName()),goodsId );
         return new CommonResult(SUCCESS);
     }
 
     @ApiOperation("检查邮箱")
-    @PostMapping("/checkEmail")
+    @GetMapping("/checkEmail")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4001,message = "填写的参数有误"),
@@ -563,8 +555,14 @@ public class UserController {
     public CommonResult me(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(SUCCESS,userService.queryUserById(userService.queryUserByEmail(principal.getName())));
+        return new CommonResult(SUCCESS,userService.queryUserById(userService.queryUserIdByEmail(principal.getName())));
     }
+
+
+
+
+
+
 
     static enum SecurityType{
         PASSWORD,

@@ -1,13 +1,10 @@
 package com.susstore.config.socket;
 
 import com.susstore.config.security.UserDetailServiceImpl;
-import com.susstore.pojo.Users;
 import com.susstore.service.ChatService;
-import com.susstore.service.DealService;
 import com.susstore.service.UserService;
 import com.susstore.util.CommonUtil;
 import com.susstore.util.TokenUtil;
-import com.susstore.config.socket.exception.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +20,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
 
-import java.security.Principal;
 import java.util.List;
 
 @Component
@@ -63,7 +58,7 @@ public class AuthInterceptor implements ChannelInterceptor {
                 if (StringUtils.isNotBlank(token)) {
                     String userEmail = TokenUtil.getUserEmailFromToken(token);
                     if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                        Integer userId = userService.queryUserByEmail(userEmail);
+                        Integer userId = userService.queryUserIdByEmail(userEmail);
                         boolean isInitiator = false;
                         Integer otherId = chatService.getAnnouncerId(Integer.parseInt(chatId.get(0)));
                         if(otherId==null){

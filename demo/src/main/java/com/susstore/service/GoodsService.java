@@ -29,11 +29,20 @@ public class GoodsService {
      * 添加商品
      * goods需要包含除了picturePath以外的东西
      * 其中announceTime,goodsState,want,comments不需要提供
-     * @param photos
      * @param goods
      * @return
      */
-    public Integer addGoods(MultipartFile[] photos, Goods goods){
+    public Integer addGoods(Goods goods){
+        goods.setAnnounceTime(new Date());
+        goods.setWant(0);
+        goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
+        goodsMapper.addGoods(goods);
+        goodsMapper.addLabels(goods.getLabels());
+        goodsMapper.addGoodsLabels(goods.getGoodsId(), goodsMapper.getLabelsId(goods.getLabels()));
+        return goods.getGoodsId();
+    }
+
+    public Integer addGoodsPicture(Integer goodsId,MultipartFile[] photos){
         int count = 0;
         for(MultipartFile photo:photos){
             String contentType = Objects.requireNonNull(photo.getOriginalFilename()).substring(photo.getOriginalFilename().lastIndexOf("."));
@@ -50,21 +59,15 @@ public class GoodsService {
         if(count==0||count>GOODS_MAX_PICTURE){
             return -1;
         }
-        goods.setAnnounceTime(new Date());
-        goods.setWant(0);
-        goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
-
-        goodsMapper.addGoods(goods);
         List<GoodsPicture> picturePaths = new ArrayList<>();
         String[] uuids = new String[count];
         for(int n = 0;n<count;n++){
             uuids[n] = UUID.randomUUID().toString();
-            picturePaths.add(new GoodsPicture("goods/"+goods.getGoodsId()+"/image/"+uuids[n]+".png",n==0));
+            picturePaths.add(new GoodsPicture("goods/"+goodsId+"/image/"+uuids[n]+".png",n==0));
         }
-        goodsMapper.addGoodsPicture(goods.getGoodsId(),picturePaths);
-        goodsMapper.addLabels(goods.getLabels());
-        goodsMapper.addGoodsLabels(goods.getGoodsId(), goodsMapper.getLabelsId(goods.getLabels()));
-        String picturePath = Constants.GOODS_UPLOAD_PATH+goods.getGoodsId()+"/image/";
+        goodsMapper.deactivateGoodsPicture(goodsId);
+        goodsMapper.addGoodsPicture(goodsId,picturePaths);
+        String picturePath = Constants.GOODS_UPLOAD_PATH+goodsId+"/image/";
         for(int n = 0;n<count;n++) {
             try {
                 FileInputStream in = (FileInputStream) photos[n].getInputStream();
@@ -75,7 +78,7 @@ public class GoodsService {
                 e.printStackTrace();
             }
         }
-        return goods.getGoodsId();
+        return goodsId;
     }
 
 
@@ -87,54 +90,22 @@ public class GoodsService {
     public Goods showGoods(Integer goodsId){
         return goodsMapper.queryGoodsById(goodsId);
     }
+
+
+
+
+
     /**
      * 编辑商品
      * goods需要包含除了picturePath以外的东西
      * 其中announceTime,goodsState,want,comments不需要提供
-     * @param photos 图片
      * @param goods 商品信息
      * @return
      */
-    public Integer editGoods(MultipartFile[] photos, Goods goods){
-        int count = 0;
-        for(MultipartFile photo:photos){
-            String contentType = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
-            if(contentType.length()==0){
-                return -1;
-            }
-            if (!(".jpeg".equals(contentType) ||
-                    ".jpg".equals(contentType) ||
-                    ".png".equals(contentType))) {
-                return -1;
-            }
-            count++;
-        }
-        if(count==0||count>GOODS_MAX_PICTURE){
-            return -1;
-        }
-        List<GoodsPicture> picturePaths = new ArrayList<>();
-        String[] uuids = new String[count];
-        for(int n = 0;n<count;n++){
-            uuids[n] = UUID.randomUUID().toString();
-            picturePaths.add(new GoodsPicture("goods/"+goods.getGoodsId()+"/image/"+uuids[n]+".png",n==0));
-        }
-        goods.setGoodsState(GoodsState.PUBLISHED.ordinal());
+    public Integer editGoods(Goods goods){
         goodsMapper.deleteGoodsLabels(goods.getGoodsId());
         goodsMapper.addGoodsLabels(goods.getGoodsId(), goodsMapper.getLabelsId(goods.getLabels()));
-        String picturePath = Constants.GOODS_UPLOAD_PATH+goods.getGoodsId()+"/image/";
-        for(int n = 0;n<count;n++) {
-            try {
-                FileInputStream in = (FileInputStream) photos[n].getInputStream();
-                BufferedImage srcImage = javax.imageio.ImageIO.read(in);
-                ImageUtil.storeImage(srcImage, picturePath + uuids[n] + ".png");
-            } catch (Exception e) {
-                System.out.println("读取图片文件出错！" + e.getMessage());
-                e.printStackTrace();
-            }
-        }
         goodsMapper.updateGoods(goods);
-        goodsMapper.deactivateGoodsPicture(goods.getGoodsId());
-        goodsMapper.addGoodsPicture(goods.getGoodsId(),picturePaths);
         return 0;
     }
 

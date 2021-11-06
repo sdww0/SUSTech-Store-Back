@@ -15,10 +15,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Api(value = "管理员",tags = {"管理员访问接口"})
@@ -57,7 +54,7 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/operate/goods")
+    @PutMapping("/operate/goods")
     @ApiOperation("操作商品，下架还是驳回")
     public CommonResult operateGoods(
             @ApiParam("id") @RequestParam("recordId") Integer recordId,
@@ -72,7 +69,7 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/operate/user")
+    @PutMapping("/operate/user")
     @ApiOperation("操作用户，封禁还是驳回")
     public CommonResult operateUsers(
             @ApiParam("id") @RequestParam("recordId") Integer recordId,
@@ -87,7 +84,7 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/operate/deal")
+    @PutMapping("/operate/deal")
     @ApiOperation("操作订单，让退款还是不让")
     public CommonResult operateDeal(
             @ApiParam("id") @RequestParam("recordId") Integer recordId,

@@ -61,7 +61,7 @@ public class DealController {
 
         //获取当前user 看看是不是订单id user的一个
         //不满足返回无权限
-        Integer currentUserId = userService.queryUserByEmail(principal.getName());
+        Integer currentUserId = userService.queryUserIdByEmail(principal.getName());
         if (!currentUserId.equals(deal.getBuyer().getUserId())
                 && !currentUserId.equals(deal.getSeller().getUserId())){
             return new CommonResult(ResultCode.ACCESS_DENIED);
@@ -84,7 +84,7 @@ public class DealController {
             @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
     ){
         //查看商品是不是已经下架
-        Integer userId = userService.queryUserByEmail(principal.getName());
+        Integer userId = userService.queryUserIdByEmail(principal.getName());
         if (goodsService.ifOnShelfById(goodsId)== GoodsState.OFF_SHELL.ordinal()){
             return new CommonResult(ResultCode.GOODS_OFF_SHELL);
         }
@@ -102,7 +102,7 @@ public class DealController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/pay/{dealId}")
+    @PutMapping(path="/pay/{dealId}")
     @ApiOperation("付款")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -137,7 +137,7 @@ public class DealController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/deliver/{dealId}")
+    @PutMapping(path="/deliver/{dealId}")
     @ApiOperation("填写邮递单号")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -169,7 +169,7 @@ public class DealController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/confirm/{dealId}")
+    @PutMapping(path="/confirm/{dealId}")
     @ApiOperation("确认收货")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -197,7 +197,7 @@ public class DealController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/comment/{dealId}")
+    @RequestMapping(path="/comment/{dealId}",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("评价")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -240,7 +240,7 @@ public class DealController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/refund/{dealId}")
+    @PutMapping(path="/refund/{dealId}")
     @ApiOperation("希望退货")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -264,7 +264,7 @@ public class DealController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/cancelRefund/{dealId}")
+    @PutMapping(path="/cancelRefund/{dealId}")
     @ApiOperation("取消退货")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -296,7 +296,7 @@ public class DealController {
 
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/agreeRefund/{dealId}")
+    @PutMapping(path="/agreeRefund/{dealId}")
     @ApiOperation("卖家是否同意退货")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),

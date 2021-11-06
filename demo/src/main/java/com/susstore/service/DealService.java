@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -147,7 +148,7 @@ public class DealService {
             case APPEALED:if(stage!=Stage.APPEALING)return Map.of("code",-2);break;
 
         }
-        Integer userId = usersMapper.queryUserByEmail(email);
+        Integer userId = usersMapper.queryUserIdByEmail(email);
         Integer otherId = 0;
 
         boolean isBuyer = false;
@@ -209,11 +210,11 @@ public class DealService {
         return map;
     }
 
-    public Deal getDealBySellerAndStage(Integer userId,Integer stage){
+    public List<Deal> getDealBySellerAndStage(Integer userId, Integer stage){
         return dealMapper.getDealBySellerAndStage(userId,stage);
     }
 
-    public Deal getDealByBuyerAndStage(Integer userId,Integer stage){
+    public List<Deal> getDealByBuyerAndStage(Integer userId,Integer stage){
         return dealMapper.getDealByBuyerAndStage(userId,stage);
     }
 
