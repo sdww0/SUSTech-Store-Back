@@ -182,6 +182,11 @@ public class GoodsService {
         return goodsMapper.queryGoodsByUserId(userId);
     }
 
+    public List<GoodsComment> getGoodsComment(Integer goodsId){
+        return goodsMapper.getGoodsComments(goodsId);
+    }
+
+
     public boolean addGoodsComplain(Integer goodsId,String content,MultipartFile picture,Integer complainerId) {
         String random = UUID.randomUUID().toString();
         String path = GOODS_COMPLAIN_PATH + complainerId + "/image/" + random + ".png";

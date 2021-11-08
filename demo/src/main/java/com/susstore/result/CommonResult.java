@@ -1,5 +1,8 @@
 package com.susstore.result;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommonResult {
     private long code;
     private String message;

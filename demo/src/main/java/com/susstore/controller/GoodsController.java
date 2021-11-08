@@ -2,6 +2,7 @@ package com.susstore.controller;
 
 import com.susstore.config.Constants;
 import com.susstore.pojo.Goods;
+import com.susstore.pojo.GoodsComment;
 import com.susstore.pojo.Users;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
@@ -108,6 +109,24 @@ public class GoodsController {
         }
         return new CommonResult(ResultCode.SUCCESS);
     }
+
+    @GetMapping("/comment/{goodsId}")
+    @ApiOperation("获得商品评价")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4050,message = "商品不存在")
+    })
+    public CommonResult comment(
+            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
+    ){
+        List<GoodsComment> goodsComments = goodsService.getGoodsComment(goodsId);
+        if(goodsComments==null){
+            return new CommonResult(ResultCode.GOODS_NOT_FOUND);
+        }
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
+
 
     @ApiOperation("添加商品")
     @PreAuthorize("hasRole('USER')")
