@@ -226,7 +226,7 @@
     </select>
 
     <insert id="addGoodsComplain">
-        insert into store.complain_goods (goods_id, complainer_id, content, picture,is_process)
+        insert into store.complain_goods (goods_id, complainer_id, content, picture_path,is_process)
         values (#{goodsId},#{complainerId},#{content},#{picturePath},false);
     </insert>
 

@@ -174,7 +174,7 @@ create table if not exists store.complain_goods(
     goods_id int not null,
     complainer_id int not null,
     content varchar not null ,
-    picturePath varchar,
+    picture_path varchar,
     is_process bool not null ,
     constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
     constraint complain_id_fkey foreign key (complainer_id) references store.users(user_id)
@@ -185,7 +185,7 @@ create table if not exists store.complain_users(
    users_id int not null,
    complainer_id int not null,
    content varchar not null ,
-   picturePath varchar,
+   picture_path varchar,
    is_process bool not null ,
    constraint goods_id_fkey foreign key (users_id) references store.users(user_id),
    constraint complainer_id_fkey foreign key (complainer_id) references store.users(user_id)
@@ -195,7 +195,7 @@ create table if not exists store.appealing_deal(
     record_id serial primary key ,
     deal_id int not null ,
     content varchar not null ,
-    picturePath varchar,
+    picture_path varchar,
     is_process bool not null ,
     constraint deal_id_fkey foreign key (deal_id) references store.deal(deal_id)
 
