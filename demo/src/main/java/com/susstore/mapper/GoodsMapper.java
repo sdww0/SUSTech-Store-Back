@@ -88,7 +88,7 @@ public interface GoodsMapper {
 
     Integer increaseWant(Integer goodsId);
 
-    Integer commentGoods(Integer goodsId, Integer userId, String content, Date date);
+    Integer commentGoods(Integer userId, Integer goodsId, String content, Date date);
 
     Integer deleteGoodsComment(Integer commentId);
 
