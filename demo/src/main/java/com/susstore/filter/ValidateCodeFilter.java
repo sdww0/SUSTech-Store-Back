@@ -4,6 +4,7 @@ import com.susstore.controller.ValidateCodeController;
 import com.susstore.config.security.CustomizeAuthenticationFailureHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -44,13 +45,13 @@ public class ValidateCodeFilter extends OncePerRequestFilter {
         String codeInSession = (String)session.getAttribute(ValidateCodeController.SESSION_KEY_IMAGE_CODE);
 
         if (StringUtils.isBlank(codeInRequest)) {
-            throw new ValidateCodeException("验证码不能为空！");
+            throw new UsernameNotFoundException("3");
         }
         if (codeInSession == null) {
-            throw new ValidateCodeException("验证码不存在！");
+            throw new UsernameNotFoundException("3");
         }
         if (!codeInRequest.equalsIgnoreCase(codeInSession)) {
-            throw new ValidateCodeException("验证码不正确！");
+            throw new UsernameNotFoundException("3");
         }
         session.removeAttribute(ValidateCodeController.SESSION_KEY_IMAGE_CODE);
 

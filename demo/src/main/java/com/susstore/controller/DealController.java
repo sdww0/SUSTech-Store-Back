@@ -77,23 +77,28 @@ public class DealController {
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4051,message = "商品下架"),
+            @ApiResponse(code = 4003,message = "权限不足"),
             @ApiResponse(code = 4071,message = "添加订单失败")
     })
     public CommonResult addDeal(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
-            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
+            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId,
+            @ApiParam("地址id") @RequestParam("addressId") Integer addressId
     ){
         //查看商品是不是已经下架
         Integer userId = userService.queryUserIdByEmail(principal.getName());
         if (goodsService.ifOnShelfById(goodsId)== GoodsState.OFF_SHELL.ordinal()){
             return new CommonResult(ResultCode.GOODS_OFF_SHELL);
         }
+        if(!userService.checkUserHasInputAddress(userId,addressId)){
+            return new CommonResult(ResultCode.ACCESS_DENIED);
+        }
         //查看相同订单是否已存在
         // check buyer&seller&goodsId&stage
         Goods goods = goodsService.getGoodsById(goodsId);
         Integer sellerId = (!goods.getIsSell()) ? userId : goods.getAnnouncer().getUserId();
         Integer buyerId = goods.getIsSell() ? userId : goods.getAnnouncer().getUserId();
-        Integer id = dealService.addDeal(sellerId,buyerId,goodsId);
+        Integer id = dealService.addDeal(sellerId,buyerId,goodsId, goodsService.getGoodsTotalPrice(goodsId),addressId);
         if(id==null||id<0){
             return new CommonResult(ResultCode.DEAL_ADD_FAIL);
         }
@@ -117,7 +122,7 @@ public class DealController {
     ){
         StageControlMethod method = (userId,otherId,  dealId1, currentStage, wantStage, isBuyer) -> {
             Float money = userService.getUserMoney(userId);
-            Float needMoney = dealService.getGoodsPrice(dealId1);
+            Float needMoney = dealService.getDealPrice(dealId1);
             if(money<needMoney){
                 //钱不够
                 return 1;
@@ -183,7 +188,7 @@ public class DealController {
     ){
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
             //确认收货，卖家加钱
-            userService.changeUserMoney(otherId, dealService.getGoodsPrice(dealId1));
+            userService.changeUserMoney(otherId, dealService.getDealPrice(dealId1));
             return 0;
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.COMMENT,true,method);
@@ -310,7 +315,7 @@ public class DealController {
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
             if(agree){
                 //同意，买家加钱
-                Float price = dealService.getGoodsPrice(dealId1);
+                Float price = dealService.getDealPrice(dealId1);
                 userService.changeUserMoney(otherId,price);
                 dealService.changeDealStage(dealId1,Stage.DEAL_CLOSE);
             }else{
@@ -327,6 +332,10 @@ public class DealController {
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
     }
+
+
+
+
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path="/appealing/{dealId}")

@@ -39,7 +39,7 @@
 
     <insert id="addUser" parameterType="Users" useGeneratedKeys="true" keyProperty="userId">
         insert into store."users" (user_name,password,gender,credit,money,email,picture_path,is_activate,activate_code,is_ban)
-        values (#{userName},#{password},#{gender},0,10,#{email},'user/user_picture_default.png',false,#{activateCode},false) returning user_id;
+        values (#{userName},#{password},#{gender},10,0,#{email},'user/user_picture_default.png',false,#{activateCode},false) returning user_id;
     </insert>
 
     <update id="updateUser" parameterType="Users" >
@@ -212,7 +212,7 @@
     </select>
 
     <insert id="addUserComplain">
-        insert into store.complain_users (users_id, complainer_id, content, picture,is_process)
+        insert into store.complain_users (users_id, complainer_id, content, picture_path,is_process)
         values (#{userId},#{complainerId},#{content},#{picturePath},false);
     </insert>
 

@@ -123,7 +123,7 @@ public class GoodsController {
         if(goodsComments==null){
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(ResultCode.SUCCESS,goodsComments);
     }
 
 

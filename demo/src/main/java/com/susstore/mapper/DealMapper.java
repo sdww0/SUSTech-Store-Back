@@ -11,7 +11,6 @@ import java.util.List;
 @Mapper
 @Repository
 public interface DealMapper {
-    Deal checkExists(Integer userId,Integer goodsId);
 
     Integer addDeal(Deal deal);
 
@@ -30,8 +29,6 @@ public interface DealMapper {
     Integer getDealStageByDealId(Integer dealId);
 
     Integer changeDealStage(Integer dealId,Integer stage);
-
-    Float getGoodsPrice(Integer dealId);
 
     Integer addMailingNumber(Integer dealId,String mailingNumber);
 
@@ -63,5 +60,9 @@ public interface DealMapper {
     Integer addAppealingContent(Integer dealId,String content,String picturePath);
 
     Float getDealPrice(Integer dealId);
+
+    Deal getDealByBuyer(Integer userId);
+
+    Deal getDealBySeller(Integer userId);
 
 }

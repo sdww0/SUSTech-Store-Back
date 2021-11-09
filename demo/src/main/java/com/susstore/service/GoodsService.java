@@ -222,4 +222,8 @@ public class GoodsService {
         return true;
     }
 
+    public Float getGoodsTotalPrice(Integer goodsId){
+        return goodsMapper.getGoodsTotalPrice(goodsId);
+    }
+
 }

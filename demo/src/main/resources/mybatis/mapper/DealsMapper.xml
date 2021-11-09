@@ -10,6 +10,8 @@
         <result property="stage" column="stage"/>
         <result property="mailingNumber" column="mailing_number"/>
         <result property="needMailing" column="need_mailing"/>
+        <result property="price" column="price1"/>
+        <result property="orderTime" column="order_time"/>
         <association property="seller" javaType="com.susstore.pojo.Users">
             <id property="userId" column="user_id1"/>
             <result property="sign" column="sign1"/>
@@ -34,7 +36,7 @@
         </association>
         <association property="goodsAbbreviation" javaType="com.susstore.pojo.GoodsAbbreviation">
             <id property="goodsId" column="goods_id1"/>
-            <result property="price" column="price"/>
+            <result property="price" column="price2"/>
             <result property="title" column="title"/>
             <result property="isSell" column="is_sell"/>
             <result property="postage" column="postage"/>
@@ -50,16 +52,10 @@
         </association>
     </resultMap>
 
-
-    <select id="checkExists" resultType="Deal">
-        select * from store.deal
-        where (seller_id=#{userId} or buyer_id = #{userId}) and goods_id = #{goodsId};
-    </select>
-
     <insert id="addDeal" parameterType="Deal" useGeneratedKeys="true" keyProperty="dealId">
         insert into store.deal
-        ( stage, goods_id, buyer_id, seller_id)
-        values (0,#{goodsAbbreviation.goodsId},#{buyer.userId},#{seller.userId})
+        ( stage, price,goods_id, buyer_id, seller_id,order_time,shipping_address_id)
+        values (0,#{price},#{goodsAbbreviation.goodsId},#{buyer.userId},#{seller.userId},#{orderTime},#{shippingAddress.addressId})
         returning deal_id;
     </insert>
 
@@ -78,13 +74,13 @@
 
 
     <select id="getDealById" resultMap="deal1">
-        select deal_id,stage,mailing_number,need_mailing,
+        select deal_id,stage,mailing_number,need_mailing,d.price price1,order_time,
                u1.user_id user_id1, u1.sign sign1,u1.user_name user_name1,u1.gender gender1,
                u1.credit credit1,u1.picture_path picture_path1,
                u2.user_id user_id2, u2.sign sign2,u2.user_name user_name2,u2.gender gender2,
                u2.credit credit2,u2.picture_path picture_path2,
                a.address_id address_id, recipient_name, address_name, a.phone phone,
-               g.goods_id goods_id1, price, title, is_sell, postage, gp.picture_path picture_path4,
+               g.goods_id goods_id1, g.price price2, title, is_sell, postage, gp.picture_path picture_path4,
                u3.user_id user_id3, u3.sign sign3,u3.user_name user_name3,u3.gender gender3,
                u3.credit credit3,u2.picture_path picture_path3
         from store.deal d
@@ -131,11 +127,6 @@
         update store.deal set stage = #{stage} where deal_id= #{dealId};
     </update>
 
-    <select id="getGoodsPrice" resultType="Float">
-        select price
-        from store.deal join store.goods on deal_id = #{dealId} and deal.goods_id = goods.goods_id;
-    </select>
-
     <update id="addMailingNumber">
         update store.deal set mailing_number = #{mailingNumber},need_mailing = true
         where deal_id = #{dealId};
@@ -177,13 +168,13 @@
     </update>
 
     <select id="getDealByBuyerAndStage" resultMap="deal1">
-        select deal_id,stage,mailing_number,need_mailing,
+        select deal_id,stage,mailing_number,need_mailing,d.price price1,order_time,
                u1.user_id user_id1, u1.sign sign1,u1.user_name user_name1,u1.gender gender1,
                u1.credit credit1,u1.picture_path picture_path1,
                u2.user_id user_id2, u2.sign sign2,u2.user_name user_name2,u2.gender gender2,
                u2.credit credit2,u2.picture_path picture_path2,
                a.address_id address_id, recipient_name, address_name, a.phone phone,
-               g.goods_id goods_id1, price, title, is_sell, postage, gp.picture_path picture_path4,
+               g.goods_id goods_id1, g.price price2, title, is_sell, postage, gp.picture_path picture_path4,
                u3.user_id user_id3, u3.sign sign3,u3.user_name user_name3,u3.gender gender3,
                u3.credit credit3,u2.picture_path picture_path3
         from store.deal d
@@ -202,13 +193,13 @@
     </select>
 
     <select id="getDealBySellerAndStage" resultMap="deal1">
-        select deal_id,stage,mailing_number,need_mailing,
+        select deal_id,stage,mailing_number,need_mailing,d.price price1,order_time,
                u1.user_id user_id1, u1.sign sign1,u1.user_name user_name1,u1.gender gender1,
                u1.credit credit1,u1.picture_path picture_path1,
                u2.user_id user_id2, u2.sign sign2,u2.user_name user_name2,u2.gender gender2,
                u2.credit credit2,u2.picture_path picture_path2,
                a.address_id address_id, recipient_name, address_name, a.phone phone,
-               g.goods_id goods_id1, price, title, is_sell, postage, gp.picture_path picture_path4,
+               g.goods_id goods_id1, g.price price2, title, is_sell, postage, gp.picture_path picture_path4,
                u3.user_id user_id3, u3.sign sign3,u3.user_name user_name3,u3.gender gender3,
                u3.credit credit3,u2.picture_path picture_path3
         from store.deal d
@@ -231,7 +222,57 @@
     </insert>
     
     <select id="getDealPrice" resultType="Float">
-        select (price+postage) from store.deal join store.goods on deal.goods_id = goods.goods_id and deal_id = #{dealId}
+        select deal.price from store.deal where deal_id = #{dealId}
+    </select>
+
+    <select id="getDealBySeller" resultMap="deal1">
+        select deal_id,stage,mailing_number,need_mailing,d.price price1,order_time,
+               u1.user_id user_id1, u1.sign sign1,u1.user_name user_name1,u1.gender gender1,
+               u1.credit credit1,u1.picture_path picture_path1,
+               u2.user_id user_id2, u2.sign sign2,u2.user_name user_name2,u2.gender gender2,
+               u2.credit credit2,u2.picture_path picture_path2,
+               a.address_id address_id, recipient_name, address_name, a.phone phone,
+               g.goods_id goods_id1, g.price price2, title, is_sell, postage, gp.picture_path picture_path4,
+               u3.user_id user_id3, u3.sign sign3,u3.user_name user_name3,u3.gender gender3,
+               u3.credit credit3,u2.picture_path picture_path3
+        from store.deal d
+                 join store.goods g
+                      on d.goods_id = g.goods_id and d.seller_id = #{userId}
+                 left join store.goods_picture gp
+                           on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                 join store.users u1
+                      on u1.user_id = d.seller_id
+                 join store.users u2
+                      on u2.user_id = d.buyer_id
+                 join store.users u3
+                      on u3.user_id = g.announcer_id
+                 left join store.address a
+                           on a.address_id = d.shipping_address_id;
+    </select>
+
+    <select id="getDealByBuyer" resultMap="deal1">
+        select deal_id,stage,mailing_number,need_mailing,d.price price1,order_time,
+               u1.user_id user_id1, u1.sign sign1,u1.user_name user_name1,u1.gender gender1,
+               u1.credit credit1,u1.picture_path picture_path1,
+               u2.user_id user_id2, u2.sign sign2,u2.user_name user_name2,u2.gender gender2,
+               u2.credit credit2,u2.picture_path picture_path2,
+               a.address_id address_id, recipient_name, address_name, a.phone phone,
+               g.goods_id goods_id1, g.price price2, title, is_sell, postage, gp.picture_path picture_path4,
+               u3.user_id user_id3, u3.sign sign3,u3.user_name user_name3,u3.gender gender3,
+               u3.credit credit3,u2.picture_path picture_path3
+        from store.deal d
+                 join store.goods g
+                      on d.goods_id = g.goods_id and d.buyer_id = #{userId}
+                 left join store.goods_picture gp
+                           on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                 join store.users u1
+                      on u1.user_id = d.seller_id
+                 join store.users u2
+                      on u2.user_id = d.buyer_id
+                 join store.users u3
+                      on u3.user_id = g.announcer_id
+                 left join store.address a
+                           on a.address_id = d.shipping_address_id;
     </select>
 
 </mapper>

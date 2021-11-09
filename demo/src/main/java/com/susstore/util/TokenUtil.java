@@ -25,7 +25,7 @@ public class TokenUtil {
     private static String secret = "ji8n3439n439n43ld9ne9343fdfer49h";
     private static String header = "Authorization";
     //s
-    private static long expiration = 3600;
+    private static long expiration = 3600*24;
 
     /**
      * 从 Token 中获取 usercode

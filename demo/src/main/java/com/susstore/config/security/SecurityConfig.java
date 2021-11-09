@@ -1,12 +1,15 @@
 package com.susstore.config.security;
 
 import com.susstore.config.security.*;
+import com.susstore.filter.AuthenticationFilter;
 import com.susstore.filter.JwtAuthenticationTokenFilter;
 import com.susstore.filter.ValidateCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -56,6 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtAuthenticationTokenFilter authenticationTokenFilter;
 
+    private HttpSecurity httpSecurity;
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository(){
@@ -67,6 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        this.httpSecurity = http;
         //配置验证码
         http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
@@ -90,7 +95,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.anyRequest().authenticated()
                 .and()/*.rememberMe().tokenRepository(persistentTokenRepository())
                 .tokenValiditySeconds(3600)*/
-                .userDetailsService(userDetailService)
                 .logout().logoutSuccessUrl("/index").permitAll();
 
         http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
@@ -100,11 +104,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(authenticationFailureHandler)
                 .and().logout().permitAll()
                 .logoutSuccessHandler(logoutSuccessHandler)
-
-
-
                 .invalidateHttpSession(true)
                 .clearAuthentication(true);
+        http.addFilterAt(authenticationFilter(),UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.httpBasic();
@@ -117,14 +119,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                // 从数据库读取的用户进行身份认证
-                .userDetailsService(userDetailService)
-                .passwordEncoder(passwordEncoder());
+    AuthenticationFilter authenticationFilter() throws Exception{
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter();
+        authenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        authenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+        authenticationFilter.setAuthenticationManager(authenticationManagerBean());
+        return authenticationFilter;
     }
 
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(authenticationProvider());
+    }
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setUserDetailsService(userDetailService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
     @Bean
     public UserDetailsService userDetailsService(){
         return new UserDetailServiceImpl();

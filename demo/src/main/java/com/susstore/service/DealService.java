@@ -4,10 +4,7 @@ import com.susstore.config.Constants;
 import com.susstore.mapper.DealMapper;
 import com.susstore.mapper.UsersMapper;
 import com.susstore.method.StageControlMethod;
-import com.susstore.pojo.Deal;
-import com.susstore.pojo.GoodsAbbreviation;
-import com.susstore.pojo.Stage;
-import com.susstore.pojo.Users;
+import com.susstore.pojo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,15 +23,15 @@ public class DealService {
     @Autowired
     private UsersMapper usersMapper;
 
-    public Deal checkExists(Integer userId, Integer goodsId) {
-        return dealMapper.checkExists(userId, goodsId);
-    }
-
-    public Integer addDeal(Integer sellerId,Integer buyerId,Integer goodsId) {
+    public Integer addDeal(Integer sellerId,Integer buyerId,Integer goodsId,Float price,Integer addressId) {
         Deal deal = Deal.builder()
                 .seller(Users.builder().userId(sellerId).build())
                 .buyer(Users.builder().userId(buyerId).build())
-                .goodsAbbreviation(GoodsAbbreviation.builder().goodsId(goodsId).build()).build();
+                .orderTime(new Date())
+                .goodsAbbreviation(GoodsAbbreviation.builder().goodsId(goodsId).build())
+                .shippingAddress(Address.builder().addressId(addressId).build())
+                .price(price)
+                .build();
         dealMapper.addDeal(deal);
         return deal.getDealId();
     }
@@ -67,9 +64,6 @@ public class DealService {
         return dealMapper.changeDealStage(dealId, stage.ordinal());
     }
 
-    public Float getGoodsPrice(Integer dealId) {
-        return dealMapper.getGoodsPrice(dealId);
-    }
 
     public Integer addMailingNumber(Integer dealId,String mailingNumber){
         return dealMapper.addMailingNumber(dealId,mailingNumber);
@@ -225,5 +219,15 @@ public class DealService {
     public Float getDealPrice(Integer dealId){
         return dealMapper.getDealPrice(dealId);
     }
+
+    public Deal getDealByBuyer(Integer userId){
+        return dealMapper.getDealByBuyer(userId);
+    }
+
+    public Deal getDealBySeller(Integer userId){
+        return dealMapper.getDealBySeller(userId);
+    }
+
+
 
 }

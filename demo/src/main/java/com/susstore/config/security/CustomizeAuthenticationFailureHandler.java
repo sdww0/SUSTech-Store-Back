@@ -19,11 +19,11 @@ public class CustomizeAuthenticationFailureHandler implements AuthenticationFail
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
         CommonResult result = new CommonResult(ResultCode.LOGIN_FAIL);
-        if(e instanceof UserNotActivateException){
+        if(e.getMessage().equals("1")){
             result = new CommonResult(ResultCode.USER_NOT_ACTIVATE);
-        }else if(e instanceof ValidateCodeException){
+        }else if(e.getMessage().equals("3")){
             result = new CommonResult(ResultCode.CHECK_CODE_WRONG);
-        }else if(e instanceof UserHasBannedException){
+        }else if(e.getMessage().equals("2")){
             result = new CommonResult(ResultCode.USER_BANNED);
         }
         httpServletResponse.setContentType("text/json;charset=utf-8");

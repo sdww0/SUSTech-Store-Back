@@ -247,4 +247,10 @@
             (#{content},#{userId},#{commentDate},#{goodsId}) returning comment_id
     </insert>
 
+    <select id="getGoodsTotalPrice" resultType="Float">
+        select (price+postage)
+        from store.goods
+        where goods_id = #{goodsId};
+    </select>
+
 </mapper>

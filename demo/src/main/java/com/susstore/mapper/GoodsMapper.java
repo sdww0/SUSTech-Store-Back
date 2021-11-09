@@ -100,5 +100,6 @@ public interface GoodsMapper {
 
     Integer addGoodsComplain(Integer goodsId, String content, String picturePath, Integer complainerId);
 
+    Float getGoodsTotalPrice(Integer goodsId);
 
 }

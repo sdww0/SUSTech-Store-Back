@@ -5,6 +5,7 @@ import com.susstore.pojo.Role;
 import com.susstore.pojo.Users;
 import com.susstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -25,17 +26,28 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * 0 代表用户名密码错误
+     * 1 代表用户未激活
+     * 2 代表用户封禁
+     * 3 代表验证码不正确
+     * 抛出异常会打印。。只能这样解决了
+     * @param email
+     * @return
+     * @throws UserNotActivateException
+     * @throws UsernameNotFoundException
+     */
     @Override
     public UserDetails loadUserByUsername(String email) throws UserNotActivateException, UsernameNotFoundException {
         Users user = userService.getUserByEmail(email);
         if(user==null){
-            throw new UsernameNotFoundException("用户不存在");
+            throw new UsernameNotFoundException("0");
         }
         if(!user.getIsActivate()){
-            throw new UserNotActivateException("用户未激活");
+            throw new UsernameNotFoundException("1");
         }
         if(user.getIsBan()){
-            throw new UserHasBannedException("用户封禁");
+            throw new UsernameNotFoundException("2");
         }
         List<Integer> roles = userService.getUserRole(email);
         List<GrantedAuthority> authorities = new ArrayList<>();

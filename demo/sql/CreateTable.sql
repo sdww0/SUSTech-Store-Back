@@ -82,9 +82,11 @@ create table if not exists store.goods_picture(
 create table if not exists store.deal(
     deal_id serial primary key ,
     stage int not null ,
+    price float not null ,
     goods_id int not null ,
     buyer_id int not null ,
     seller_id int not null ,
+    order_time timestamp not null ,
     mailing_number varchar,
     shipping_address_id int,
     need_mailing bool,
