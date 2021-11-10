@@ -117,7 +117,7 @@ public class GoodsController {
             @ApiResponse(code = 4050,message = "商品不存在")
     })
     public CommonResult comment(
-            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
+            @ApiParam("商品id") @PathVariable("goodsId") Integer goodsId
     ){
         List<GoodsComment> goodsComments = goodsService.getGoodsComment(goodsId);
         if(goodsComments==null){

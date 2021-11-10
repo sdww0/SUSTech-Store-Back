@@ -1,9 +1,6 @@
 package com.susstore.config.security;
 
 import com.alibaba.fastjson.JSON;
-import com.susstore.config.security.exception.UserHasBannedException;
-import com.susstore.config.security.exception.UserNotActivateException;
-import com.susstore.config.security.exception.ValidateCodeException;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import org.springframework.security.core.AuthenticationException;
