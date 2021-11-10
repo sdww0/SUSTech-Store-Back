@@ -153,7 +153,7 @@ public interface UsersMapper {
 
      Integer registerRole(Integer userId,Integer role);
 
-     GoodsAbbreviation getUsersCollection(Integer userId);
+     List<GoodsAbbreviation> getUsersCollection(Integer userId);
 
      Integer addCollection(Integer userId,Integer goodsId);
 

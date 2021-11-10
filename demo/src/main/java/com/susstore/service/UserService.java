@@ -223,7 +223,7 @@ public class UserService {
         return usersMapper.getUserRole(email);
     }
 
-    public GoodsAbbreviation getUsersCollection(Integer userId){
+    public List<GoodsAbbreviation> getUsersCollection(Integer userId){
         return usersMapper.getUsersCollection(userId);
     }
 
