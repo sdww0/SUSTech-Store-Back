@@ -17,6 +17,7 @@ drop table if exists store.chat cascade ;
 drop table if exists store.user_role cascade ;
 drop table if exists store.users_collection cascade ;
 drop table if exists store.complain_deal cascade ;
+drop table if exists store.appealing_deal cascade ;
 --主要的大类
 
 create table if not exists store.users(

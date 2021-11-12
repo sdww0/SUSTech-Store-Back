@@ -70,7 +70,6 @@ public class DealController {
 
     }
 
-
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(path="/addDeal",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("生成订单信息")
@@ -202,7 +201,7 @@ public class DealController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @RequestMapping(path="/comment/{dealId}",method = {RequestMethod.POST,RequestMethod.OPTIONS})
+    @RequestMapping(path="/comment",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("评价")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),

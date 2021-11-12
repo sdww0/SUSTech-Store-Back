@@ -218,7 +218,7 @@
     </select>
     
     <insert id="addAppealingContent" >
-        insert into store.appealing_deal(deal_id, content, picture,is_process) VALUES (#{dealId},#{content},#{picturePath},false);
+        insert into store.appealing_deal(deal_id, content, picture_path,is_process) VALUES (#{dealId},#{content},#{picturePath},false);
     </insert>
     
     <select id="getDealPrice" resultType="Float">
