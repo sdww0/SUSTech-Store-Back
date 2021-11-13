@@ -22,7 +22,7 @@ public class TokenUtil {
     public static final String CLAIM_KEY_USERNAME = "sub";
     public static final String CLAIM_KEY_CREATED = "crt";
 
-    private static String secret = " ";
+    private static String secret = "8hg6iomgt87obg5i8nhji1nsianaixj192nfkdkakl3j2naxjvfp1";
     private static String header = "Authorization";
     //s
     private static long expiration = 3600*24;
