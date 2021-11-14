@@ -62,8 +62,8 @@ public interface DealMapper {
 
     Float getDealPrice(Integer dealId);
 
-    Deal getDealByBuyer(Integer userId);
+    List<Deal> getDealByBuyer(Integer userId);
 
-    Deal getDealBySeller(Integer userId);
+    List<Deal> getDealBySeller(Integer userId);
 
 }

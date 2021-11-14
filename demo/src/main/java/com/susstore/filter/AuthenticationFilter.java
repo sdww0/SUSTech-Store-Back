@@ -23,6 +23,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             UsernamePasswordAuthenticationToken authRequest = null;
             try (InputStream is = request.getInputStream()) {
                 Map authenticationBean = mapper.readValue(is, Map.class);
+                String checkCode = (String)authenticationBean.get("checkCode");
+                if(checkCode==null){
+
+                }
                 authRequest = new UsernamePasswordAuthenticationToken(
                         authenticationBean.get("email"), authenticationBean.get("password"));
             } catch (IOException e) {
