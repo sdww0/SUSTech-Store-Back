@@ -77,8 +77,9 @@ public class DealService {
                            Integer commentUserId,
                                   Integer targetUserId,
                            Date date,
-                           String content){
-        return dealMapper.addUserComment(dealId, commentUserId, targetUserId, date, content);
+                           String content,
+                                  Boolean isGood){
+        return dealMapper.addUserComment(dealId, commentUserId, targetUserId, date, content,isGood);
     }
 
     public Boolean checkUserHadComment(Integer dealId,Integer userId){

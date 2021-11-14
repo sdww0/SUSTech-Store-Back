@@ -224,7 +224,7 @@ public class DealController {
             }else{
                 dealService.badComment(otherId);
             }
-            dealService.addUserComment(dealId1,userId,otherId,new Date(System.currentTimeMillis()),dealComment.content);
+            dealService.addUserComment(dealId1,userId,otherId,new Date(System.currentTimeMillis()),dealComment.content,dealComment.isGood);
             if(dealService.checkUserHadComment(dealId1,userId)){
                 //如果双方都评价了则跳到下一阶段
                 dealService.changeDealStage(dealId1,wantStage);

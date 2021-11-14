@@ -39,7 +39,8 @@ public interface DealMapper {
                            Integer commentUserId,
                            Integer targetUserId,
                            Date date,
-                           String content);
+                           String content,
+                           Boolean isGood);
 
     /**
      * 查看某人在某订单是否被评价
