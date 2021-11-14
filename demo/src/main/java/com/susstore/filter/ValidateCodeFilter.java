@@ -31,9 +31,9 @@ public class ValidateCodeFilter extends OncePerRequestFilter {
                 && "post".equalsIgnoreCase(httpServletRequest.getMethod())) {
             try {
                 HttpSession session = httpServletRequest.getSession();
-                String codeInReq = httpServletRequest.getParameter("imageCode");
+                String codeInReq = httpServletRequest.getParameter("checkCode");
                 validateCode(session,codeInReq);
-            } catch (ValidateCodeException e) {
+            } catch (UsernameNotFoundException e) {
                 authenticationFailureHandler.onAuthenticationFailure(httpServletRequest, httpServletResponse, e);
                 return;
             }

@@ -221,11 +221,11 @@ public class DealService {
         return dealMapper.getDealPrice(dealId);
     }
 
-    public Deal getDealByBuyer(Integer userId){
+    public List<Deal> getDealByBuyer(Integer userId){
         return dealMapper.getDealByBuyer(userId);
     }
 
-    public Deal getDealBySeller(Integer userId){
+    public List<Deal> getDealBySeller(Integer userId){
         return dealMapper.getDealBySeller(userId);
     }
 

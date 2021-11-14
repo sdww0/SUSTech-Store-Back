@@ -424,6 +424,20 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    @ApiOperation("获取用户所有购买的订单")
+    @GetMapping("/buyDeal")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public CommonResult getUserBuyDeal(
+            @ApiParam("SpringSecurity认证信息") Principal principal
+    ){
+        return new CommonResult(SUCCESS,
+                dealService.getDealByBuyer(userService.queryUserIdByEmail(principal.getName())));
+
+    }
+
+    @PreAuthorize("hasRole('USER')")
     @ApiOperation("获取用户所有卖出的订单")
     @GetMapping("/sellDeal")
     @ApiResponses(value = {
