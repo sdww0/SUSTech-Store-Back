@@ -129,7 +129,7 @@ public class UserController {
     })
     public CommonResult updateUser(
                 @ApiParam("SpringSecurity用户信息认证") Principal principal,
-                @ApiParam("更新结构体")  UpdateUser user
+                @ApiParam("更新结构体")  @RequestBody  UpdateUser user
     ) {
         if(user.gender>Gender.SECRET.ordinal()||user.gender<0){
             return new CommonResult(PARAM_NOT_VALID);
@@ -407,20 +407,6 @@ public class UserController {
                 dealService.getDealBySellerAndStage(
                         userService.queryUserIdByEmail(principal.getName()
                         ),type));
-
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @ApiOperation("获取用户所有购买的订单")
-    @GetMapping("/buyDeal")
-    @ApiResponses(value = {
-            @ApiResponse(code = 2000,message = "成功")
-    })
-    public CommonResult getUserBuyDeal(
-            @ApiParam("SpringSecurity认证信息") Principal principal
-    ){
-        return new CommonResult(SUCCESS,
-                dealService.getDealByBuyer(userService.queryUserIdByEmail(principal.getName())));
 
     }
 
