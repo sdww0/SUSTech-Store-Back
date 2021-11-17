@@ -102,4 +102,6 @@ public interface GoodsMapper {
 
     Float getGoodsTotalPrice(Integer goodsId);
 
+    Integer getAnnouncerId(Integer goodsId);
+
 }

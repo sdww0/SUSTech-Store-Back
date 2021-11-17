@@ -144,6 +144,8 @@
             left join store.goods_picture on goods.goods_id = goods_picture.goods_id;
     </select>
 
+
+
     <select id="getGoodsPicturePath" resultType="com.susstore.pojo.GoodsPicture">
         select picture_path path,is_default_picture from store.goods_picture where goods_id = #{goodsId} and is_activate = true;
     </select>
@@ -246,6 +248,10 @@
         insert into store.goods_comment (content, comment_user_id, comment_date, belong_goods_id) values
             (#{content},#{userId},#{commentDate},#{goodsId}) returning comment_id
     </insert>
+
+    <select id="getAnnouncerId" resultType="Integer">
+        select announcer_id from store.goods where goods_id = #{goodsId};
+    </select>
 
     <select id="getGoodsTotalPrice" resultType="Float">
         select (price+postage)

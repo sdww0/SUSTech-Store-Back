@@ -96,7 +96,9 @@ public class ChatController {
     @ApiOperation("生成聊天信息")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
-            @ApiResponse(code = 4090,message = "聊天已存在")
+            @ApiResponse(code = 4090,message = "聊天已存在"),
+            @ApiResponse(code = 4091,message = "不可以与自己建立聊天"),
+            @ApiResponse(code = 4001,message = "填写的参数有误")
     })
     public CommonResult addChat(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
@@ -109,7 +111,13 @@ public class ChatController {
         if ((chatId=chatService.getChatId(goodsId,userId))!=null){
             return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS,chatId);
         }
-        Goods goods = goodsService.getGoodsById(goodsId);
+        Integer announcerId = goodsService.getAnnouncerId(goodsId);
+        if(announcerId==null){
+            return new CommonResult(ResultCode.PARAM_NOT_VALID);
+        }
+        if(announcerId.equals(userId)){
+            return new CommonResult(ResultCode.CANNOT_CHAT_WITH_OWN);
+        }
         Integer id = chatService.addChat(DataBaseChat.builder().initiatorId(userId).goodsId(goodsId).build());
         if(id==null||id<0){
             return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS);

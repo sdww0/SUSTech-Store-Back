@@ -142,6 +142,11 @@ public class GoodsService {
         return goodsMapper.queryGoodsById(goodsId);
     }
 
+    public Integer getAnnouncerId(Integer goodsId){
+        return goodsMapper.getAnnouncerId(goodsId);
+    }
+
+
     public int ifOnShelfById(int goodsId){
         return goodsMapper.ifOnShelfById(goodsId);
     }

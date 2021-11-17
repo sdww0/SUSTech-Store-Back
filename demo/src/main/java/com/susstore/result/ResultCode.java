@@ -41,6 +41,7 @@ public enum ResultCode {
     NOT_ENOUGH_MONEY(4073, "没有足够的钱"),
     ALREADY_COMMENT(4074, "已经评价"),
     CHAT_ALREADY_EXISTS(4090, "聊天已存在"),
+    CANNOT_CHAT_WITH_OWN(4091, "不可以与自己建立聊天"),
     COMPLAIN_FAIL(4100, "投诉失败"),
     COMPLAIN_USER_NOT_EXISTS(4101, "举报用户不存在");
     public int code;
