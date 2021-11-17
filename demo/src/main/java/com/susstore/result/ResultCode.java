@@ -30,6 +30,8 @@ public enum ResultCode {
     ACTIVATE_CODE_ILLEGAL(4022, "激活码不存在"),
     USER_ALREADY_ACTIVATE(4023, "用户已经激活"),
     ADDRESS_NOT_EXISTS(4030, "用户地址不存在"),
+    COLLECTION_EXISTS(4040,"收藏夹已有"),
+    COLLECTION_NOT_EXISTS(4041,"收藏夹未有"),
     GOODS_NOT_FOUND(4050, "商品不存在"),
     GOODS_OFF_SHELL(4051, "商品下架"),
     ADD_GOODS_FAILED(4060, "添加商品失败"),

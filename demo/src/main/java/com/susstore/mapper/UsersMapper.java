@@ -159,5 +159,6 @@ public interface UsersMapper {
 
      Integer deleteCollection(Integer userId,Integer goodsId);
 
+     Boolean isInUserCollection(Integer goodsId,String email);
 
 }

@@ -235,4 +235,8 @@ public class UserService {
         return usersMapper.deleteCollection(userId,goodsId);
     }
 
+    public      Boolean isInUserCollection(Integer goodsId,String email){
+        return usersMapper.isInUserCollection(goodsId, email) != null;
+    }
+
 }

@@ -504,10 +504,31 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @ApiOperation("添加到收藏夹")
-    @PutMapping("/collection")
+    @PutMapping("/checkCollection")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4001,message = "填写的参数有误")
+    })
+    public CommonResult checkCollection(
+            @ApiParam("SpringSecurity认证信息") Principal principal,
+            @ApiParam("商品id") @RequestParam("goodsId")Integer goodsId
+    ){
+        if(goodsService.getBelongUserId(goodsId)==null){
+            return new CommonResult(PARAM_NOT_VALID);
+        }
+        return new CommonResult(SUCCESS,userService.isInUserCollection(goodsId,principal.getName()));
+
+    }
+
+
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("添加到收藏夹")
+    @PutMapping("/collection")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误"),
+            @ApiResponse(code = 4040,message = "收藏夹已有")
     })
     public CommonResult addCollection(
             @ApiParam("SpringSecurity认证信息") Principal principal,
@@ -515,6 +536,9 @@ public class UserController {
     ){
         if(goodsService.getBelongUserId(goodsId)==null){
             return new CommonResult(PARAM_NOT_VALID);
+        }
+        if(userService.isInUserCollection(goodsId,principal.getName())){
+            return new CommonResult(COLLECTION_EXISTS);
         }
         return new CommonResult(SUCCESS,userService.addCollection(userService.queryUserIdByEmail(principal.getName()),goodsId));
     }
@@ -525,7 +549,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功")
     })
-    public CommonResult addCollection(
+    public CommonResult getCollection(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
         return new CommonResult(SUCCESS,userService.getUsersCollection(userService.queryUserIdByEmail(principal.getName())));
@@ -536,7 +560,8 @@ public class UserController {
     @DeleteMapping("/collection")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
-            @ApiResponse(code = 4001,message = "填写的参数有误")
+            @ApiResponse(code = 4001,message = "填写的参数有误"),
+            @ApiResponse(code = 4041,message = "收藏夹未有")
     })
     public CommonResult deleteCollection(
             @ApiParam("SpringSecurity认证信息") Principal principal,
@@ -544,6 +569,9 @@ public class UserController {
     ){
         if(goodsService.getBelongUserId(goodsId)==null){
             return new CommonResult(PARAM_NOT_VALID);
+        }
+        if(!userService.isInUserCollection(goodsId,principal.getName())){
+            return new CommonResult(COLLECTION_NOT_EXISTS);
         }
         userService.deleteCollection(userService.queryUserIdByEmail(principal.getName()),goodsId );
         return new CommonResult(SUCCESS);

@@ -242,5 +242,12 @@
                           join store.users_collection on users.user_id = #{userId};
     </select>
 
+    <select id="isInUserCollection" >
+        select true from store.users
+            join store.users_collection
+                on users.user_id = users_collection.user_id
+                       and email = #{email} and goods_id = #{goodsId};
+    </select>
+
 
 </mapper>
