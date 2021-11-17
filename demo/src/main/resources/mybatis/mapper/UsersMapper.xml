@@ -242,7 +242,7 @@
                           join store.users_collection on users.user_id = #{userId};
     </select>
 
-    <select id="isInUserCollection" >
+    <select id="isInUserCollection" resultType="Boolean">
         select true from store.users
             join store.users_collection
                 on users.user_id = users_collection.user_id

@@ -503,7 +503,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @ApiOperation("添加到收藏夹")
+    @ApiOperation("检查是否在收藏夹里")
     @PutMapping("/checkCollection")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
