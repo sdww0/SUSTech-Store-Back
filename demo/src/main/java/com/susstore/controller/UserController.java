@@ -73,9 +73,26 @@ public class UserController {
                          @ApiParam("用户id") @PathVariable("userId") Integer userId,
                          @ApiParam("图片名称") @PathVariable("file")String  file) throws IOException {
         response.setContentType("image/jpeg;charset=utf-8");
-        response.setHeader("Content-Disposition", "inline; filename=girls.png");
+        response.setHeader("Content-Disposition", "inline; filename=picture.png");
         ServletOutputStream outputStream = response.getOutputStream();
         outputStream.write(Files.readAllBytes(Path.of(Constants.USER_UPLOAD_PATH+userId+"/image/"+file)));
+        outputStream.flush();
+        outputStream.close();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("获取举报用户图片")
+    @GetMapping("/complain/{complainerId}/{file}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public void getGoodsComplainImage(HttpServletResponse response,
+                                      @ApiParam("投诉人id") @PathVariable("complainerId") Integer complainerId,
+                                      @ApiParam("图片名称") @PathVariable("file")String  file) throws IOException {
+        response.setContentType("image/jpeg;charset=utf-8");
+        response.setHeader("Content-Disposition", "inline; filename=picture.png");
+        ServletOutputStream outputStream = response.getOutputStream();
+        outputStream.write(Files.readAllBytes(Path.of(Constants.USER_COMPLAIN_PATH+complainerId+"/"+file)));
         outputStream.flush();
         outputStream.close();
     }

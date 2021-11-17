@@ -81,7 +81,7 @@ public class UserService {
 
     public boolean addUserComplain(Integer userId,String content,MultipartFile picture,Integer complainerId) {
         String random = UUID.randomUUID().toString();
-        String path = USER_COMPLAIN_PATH + complainerId + "/image/" + random + ".png";
+        String path = USER_COMPLAIN_PATH + complainerId + "/" + random + ".png";
         if (!picture.isEmpty()) {
             //获取文件的名称
             final String fileName = picture.getOriginalFilename();
@@ -109,7 +109,7 @@ public class UserService {
                 "\n举报内容:"+content
                         +"\n 举报人："+complainerId
                         +"\n 被举报人："+userId+"\n 举报图片见附件.",path);
-
+        path = "user/complain/"+ complainerId + "/" + random + ".png";
         usersMapper.addUserComplain(userId, content, path, complainerId);
         return true;
     }

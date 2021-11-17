@@ -19,6 +19,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.Principal;
 import java.util.Date;
 import java.util.Map;
@@ -39,6 +44,23 @@ public class DealController {
 
     @Autowired
     private MailServiceThread mailService;
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("获取订单申诉图片")
+    @GetMapping("/appealing/{dealId}/{file}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public void getGoodsComplainImage(HttpServletResponse response,
+                                      @ApiParam("投诉人id") @PathVariable("dealId") Integer dealId,
+                                      @ApiParam("图片名称") @PathVariable("file")String  file) throws IOException {
+        response.setContentType("image/jpeg;charset=utf-8");
+        response.setHeader("Content-Disposition", "inline; filename=picture.png");
+        ServletOutputStream outputStream = response.getOutputStream();
+        outputStream.write(Files.readAllBytes(Path.of(Constants.USER_COMPLAIN_PATH+dealId+"/"+file)));
+        outputStream.flush();
+        outputStream.close();
+    }
 
 
     @PreAuthorize("hasRole('USER')")
@@ -359,7 +381,7 @@ public class DealController {
                 String uuid = UUID.randomUUID().toString();
                 String path = Constants.DEAL_APPEALING_PATH + dealId1 +"/"+ uuid + ".png";
                 ImageUtil.storeImage(picture, path);
-                contentPath = dealId1 +"/"+ uuid + ".png";
+                contentPath = "deal/appealing/"+dealId1 +"/"+ uuid + ".png";
             }
             mailService.sendSimpleMail(Constants.WEBSITE_COMMUNICATE_EMAIL,"订单申诉，单号:"+dealId1,
                     "详细描述:"+content);

@@ -13,11 +13,11 @@
     </select>
 
     <select id="getAllNotProcessComplainGoods" resultType="com.susstore.pojo.process.ComplainGoods">
-        select * from store.appealing_deal where not is_process
+        select * from store.complain_goods where not is_process
     </select>
 
     <select id="getAllComplainGoods" resultType="com.susstore.pojo.process.ComplainGoods">
-        select * from store.appealing_deal
+        select * from store.complain_goods
     </select>
 
     <select id="getAllNotProcessAppealingDeal" resultType="com.susstore.pojo.process.AppealingDeal">
@@ -33,7 +33,7 @@
     </select>
 
     <select id="getComplainGoods" resultType="com.susstore.pojo.process.ComplainGoods">
-        select * from store.appealing_deal where record_id = #{recordId}
+        select * from store.complain_goods where record_id = #{recordId}
     </select>
 
     <select id="getAppealingDeal" resultType="com.susstore.pojo.process.AppealingDeal">

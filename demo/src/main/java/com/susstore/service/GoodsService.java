@@ -189,7 +189,7 @@ public class GoodsService {
 
     public boolean addGoodsComplain(Integer goodsId,String content,MultipartFile picture,Integer complainerId) {
         String random = UUID.randomUUID().toString();
-        String path = GOODS_COMPLAIN_PATH + complainerId + "/image/" + random + ".png";
+        String path = GOODS_COMPLAIN_PATH + complainerId + "/" + random + ".png";
         if (!picture.isEmpty()) {
             //获取文件的名称
             final String fileName = picture.getOriginalFilename();
@@ -217,7 +217,7 @@ public class GoodsService {
                 "\n举报内容:"+content
                         +"\n 举报人："+complainerId
                         +"\n 举报商品id："+goodsId+"\n 举报图片见附件.",path);
-
+        path = "goods/complain/"+ complainerId + "/" + random + ".png";
         goodsMapper.addGoodsComplain(goodsId, content, path, complainerId);
         return true;
     }
