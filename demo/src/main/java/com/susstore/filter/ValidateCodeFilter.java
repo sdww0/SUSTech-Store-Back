@@ -27,7 +27,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest,
                                     HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if ("/form".equalsIgnoreCase(httpServletRequest.getRequestURI())
+        if ("/login".equalsIgnoreCase(httpServletRequest.getRequestURI())
                 && "post".equalsIgnoreCase(httpServletRequest.getMethod())) {
             try {
                 HttpSession session = httpServletRequest.getSession();

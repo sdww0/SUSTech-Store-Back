@@ -63,7 +63,7 @@ public class SwaggerAddition implements ApiListingScannerPlugin {
                                 .parameterAccess("access")
                                 .required(true)
                                 .modelRef(new ModelRef("body"))
-                                .build()
+                                .build(),
 //                        new ParameterBuilder()
 //                                .description("密码")
 //                                .type(new TypeResolver().resolve(String.class))
@@ -74,15 +74,15 @@ public class SwaggerAddition implements ApiListingScannerPlugin {
 //                                .required(true)
 //                                .modelRef(new ModelRef("string"))
 //                                .build()
-//                        new ParameterBuilder()
-//                                .description("验证码")
-//                                .type(new TypeResolver().resolve(String.class))
-//                                .name("code")
-//                                .parameterType("query")
-//                                .parameterAccess("access")
-//                                .required(true)
-//                                .modelRef(new ModelRef("string"))
-//                                .build(),
+                        new ParameterBuilder()
+                                .description("验证码")
+                                .type(new TypeResolver().resolve(String.class))
+                                .name("checkCode")
+                                .parameterType("query")
+                                .parameterAccess("access")
+                                .required(true)
+                                .modelRef(new ModelRef("string"))
+                                .build()
 
                                 ))
                 .responseMessages(Set.of(
