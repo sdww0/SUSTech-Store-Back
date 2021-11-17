@@ -24,21 +24,28 @@ public class ValidateCodeFilter extends OncePerRequestFilter {
     private CustomizeAuthenticationFailureHandler authenticationFailureHandler;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest httpServletRequest,
-                                    HttpServletResponse httpServletResponse,
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if ("/login".equalsIgnoreCase(httpServletRequest.getRequestURI())
-                && "post".equalsIgnoreCase(httpServletRequest.getMethod())) {
+        //解决跨域问题，因为这个过滤器在跨域过滤器前面，所以直接放这了...
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods",
+                "POST, GET, OPTIONS, DELETE");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Headers",
+                "Content-Type, x-requested-with, X-Custom-Header, Authorization");
+        if ("/login".equalsIgnoreCase(request.getRequestURI())
+                && "post".equalsIgnoreCase(request.getMethod())) {
             try {
-                HttpSession session = httpServletRequest.getSession();
-                String codeInReq = httpServletRequest.getParameter("checkCode");
+                HttpSession session = request.getSession();
+                String codeInReq = request.getParameter("checkCode");
                 validateCode(session,codeInReq);
             } catch (UsernameNotFoundException e) {
-                authenticationFailureHandler.onAuthenticationFailure(httpServletRequest, httpServletResponse, e);
+                authenticationFailureHandler.onAuthenticationFailure(request, response, e);
                 return;
             }
         }
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
+        filterChain.doFilter(request, response);
     }
 
     private void validateCode(HttpSession session,String codeInRequest) throws ServletRequestBindingException {
