@@ -236,9 +236,9 @@
                goods_picture.picture_path picture_path, is_default_picture,content labels
         from store.goods join store.users
                               on goods_id = #{goodsId} and announcer_id = users.user_id
-                         join store.goods_label on goods.goods_id = goods_label.goods_id
-                         join store.label on goods_label.label_id = label.label_id
-                         join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
+                         left join store.goods_label on goods.goods_id = goods_label.goods_id
+                         left join store.label on goods_label.label_id = label.label_id
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
                           join store.users_collection on users.user_id = #{userId};
     </select>
 
