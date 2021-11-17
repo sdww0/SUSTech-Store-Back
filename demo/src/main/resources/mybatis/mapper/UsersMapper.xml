@@ -234,12 +234,12 @@
         select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
                users_collection.user_id user_id,sign,gender,credit,money,users.picture_path picture_path1,
                goods_picture.picture_path picture_path, is_default_picture,content labels
-        from store.goods join store.users
-                              on goods_id = #{goodsId} and announcer_id = users.user_id
+        from store.goods join store.users_collection on user_id = #{userId} and goods.goods_id = users_collection.goods_id
+                        join store.users on users_collection.user_id = users.user_id
                          left join store.goods_label on goods.goods_id = goods_label.goods_id
                          left join store.label on goods_label.label_id = label.label_id
-                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
-                          join store.users_collection on users.user_id = #{userId};
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
+
     </select>
 
     <select id="isInUserCollection" resultType="Boolean">
