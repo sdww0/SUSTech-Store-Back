@@ -28,9 +28,9 @@ public class ValidateCodeFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         //解决跨域问题，因为这个过滤器在跨域过滤器前面，所以直接放这了...
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Methods",
-                "POST, GET, OPTIONS, DELETE");
+                "POST, GET, OPTIONS, DELETE, PUT");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers",
