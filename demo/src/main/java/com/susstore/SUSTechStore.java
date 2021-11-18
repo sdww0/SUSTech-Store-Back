@@ -8,10 +8,10 @@ import java.io.File;
 
 @SpringBootApplication
 @MapperScan("com.susstore.mapper")
-public class DemoApplication {
+public class SUSTechStore {
 
     public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
+        SpringApplication.run(SUSTechStore.class, args);
     }
 
 }
