@@ -36,7 +36,6 @@ public class TokenUtil {
             final Claims claims = getClaimsFromToken(token);
             userEmail = claims.getSubject();
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
         return userEmail;
