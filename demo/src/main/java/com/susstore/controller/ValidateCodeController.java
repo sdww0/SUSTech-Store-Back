@@ -31,7 +31,7 @@ public class ValidateCodeController {
         response.setContentType("image/jpeg");
 
         //定义图形验证码的长、宽、验证码字符数、干扰元素个数
-        CircleCaptcha captcha = CaptchaUtil.createCircleCaptcha(100, 38, 4, 20);
+        CircleCaptcha captcha = CaptchaUtil.createCircleCaptcha(100, 38, 4, 2);
         System.out.println(captcha.getCode());
         //将验证码放到HttpSession里面
         request.getSession().setAttribute(SESSION_KEY_IMAGE_CODE, captcha.getCode());
