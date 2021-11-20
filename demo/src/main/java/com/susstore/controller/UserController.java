@@ -253,7 +253,7 @@ public class UserController {
             @ApiParam("地址") @RequestBody Address address
     )
     {
-        if(addressService.getAddress(address.getAddressId())==null){
+        if(!addressService.getAddress(address.getAddressId())){
             return new CommonResult(ADDRESS_NOT_EXISTS);
         }
         if(!addressService.isBelongAddress(principal.getName(),address.getAddressId())){

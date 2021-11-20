@@ -50,7 +50,7 @@ public interface AddressMapper {
 
 
 
-    Integer getAddress(Integer addressId);
+    Boolean getAddress(Integer addressId);
 
     Boolean isBelongAddress(String email, Integer addressId);
 }

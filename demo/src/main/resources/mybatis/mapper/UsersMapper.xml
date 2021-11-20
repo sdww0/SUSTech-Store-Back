@@ -96,7 +96,7 @@
             <if test="credit != null">credit=#{credit},</if>
             <if test="phone != null">phone=#{phone},</if>
             <if test="email != null">email=#{email},</if>
-            <if test="IDCard != null">id_card=#{IDCard},</if>
+            <if test="idCard != null">id_card=#{idCard},</if>
             <if test="money != null">money=#{money},</if>
             <if test="picturePath != null">picture_path=#{picturePath},</if>
             <if test="email != null">email=#{email},</if>

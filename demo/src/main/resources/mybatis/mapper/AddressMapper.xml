@@ -43,8 +43,8 @@
         delete from store."address" where address_id=#{addressId}
     </delete>
 
-    <select id="getAddress" parameterType="int" resultType="com.susstore.pojo.Address">
-        select * from store.address where address_id = #{addressId};
+    <select id="getAddress" parameterType="int" resultType="Boolean">
+        select true from store.address where address_id = #{addressId};
     </select>
 
     <select id="isBelongAddress" resultType="Boolean">
