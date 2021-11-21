@@ -326,4 +326,9 @@
     </select>
 
 
+    <select id="searchGoodsAmount" resultType="Integer">
+        select count(*)        from store.goods
+                                  where title like concat('%',#{searchContent,jdbcType=VARCHAR},'%');
+    </select>
+
 </mapper>

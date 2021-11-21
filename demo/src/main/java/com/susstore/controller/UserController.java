@@ -475,6 +475,28 @@ public class UserController {
         return new CommonResult(SUCCESS,goodsService.queryGoodsByUserIdAndState(userService.queryUserIdByEmail(principal.getName()),state));
     }
 
+    @ApiOperation("获取用户发布的商品,state:0-发布,1-下架,2-所有")
+    @GetMapping("/announceGoods/{userId}/{state}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误")
+    })
+    public CommonResult getAnnounceGoodsFromId(
+            @ApiParam("状态") @PathVariable("state") Integer state,
+            @ApiParam("用户id") @PathVariable("userId") Integer userId
+    ){
+        if(state>2||state<0){
+            return new CommonResult(PARAM_NOT_VALID);
+        }
+        if(userService.getUserMoney(userId)==null){
+            return new CommonResult(PARAM_NOT_VALID);
+        }
+        if(state==2)
+            return new CommonResult(SUCCESS,goodsService.queryGoodsByUserId(userId));
+        else
+            return new CommonResult(SUCCESS,goodsService.queryGoodsByUserIdAndState(userId,state));
+    }
+
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "/security",method = {RequestMethod.POST,RequestMethod.OPTIONS})
     @ApiOperation("账户安全,修改密码或者邮箱或者手机号")

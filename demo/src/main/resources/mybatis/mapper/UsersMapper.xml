@@ -253,4 +253,8 @@
         select * from store.users_label where user_id = #{userId} order by visit_time;
     </select>
 
+    <select id="searchUsersAmount" resultType="Integer">
+        select count(*) from store.users where users.user_name like concat('%',#{userName,jdbcType=VARCHAR},'%');
+    </select>
+
 </mapper>

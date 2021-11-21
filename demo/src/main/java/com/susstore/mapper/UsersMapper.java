@@ -164,4 +164,5 @@ public interface UsersMapper {
 
      List<UsersLabel> getUserVisitedLabels(Integer userId);
 
+    Integer searchUsersAmount(String userName);
 }

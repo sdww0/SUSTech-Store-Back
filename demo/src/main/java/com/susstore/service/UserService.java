@@ -240,4 +240,7 @@ public class UserService {
         return usersMapper.isInUserCollection(goodsId, email) != null;
     }
 
+    public Integer searchUsersAmount(String userName) {
+        return usersMapper.searchUsersAmount(userName);
+    }
 }

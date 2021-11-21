@@ -33,12 +33,23 @@ public class SearchController {
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功")
     })
-    public CommonResult search(
+    public CommonResult searchGoods(
             @ApiParam("搜索内容") @PathVariable("content")String content,
             @ApiParam("当前页") @PathVariable("currentPage")Integer currentPage
     ){
         List<GoodsAbbreviation> goodsAbbreviations = goodsService.searchGoods(content, SEARCH_PAGE_SIZE, currentPage);
         return new CommonResult(ResultCode.SUCCESS,goodsAbbreviations);
+    }
+
+    @GetMapping("/searchGoods/{content}")
+    @ApiOperation("搜索商品的个数")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public CommonResult searchGoodsAmount(
+            @ApiParam("搜索内容") @PathVariable("content")String content
+    ){
+        return new CommonResult(ResultCode.SUCCESS,goodsService.searchGoodsAmount(content));
     }
 
     @GetMapping("/searchUser/{userName}/{currentPage}")
@@ -55,6 +66,16 @@ public class SearchController {
         return new CommonResult(ResultCode.SUCCESS,users);
     }
 
+    @GetMapping("/searchUser/{userName}")
+    @ApiOperation("搜索用户的个数")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public CommonResult searchUserAmount(
+            @ApiParam("搜索用户名") @PathVariable("userName")String userName
+    ){
+        return new CommonResult(ResultCode.SUCCESS,userService.searchUsersAmount(userName));
+    }
 
 
 }

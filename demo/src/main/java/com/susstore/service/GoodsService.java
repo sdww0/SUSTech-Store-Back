@@ -144,6 +144,10 @@ public class GoodsService {
                 Map.of("searchContent",searchContent,"pageSize",pageSize,"pageIndex",pageIndex));
     }
 
+    public Integer searchGoodsAmount(String searchContent){
+        return goodsMapper.searchGoodsAmount(searchContent);
+    }
+
     public Goods getGoodsById(int goodsId){
         return goodsMapper.queryGoodsById(goodsId);
     }
