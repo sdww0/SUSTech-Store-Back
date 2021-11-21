@@ -456,15 +456,23 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @ApiOperation("获取用户发布的商品")
-    @GetMapping("/announceGoods")
+    @ApiOperation("获取用户发布的商品,state:0-发布,1-下架,2-所有")
+    @GetMapping("/announceGoods/{state}")
     @ApiResponses(value = {
-            @ApiResponse(code = 2000,message = "成功")
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4001,message = "填写的参数有误")
     })
     public CommonResult getAnnounceGoods(
-            @ApiParam("SpringSecurity认证信息") Principal principal
+            @ApiParam("SpringSecurity认证信息") Principal principal,
+            @ApiParam("状态") @PathVariable("state") Integer state
     ){
+        if(state>2||state<0){
+            return new CommonResult(PARAM_NOT_VALID);
+        }
+        if(state==2)
         return new CommonResult(SUCCESS,goodsService.queryGoodsByUserId(userService.queryUserIdByEmail(principal.getName())));
+        else
+        return new CommonResult(SUCCESS,goodsService.queryGoodsByUserIdAndState(userService.queryUserIdByEmail(principal.getName()),state));
     }
 
     @PreAuthorize("hasRole('USER')")

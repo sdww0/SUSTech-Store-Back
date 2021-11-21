@@ -48,6 +48,8 @@ public interface GoodsMapper {
      */
     List<GoodsAbbreviation> queryGoodsByUserId(Integer userId);
 
+    List<GoodsAbbreviation> queryGoodsByUserIdAndState(Integer userId,Integer state);
+
     /**
      * 根据搜索内容查找商品略缩信息
      * @param map String searchContent, Integer pageSize, Integer pageIndex

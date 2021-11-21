@@ -43,7 +43,6 @@ public class GoodsController {
 
 
     @GetMapping("/{goodsId}")
-    //@ApiResponses()
     @ApiOperation("根据商品id获取商品信息")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -68,7 +67,6 @@ public class GoodsController {
     public CommonResult recommend(){
         return new CommonResult(ResultCode.SUCCESS);
     }
-
 
     @GetMapping("/{goodsId}/image/{file}")
     @ApiOperation("获取商品图片")
@@ -99,7 +97,6 @@ public class GoodsController {
         outputStream.flush();
         outputStream.close();
     }
-
 
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "/comment",method = {RequestMethod.POST,RequestMethod.OPTIONS})
@@ -153,8 +150,6 @@ public class GoodsController {
         }
         return new CommonResult(ResultCode.SUCCESS,goodsComments);
     }
-
-
 
     @ApiOperation("添加商品")
     @PreAuthorize("hasRole('USER')")

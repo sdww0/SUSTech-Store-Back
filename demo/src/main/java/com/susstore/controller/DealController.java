@@ -381,7 +381,7 @@ public class DealController {
                 String uuid = UUID.randomUUID().toString();
                 String path = Constants.DEAL_APPEALING_PATH + dealId1 +"/"+ uuid + ".png";
                 ImageUtil.storeImage(picture, path);
-                contentPath = "deal/appealing/"+dealId1 +"/"+ uuid + ".png";
+                contentPath = Constants.BACK_END_LINK+"deal/appealing/"+dealId1 +"/"+ uuid + ".png";
             }
             mailService.sendSimpleMail(Constants.WEBSITE_COMMUNICATE_EMAIL,"订单申诉，单号:"+dealId1,
                     "详细描述:"+content);

@@ -63,7 +63,7 @@ public class GoodsService {
         String[] uuids = new String[count];
         for(int n = 0;n<count;n++){
             uuids[n] = UUID.randomUUID().toString();
-            picturePaths.add(new GoodsPicture("goods/"+goodsId+"/image/"+uuids[n]+".png",n==0));
+            picturePaths.add(new GoodsPicture(BACK_END_LINK+"goods/"+goodsId+"/image/"+uuids[n]+".png",n==0));
         }
         goodsMapper.deactivateGoodsPicture(goodsId);
         goodsMapper.addGoodsPicture(goodsId,picturePaths);
@@ -187,6 +187,10 @@ public class GoodsService {
         return goodsMapper.queryGoodsByUserId(userId);
     }
 
+    public     List<GoodsAbbreviation> queryGoodsByUserIdAndState(Integer userId,Integer state){
+        return goodsMapper.queryGoodsByUserIdAndState(userId, state) ;
+    }
+
     public List<GoodsComment> getGoodsComment(Integer goodsId){
         return goodsMapper.getGoodsComments(goodsId);
     }
@@ -222,7 +226,7 @@ public class GoodsService {
                 "\n举报内容:"+content
                         +"\n 举报人："+complainerId
                         +"\n 举报商品id："+goodsId+"\n 举报图片见附件.",path);
-        path = "goods/complain/"+ complainerId + "/" + random + ".png";
+        path = BACK_END_LINK+"goods/complain/"+ complainerId + "/" + random + ".png";
         goodsMapper.addGoodsComplain(goodsId, content, path, complainerId);
         return true;
     }

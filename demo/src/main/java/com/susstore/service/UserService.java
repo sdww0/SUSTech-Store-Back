@@ -50,7 +50,7 @@ public class UserService {
         Integer id = usersMapper.queryUserIdByEmail(users.getEmail());
         String random = UUID.randomUUID().toString();
         String path = Constants.USER_UPLOAD_PATH + id + "/image/"+ random+".png";
-        users.setPicturePath("user/"+id+"/image/"+random+".png");
+        users.setPicturePath(BACK_END_LINK+"user/"+id+"/image/"+random+".png");
         if (!photo.isEmpty()) {
             //获取文件的名称
             final String fileName = photo.getOriginalFilename();
@@ -109,7 +109,7 @@ public class UserService {
                 "\n举报内容:"+content
                         +"\n 举报人："+complainerId
                         +"\n 被举报人："+userId+"\n 举报图片见附件.",path);
-        path = "user/complain/"+ complainerId + "/" + random + ".png";
+        path = BACK_END_LINK+"user/complain/"+ complainerId + "/" + random + ".png";
         usersMapper.addUserComplain(userId, content, path, complainerId);
         return true;
     }
