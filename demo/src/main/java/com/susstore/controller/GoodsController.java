@@ -195,7 +195,7 @@ public class GoodsController {
     })
     public CommonResult uploadPicture(
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
-            @ApiParam("商品图片") @RequestParam(name = "photos") MultipartFile photo,
+            @ApiParam("商品图片") @RequestParam(name = "photos") MultipartFile[] photos,
             @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
     ){
         Integer userId = goodsService.getBelongUserId(goodsId);
@@ -205,8 +205,6 @@ public class GoodsController {
         if(!(userId.equals(userService.queryUserIdByEmail(principal.getName())))){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        MultipartFile[] photos = new MultipartFile[1];
-        photos[0] = photo;
         Integer id = goodsService.addGoodsPicture(goodsId,photos);
         return new CommonResult(ResultCode.SUCCESS,id);
     }

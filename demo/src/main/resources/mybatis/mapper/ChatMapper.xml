@@ -44,7 +44,7 @@
                 on chat.goods_id = goods.goods_id
                        and chat.chat_id = #{chatId}
                        and (goods.announcer_id = #{userId} or initiator_id = #{userId})
-            join store.goods_picture
+            left join store.goods_picture
                 on goods.goods_id = goods_picture.goods_id
                        and is_activate
                        and is_default_picture
