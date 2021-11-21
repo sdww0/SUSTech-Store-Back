@@ -33,21 +33,21 @@ public class AdminController {
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/complain/user")
+    @GetMapping("/complain/allUser")
     @ApiOperation("获得所有投诉用户信息")
     public CommonResult getComplainUser(){
         return new CommonResult(ResultCode.SUCCESS,adminService.getAllComplainUser());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/complain/goods")
+    @GetMapping("/complain/allGoods")
     @ApiOperation("获得所有投诉商品信息")
     public CommonResult getComplainGoods(){
         return new CommonResult(ResultCode.SUCCESS,adminService.getAllComplainGoods());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/appealing/deal")
+    @GetMapping("/appealing/allDeal")
     @ApiOperation("获得所有投诉订单信息")
     public CommonResult getComplainDeal(){
         return new CommonResult(ResultCode.SUCCESS,adminService.getAllAppealingDeal());
