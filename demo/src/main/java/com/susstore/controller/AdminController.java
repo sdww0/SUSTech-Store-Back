@@ -54,6 +54,28 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/complain/user/not")
+    @ApiOperation("获得所有未处理投诉用户信息")
+    public CommonResult getNotComplainUser(){
+        return new CommonResult(ResultCode.SUCCESS,adminService.getAllNotProcessComplainUser());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/complain/goods/not")
+    @ApiOperation("获得所有未处理投诉商品信息")
+    public CommonResult getNotComplainGoods(){
+        return new CommonResult(ResultCode.SUCCESS,adminService.getAllNotProcessComplainGoods());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/appealing/deal")
+    @ApiOperation("获得所有未处理投诉订单信息/not")
+    public CommonResult getNotComplainDeal(){
+        return new CommonResult(ResultCode.SUCCESS,adminService.getAllNotProcessAppealingDeal());
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/operate/goods")
     @ApiOperation("操作商品，下架还是驳回")
     public CommonResult operateGoods(
