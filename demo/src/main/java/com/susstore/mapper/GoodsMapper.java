@@ -104,4 +104,6 @@ public interface GoodsMapper {
 
     Integer getAnnouncerId(Integer goodsId);
 
+    List<GoodsAbbreviation> getGoodsFromLabel(String content);
+
 }

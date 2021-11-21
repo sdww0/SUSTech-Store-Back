@@ -231,4 +231,8 @@ public class GoodsService {
         return goodsMapper.getGoodsTotalPrice(goodsId);
     }
 
+    public     List<GoodsAbbreviation> getGoodsFromLabel(String content){
+        return goodsMapper.getGoodsFromLabel(content);
+    }
+
 }

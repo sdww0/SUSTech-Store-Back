@@ -60,6 +60,16 @@ public class GoodsController {
         return new CommonResult(ResultCode.SUCCESS,goods);
     }
 
+    @GetMapping("/recommend")
+    @ApiOperation("商品推荐(未实现)")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public CommonResult recommend(){
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
+
     @GetMapping("/{goodsId}/image/{file}")
     @ApiOperation("获取商品图片")
     public void getImage(HttpServletResponse response,
@@ -292,9 +302,17 @@ public class GoodsController {
             return new CommonResult(ResultCode.SUCCESS);
     }
 
-
-
-
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("根据商品标签获取商品")
+    @GetMapping("/label/{content}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public CommonResult getGoodsFromLabels(
+            @ApiParam("内容") @PathVariable("content") String content
+    ){
+        return new CommonResult(ResultCode.SUCCESS,goodsService.getGoodsFromLabel(content));
+    }
 
     @Data
     @AllArgsConstructor

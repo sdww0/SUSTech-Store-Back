@@ -18,6 +18,7 @@ drop table if exists store.user_role cascade ;
 drop table if exists store.users_collection cascade ;
 drop table if exists store.complain_deal cascade ;
 drop table if exists store.appealing_deal cascade ;
+drop table if exists store.users_label cascade;
 --主要的大类
 
 create table if not exists store.users(
@@ -203,5 +204,15 @@ create table if not exists store.appealing_deal(
     constraint deal_id_fkey foreign key (deal_id) references store.deal(deal_id)
 
 );
+
+
+create table if not exists store.users_label(
+    user_id int not null ,
+    label_id int not null ,
+    visit_time int not null ,
+    constraint user_id_fkey foreign key (user_id) references store.users(user_id),
+    constraint label_id_fkey foreign key (label_id) references store.label(label_id)
+);
+
 --务必运行一次下面的
 create rule  r_insert_label_ginore as on insert to store.label where exists(select 1 from store.label where content=new.content) do instead nothing ;
