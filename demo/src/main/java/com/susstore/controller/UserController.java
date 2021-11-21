@@ -164,7 +164,7 @@ public class UserController {
         Users users = Users.builder().userId(userService.queryUserIdByEmail(principal.getName())).sign(user.sign).gender(gender1.ordinal())
                 .birthday(user.birthday).userName(user.name).build();
         userService.updateUserById(users);
-        return new CommonResult(PARAM_NOT_VALID);
+        return new CommonResult(SUCCESS);
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -241,7 +241,7 @@ public class UserController {
     ){
         address.setBelongToUserId(userService.queryUserIdByEmail(principal.getName()));
         addressService.addAddress(address);
-        return new CommonResult(SUCCESS);
+        return new CommonResult(SUCCESS,address.getAddressId());
     }
 
     @PreAuthorize("hasRole('USER')")
