@@ -205,7 +205,6 @@ create table if not exists store.appealing_deal(
 
 );
 
-
 create table if not exists store.users_label(
     user_id int not null ,
     label_id int not null ,
@@ -213,6 +212,30 @@ create table if not exists store.users_label(
     constraint user_id_fkey foreign key (user_id) references store.users(user_id),
     constraint label_id_fkey foreign key (label_id) references store.label(label_id)
 );
+
+create or replace function store.addLabelView(userid int,goodsid int)
+    returns boolean as
+$$
+declare
+    label record;
+BEGIN
+    for label in select goods_label.label_id , store.users_label.visit_time
+    from (select label_id from store.goods_label where  goods_label.goods_id = goodsid) goods_label
+        left join store.users_label
+            on goods_label.label_id = users_label.label_id   and user_id = userid
+                 group by goods_label.label_id , visit_time
+    loop
+        if(label.visit_time is null) then
+            insert into store.users_label(user_id, label_id, visit_time) values (userid,label.label_id,1);
+        else
+            update store.users_label set visit_time = visit_time+1 where user_id = userid and label_id = label.label_id;
+        end if;
+
+    end loop;
+    return true;
+END
+
+$$ LANGUAGE plpgsql;
 
 --务必运行一次下面的
 create rule  r_insert_label_ginore as on insert to store.label where exists(select 1 from store.label where content=new.content) do instead nothing ;

@@ -39,7 +39,7 @@
 
     <insert id="addUser" parameterType="Users" useGeneratedKeys="true" keyProperty="userId">
         insert into store."users" (user_name,password,gender,credit,money,email,picture_path,is_activate,activate_code,is_ban)
-        values (#{userName},#{password},#{gender},10,0,#{email},'user/user_picture_default.png',false,#{activateCode},false) returning user_id;
+        values (#{userName},#{password},#{gender},10,0,#{email},#{picturePath},false,#{activateCode},false) returning user_id;
     </insert>
 
     <update id="updateUser" parameterType="Users" >
@@ -249,5 +249,8 @@
                        and email = #{email} and goods_id = #{goodsId};
     </select>
 
+    <select id="getUserVisitedLabels" resultType="UsersLabel">
+        select * from store.users_label where user_id = #{userId} order by visit_time;
+    </select>
 
 </mapper>

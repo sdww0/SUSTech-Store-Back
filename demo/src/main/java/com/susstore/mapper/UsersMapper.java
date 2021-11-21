@@ -3,6 +3,7 @@ package com.susstore.mapper;
 import com.susstore.pojo.GoodsAbbreviation;
 import com.susstore.pojo.Users;
 import com.susstore.pojo.UsersComment;
+import com.susstore.pojo.UsersLabel;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
@@ -160,5 +161,7 @@ public interface UsersMapper {
      Integer deleteCollection(Integer userId,Integer goodsId);
 
      Boolean isInUserCollection(Integer goodsId,String email);
+
+     List<UsersLabel> getUserVisitedLabels(Integer userId);
 
 }

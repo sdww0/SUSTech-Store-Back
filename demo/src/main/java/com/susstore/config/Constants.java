@@ -34,4 +34,6 @@ public class Constants {
 
     public static final Integer BAD_COMMENT_ADD = -5;
 
+    public static final Integer GOODS_RECOMMEND_COUNT = 1;
+
 }

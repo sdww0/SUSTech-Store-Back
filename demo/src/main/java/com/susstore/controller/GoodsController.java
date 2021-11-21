@@ -41,7 +41,6 @@ public class GoodsController {
     @Autowired
     private UserService userService;
 
-
     @GetMapping("/{goodsId}")
     @ApiOperation("根据商品id获取商品信息")
     @ApiResponses(value = {
@@ -49,23 +48,31 @@ public class GoodsController {
             @ApiResponse(code = 4050,message = "商品不存在")
     })
     public CommonResult getGoods(
+            @ApiParam("SpringSecurity认证信息") Principal principal,
             @ApiParam("商品id") @PathVariable("goodsId") Integer goodsId
     ){
         Goods goods = goodsService.showGoods(goodsId);
         if(goods==null){
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
+        if(principal!=null){
+            goodsService.updateUserVisitTime(userService.queryUserIdByEmail(principal.getName()),goodsId);
+        }
         goodsService.increaseView(goodsId);
         return new CommonResult(ResultCode.SUCCESS,goods);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/recommend")
-    @ApiOperation("商品推荐(未实现)")
+    @ApiOperation("商品推荐")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功")
     })
-    public CommonResult recommend(){
-        return new CommonResult(ResultCode.SUCCESS);
+    public CommonResult recommend(
+            @ApiParam("SpringSecurity认证信息") Principal principal
+    ){
+        return new CommonResult(ResultCode.SUCCESS,
+                goodsService.recommendGoods(userService.queryUserIdByEmail(principal.getName())));
     }
 
     @GetMapping("/{goodsId}/image/{file}")
@@ -307,6 +314,18 @@ public class GoodsController {
             @ApiParam("内容") @PathVariable("content") String content
     ){
         return new CommonResult(ResultCode.SUCCESS,goodsService.getGoodsFromLabel(content));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @ApiOperation("根据商品标签id获取商品")
+    @GetMapping("/label/id/{labelId}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000,message = "成功")
+    })
+    public CommonResult getGoodsFromLabelsId(
+            @ApiParam("内容") @PathVariable("labelId") Integer content
+    ){
+        return new CommonResult(ResultCode.SUCCESS,goodsService.getGoodsFromLabelId(content));
     }
 
     @Data

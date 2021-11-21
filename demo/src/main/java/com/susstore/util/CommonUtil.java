@@ -23,6 +23,10 @@ public class CommonUtil {
         }
         return sb.toString();
     }
+    //[left,right)
+    public static Integer getRandomInteger(Integer left,Integer right){
+        return random.nextInt((right-left))+left;
+    }
 
 
 }

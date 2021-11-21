@@ -108,4 +108,12 @@ public interface GoodsMapper {
 
     List<GoodsAbbreviation> getGoodsFromLabel(String content);
 
+    Boolean updateUserVisitTime(Integer userId,Integer goodsId);
+
+    List<GoodsAbbreviation> getGoodsFromLabelId(Integer labelId);
+
+    GoodsAbbreviation getRandomGoodsFromLabel(Integer labelId);
+
+
+
 }

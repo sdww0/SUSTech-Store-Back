@@ -2,10 +2,13 @@ package com.susstore.service;
 
 import com.susstore.config.Constants;
 import com.susstore.mapper.GoodsMapper;
+import com.susstore.mapper.UsersMapper;
 import com.susstore.pojo.*;
+import com.susstore.util.CommonUtil;
 import com.susstore.util.ImageUtil;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +24,9 @@ public class GoodsService {
 
     @Autowired
     private GoodsMapper goodsMapper;
+
+    @Autowired
+    private UsersMapper usersMapper;
 
     @Autowired
     private MailServiceThread mailService;
@@ -239,4 +245,43 @@ public class GoodsService {
         return goodsMapper.getGoodsFromLabel(content);
     }
 
+    public     List<GoodsAbbreviation> getGoodsFromLabelId(Integer labelId){
+        return goodsMapper.getGoodsFromLabelId(labelId);
+    }
+
+    public     Boolean updateUserVisitTime(Integer userId,Integer goodsId){
+        return goodsMapper.updateUserVisitTime(userId,goodsId);
+    }
+
+    public List<GoodsAbbreviation> recommendGoods(Integer userId) {
+        List<UsersLabel> labels = usersMapper.getUserVisitedLabels(userId);
+        List<GoodsAbbreviation> goodsAbbreviations = new ArrayList<>();
+        Integer allCount = 0;
+        for(UsersLabel label : labels){
+            allCount+=label.getVisitTime();
+        }
+        if(allCount<=10){
+            return getRandomGoods();
+        }
+        Integer[] eachIndex = new Integer[10];
+        Integer eachCount = allCount/10;
+        for(int n = 0;n<10;n++){
+            if(n==9){
+                eachIndex[n] = CommonUtil.getRandomInteger(n*eachCount,allCount);
+                break;
+            }
+            eachIndex[n] = CommonUtil.getRandomInteger(n*eachCount,(n+1)*eachCount);
+        }
+        allCount = 0;
+        Integer temp;
+        int currentIndex = 0;
+        for(UsersLabel label:labels){
+            temp = allCount+label.getVisitTime();
+            if(allCount<=eachIndex[currentIndex]&&eachIndex[currentIndex]<temp){
+                goodsAbbreviations.add(goodsMapper.getRandomGoodsFromLabel(label.getLabelId()));
+                currentIndex++;
+            }
+        }
+        return goodsAbbreviations;
+    }
 }

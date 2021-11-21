@@ -40,6 +40,7 @@ public class UserService {
     }
 
     public Integer addUser(Users user){
+        user.setPicturePath(BACK_END_LINK+"user/user_picture_default.png");
         usersMapper.addUser(user);
         usersMapper.registerRole(user.getUserId(), Role.USER.ordinal());
         return user.getUserId();
