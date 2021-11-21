@@ -10,6 +10,7 @@ import static com.susstore.result.ResultCode.*;
 
 import com.susstore.service.*;
 import com.susstore.util.CommonUtil;
+import com.susstore.util.TokenUtil;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +35,9 @@ public class UserController {
 //
     public static final int USER_PICTURE_SIZE = 100;
 //    //ResourceUtils.getURL("classpath:").getPath()
+
+    @Autowired
+    private TokenUtil jwtUtil;
 
     @Autowired
     private UserService userService;
@@ -633,13 +637,19 @@ public class UserController {
     })
     public CommonResult checkEmail(
             @ApiParam("邮箱") @RequestParam("email") String email,
-            @ApiParam("验证码") @RequestParam("checkCode") Integer checkCode
+            @ApiParam("验证码") @RequestParam("checkCode") Integer checkCode,
+            HttpServletResponse httpServletResponse
     ){
         Integer check = userService.getUserCheckCodeByEmail(email);
         if(check==null){
             return new CommonResult(USER_NOT_FOUND);
         }
         if(check.equals(checkCode)){
+            String jwt = jwtUtil.generateToken(email);
+            //把生成的jwt放在请求头中返回，前端以后访问后端接口请求头都需要带上它
+            httpServletResponse.setHeader(jwtUtil.getHeader(),jwt);
+            httpServletResponse.setHeader("Access-Control-Expose-Headers", jwtUtil.getHeader());
+            httpServletResponse.setContentType("text/json;charset=utf-8");
             return new CommonResult(SUCCESS,true);
         }
         return new CommonResult(PARAM_NOT_VALID);
