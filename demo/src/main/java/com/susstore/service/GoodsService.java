@@ -264,8 +264,8 @@ public class GoodsService {
             return getRandomGoods();
         }
         Integer[] eachIndex = new Integer[10];
-        Integer eachCount = allCount/10;
-        for(int n = 0;n<10;n++){
+        Integer eachCount = allCount/8;
+        for(int n = 0;n<8;n++){
             if(n==9){
                 eachIndex[n] = CommonUtil.getRandomInteger(n*eachCount,allCount);
                 break;
@@ -281,6 +281,9 @@ public class GoodsService {
                 goodsAbbreviations.add(goodsMapper.getRandomGoodsFromLabel(label.getLabelId()));
                 currentIndex++;
             }
+        }
+        while(goodsAbbreviations.size()<=10){
+            goodsAbbreviations.add(goodsMapper.getOneRandomGoods());
         }
         return goodsAbbreviations;
     }

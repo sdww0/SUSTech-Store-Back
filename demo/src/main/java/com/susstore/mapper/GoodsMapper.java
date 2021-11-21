@@ -114,6 +114,5 @@ public interface GoodsMapper {
 
     GoodsAbbreviation getRandomGoodsFromLabel(Integer labelId);
 
-
-
+    GoodsAbbreviation getOneRandomGoods();
 }
