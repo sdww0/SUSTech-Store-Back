@@ -68,12 +68,11 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/appealing/deal")
-    @ApiOperation("获得所有未处理投诉订单信息/not")
+    @GetMapping("/appealing/deal/not")
+    @ApiOperation("获得所有未处理投诉订单信息")
     public CommonResult getNotComplainDeal(){
         return new CommonResult(ResultCode.SUCCESS,adminService.getAllNotProcessAppealingDeal());
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/operate/goods")
