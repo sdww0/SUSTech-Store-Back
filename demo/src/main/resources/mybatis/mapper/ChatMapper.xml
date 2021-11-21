@@ -120,7 +120,7 @@
         with announce_list as (select * from store.chat join store.goods on chat.goods_id = goods.goods_id where announcer_id = #{userId})
            , initiate_list as (select * from store.chat join store.goods on chat.goods_id = goods.goods_id where initiator_id = #{userId})
 
-        select chat.chat_id,user_id other_user_id,user_name other_user_name,
+        select other.chat_id,user_id other_user_id,user_name other_user_name,
                picture_path other_user_picture_path, content last_message_content,
                speak_date last_message_date
         from ((select chat_id, users.user_id, users.user_name, users.picture_path
@@ -132,7 +132,7 @@
                from initiate_list
                         join store.users
                              on users.user_id in(initiate_list.announcer_id))) other
-                 join
+                 left join
              (select chat_id,content,speak_date from
                  ((select min(chat_content_id) id,max(speak_date)
                    from announce_list
@@ -145,7 +145,7 @@
                             join store.chat_content
                                  on chat_content.chat_id in (initiate_list.chat_id)
                                      and is_initiator_speak = false group by  initiate_list.chat_id)
-                 ) chat1 join store.chat_content on chat1.id=chat_content.chat_content_id
+                 ) chat1 left join store.chat_content on chat1.id=chat_content.chat_content_id
              ) chat on chat.chat_id = other.chat_id;
     </select>
 
