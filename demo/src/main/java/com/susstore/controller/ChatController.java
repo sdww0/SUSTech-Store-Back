@@ -77,9 +77,13 @@ public class ChatController {
         return new CommonResult(ResultCode.SUCCESS,chat);
     }
 
-    @SubscribeMapping("/subscribe/chat")
-    public String initChatList(Principal principal){
-        return JSON.toJSONString(chatService.getUserChatHistory(Integer.parseInt(principal.getName())));
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/chat/list")
+    @ApiOperation("获取所有聊天最新历史")
+    public CommonResult initChatList(
+            @ApiParam("SpringSecurity认证信息") Principal principal
+    ){
+        return new CommonResult(ResultCode.SUCCESS,chatService.getUserChatHistory(userService.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
