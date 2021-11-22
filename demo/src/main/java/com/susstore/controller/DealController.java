@@ -155,6 +155,7 @@ public class DealController {
             }
             userService.changeUserMoney(userId,-needMoney);
             dealService.changeDealStage(dealId1,Stage.BUY_PAY);
+            mailService.sendSimpleMail(userService.getUserEmail(otherId),"你的商品有人付款","你的商品有人付款，去看看吧");
             return 0;
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(),dealId,Stage.BUY_PAY,true,method);
@@ -187,6 +188,7 @@ public class DealController {
             }else{
                 dealService.addMailingNumber(dealId1,mailingNumber);
             }
+            mailService.sendSimpleMail(userService.getUserEmail(otherId),"你的订单发货了","你的订单发货了,去看看吧");
             return 0;
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(),dealId,Stage.DELIVERING,true,method);
@@ -215,6 +217,7 @@ public class DealController {
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
             //确认收货，卖家加钱
             userService.changeUserMoney(otherId, dealService.getDealPrice(dealId1));
+            mailService.sendSimpleMail(userService.getUserEmail(otherId),"买家已经收货","买家已经收货,钱已经打到账上");
             return 0;
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.COMMENT,true,method);
@@ -252,6 +255,7 @@ public class DealController {
                 dealService.badComment(otherId);
             }
             dealService.addUserComment(dealId1,userId,otherId,new Date(System.currentTimeMillis()),dealComment.content,dealComment.isGood);
+            mailService.sendSimpleMail(userService.getUserEmail(otherId),"有人评价了你","有人评价了你");
             if(dealService.checkUserHadComment(dealId1,userId)){
                 //如果双方都评价了则跳到下一阶段
                 dealService.changeDealStage(dealId1,wantStage);

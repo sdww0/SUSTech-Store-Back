@@ -283,4 +283,7 @@ public class UserService {
         return usersMapper.setCharge(chargeId);
     }
 
+    public String getUserEmail(Integer userId){
+        return usersMapper.getUserEmail(userId);
+    }
 }

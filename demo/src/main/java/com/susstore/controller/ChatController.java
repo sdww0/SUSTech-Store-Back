@@ -9,6 +9,7 @@ import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.ChatService;
 import com.susstore.service.GoodsService;
+import com.susstore.service.MailServiceThread;
 import com.susstore.service.UserService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,13 @@ public class ChatController {
     @Autowired
     private GoodsService goodsService;
 
+    @Autowired
+    private MailServiceThread mailService;
+
     /**
      * 传递消息，保存到数据库，并发到另外一个用户
      * @param requestMsg 消息
-     * @param principal 登录信息userId/chatId/(0或1，1为initiator(发起者)，0为announcer(发布者))
+     * @param principal 登录信息userId
      */
     @MessageMapping("/chat")
     public void chat(ChatMessage requestMsg, Principal principal) {
@@ -109,6 +113,7 @@ public class ChatController {
         if(id==null||id<0){
             return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS);
         }
+        mailService.sendSimpleMail(principal.getName(),"有人想要你的商品","有人对你的商品感兴趣,快去看看吧");
         goodsService.increaseWant(goodsId);
         return new CommonResult(ResultCode.SUCCESS,id);
     }

@@ -177,4 +177,5 @@ public interface UsersMapper {
 
     List<Charge> getChargeByUser(Integer userId);
 
+    String getUserEmail(Integer userId);
 }

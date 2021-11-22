@@ -286,4 +286,9 @@
         update store.charge_deal set is_charge = true where charge_deal_id = #{chargeId};
     </update>
 
+    <select id="getUserEmail">
+        select email
+        from store.users where user_id = #{userId};
+    </select>
+
 </mapper>
