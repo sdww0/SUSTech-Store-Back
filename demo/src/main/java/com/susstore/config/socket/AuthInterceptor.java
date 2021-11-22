@@ -48,9 +48,7 @@ public class AuthInterceptor implements ChannelInterceptor {
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             //2、判断token
             List<String> nativeHeader = accessor.getNativeHeader("Authorization");
-            List<String> chatId = accessor.getNativeHeader("chatId");
-            if (nativeHeader != null && !nativeHeader.isEmpty()
-                    &&chatId!=null&&!chatId.isEmpty()&& CommonUtil.isInteger(chatId.get(0))) {
+            if (nativeHeader != null && !nativeHeader.isEmpty()) {
                 String token = nativeHeader.get(0);
                 if (StringUtils.isNotBlank(token)) {
                     String userEmail = TokenUtil.getUserEmailFromToken(token);
