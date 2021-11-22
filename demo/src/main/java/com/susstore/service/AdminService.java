@@ -1,6 +1,7 @@
 package com.susstore.service;
 
 import com.susstore.mapper.AdminMapper;
+import com.susstore.pojo.Event;
 import com.susstore.pojo.GoodsState;
 import com.susstore.pojo.process.AppealingDeal;
 import com.susstore.pojo.process.ComplainGoods;
@@ -8,6 +9,7 @@ import com.susstore.pojo.process.ComplainUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -77,5 +79,21 @@ public class AdminService {
         return adminMapper.updateDealState(stage,dealId);
     }
 
+
+    public Integer addEvent(Event event){
+        return adminMapper.addEvent(event);
+    }
+
+    public Integer deleteEvent(Integer eventId){
+        return adminMapper.deleteEvent(eventId);
+    }
+
+    public Event getEvent(Integer eventId){
+        return adminMapper.getEvent(eventId);
+    }
+
+    public List<Event> getEventWithTimeConstrain(Date minDate, Date maxDate){
+        return adminMapper.getEventWithTimeConstrain(minDate,maxDate);
+    }
 
 }

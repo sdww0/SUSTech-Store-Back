@@ -2,10 +2,7 @@ package com.susstore.service;
 
 import com.susstore.config.Constants;
 import com.susstore.mapper.UsersMapper;
-import com.susstore.pojo.GoodsAbbreviation;
-import com.susstore.pojo.Role;
-import com.susstore.pojo.Users;
-import com.susstore.pojo.UsersComment;
+import com.susstore.pojo.*;
 import com.susstore.util.CommonUtil;
 import com.susstore.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -243,4 +243,44 @@ public class UserService {
     public Integer searchUsersAmount(String userName) {
         return usersMapper.searchUsersAmount(userName);
     }
+
+    public Integer getUserCredit(String email){
+        return usersMapper.getUserCredit(email);
+    }
+
+    public Integer addCharge(Integer userId, Float money, HttpServletRequest request){
+        Charge charge = Charge.builder()
+                .chargeUserId(userId)
+                .money(money)
+                .ipAddress(CommonUtil.getIpAddress(request))
+                .chargeDate(null)
+                .addDealDate(new Date())
+                .isCharge(false)
+                .build();
+        usersMapper.addNewCharge(charge);
+        return charge.getChargeDealId();
+    }
+
+
+
+    public Charge getChargeUser(Integer chargeId,Integer chargeUserId){
+        return usersMapper.getChargeUser(chargeId,chargeUserId);
+    }
+
+    public Charge getCharge(Integer chargeId){
+        return usersMapper.getCharge(chargeId);
+    }
+
+    public List<Charge> getChargeByUser(Integer userId){
+        return usersMapper.getChargeByUser(userId);
+    }
+
+    public Boolean isCharge(Integer chargeId,Integer chargeUserId){
+        return usersMapper.isCharge(chargeId,chargeUserId);
+    }
+
+    public Integer setCharge(Integer chargeId){
+        return usersMapper.setCharge(chargeId);
+    }
+
 }

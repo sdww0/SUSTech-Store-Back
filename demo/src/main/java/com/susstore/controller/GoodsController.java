@@ -27,8 +27,7 @@ import java.nio.file.Path;
 import java.security.Principal;
 import java.util.List;
 
-import static com.susstore.config.Constants.GOODS_MAX_PICTURE;
-import static com.susstore.config.Constants.LABELS_MAX_AMOUNT;
+import static com.susstore.config.Constants.*;
 
 @RestController
 @Api(value = "商品控制器",tags = {"商品访问接口"})
@@ -164,6 +163,7 @@ public class GoodsController {
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4001,message = "填写的参数有误"),
+            @ApiResponse(code = 4014,message = "用户信誉分过低"),
             @ApiResponse(code = 4060,message = "添加商品失败")
     })
     public CommonResult addGoods(
@@ -173,6 +173,10 @@ public class GoodsController {
         if(goodsInfo.labels.size()>LABELS_MAX_AMOUNT){
             return new CommonResult(ResultCode.PARAM_NOT_VALID);
         }
+        if(userService.getUserCredit(principal.getName())<NOT_PUBLISHED_GOODS_CREDIT){
+            return new CommonResult(ResultCode.CREDIT_LOW);
+        }
+
         Goods goods = Goods.builder().labels(goodsInfo.labels)
                 .price(goodsInfo.price).introduce(goodsInfo.introduce)
                 .announcer(Users.builder().userId(userService.queryUserIdByEmail(principal.getName())).build()).

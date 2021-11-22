@@ -257,4 +257,33 @@
         select count(*) from store.users where users.user_name like concat('%',#{userName,jdbcType=VARCHAR},'%');
     </select>
 
+    <select id="getUserCredit" resultType="Integer">
+        select credit from store.users where email = #{email};
+    </select>
+
+    <insert id="addNewCharge" useGeneratedKeys="true" keyProperty="chargeDealId">
+        insert into store.charge_deal(money, charge_user_id, add_deal_date, charge_date, ip_address, is_charge)
+        VALUES (#{money},#{chargeUserId},#{addDealDate},#{chargeDate},#{ipAddress},false)
+    </insert>
+
+    <select id="getCharge" resultType="Charge">
+        select * from store.charge_deal where charge_deal_id = #{chargeId};
+    </select>
+
+    <select id="getChargeUser" resultType="Charge">
+        select * from store.charge_deal where charge_deal_id = #{chargeId} and charge_user_id = #{chargeUserId};
+    </select>
+
+    <select id="getChargeByUser" resultType="Charge">
+        select * from store.charge_deal where charge_user_id = #{userId};
+    </select>
+
+    <select id="isCharge" resultType="Boolean">
+        select is_charge from store.charge_deal where charge_deal_id = #{chargeId} and charge_user_id = #{chargeUserId};
+    </select>
+
+    <update id="setCharge">
+        update store.charge_deal set is_charge = true where charge_deal_id = #{chargeId};
+    </update>
+
 </mapper>

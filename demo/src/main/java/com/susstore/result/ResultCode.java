@@ -25,6 +25,7 @@ public enum ResultCode {
     USER_NOT_FOUND(4012, "用户不存在"),
     USER_BANNED(4014,"用户封禁中"),
     LOGIN_FAIL(4013,"用户名或密码错误"),
+    CREDIT_LOW(4014,"用户信誉分过低"),
     EMAIL_EXIST(4020, "注册邮箱已存在"),
     EMAIL_NOT_FOUND(4021, "邮箱不存在"),
     ACTIVATE_CODE_ILLEGAL(4022, "激活码不存在"),

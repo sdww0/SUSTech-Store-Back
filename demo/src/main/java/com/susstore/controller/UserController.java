@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.susstore.controller.ControllerReceiveClass.*;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -352,11 +353,44 @@ public class UserController {
     })
     public CommonResult charge(
             @ApiParam("springSecurity认证信息") Principal principal,
-            @ApiParam("数量") @RequestParam("money") Float money
+            @ApiParam("数量") @RequestParam("money") Float money,
+            HttpServletRequest request
     ){
-        userService.changeUserMoney(userService.queryUserIdByEmail(principal.getName()),money);
-        return new CommonResult(SUCCESS);
+
+        return new CommonResult(SUCCESS,userService.addCharge(userService.queryUserIdByEmail(principal.getName()),money,request));
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/charge/{chargeId}")
+    @ApiOperation("获取充值是否已经付款")
+    @ApiResponses(value = {
+            @ApiResponse(code = 2000, message = "成功"),
+            @ApiResponse(code = 4001, message = "填写的参数有误")
+    })
+    public CommonResult getCharge(
+            @ApiParam("springSecurity认证信息") Principal principal,
+            @ApiParam("充值id") @PathVariable("chargeId") Integer chargeId
+    ){
+        Boolean isCharge = userService.isCharge(userService.queryUserIdByEmail(principal.getName()),chargeId);
+        if(isCharge==null){
+            return new CommonResult(PARAM_NOT_VALID);
+        }
+        userService.setCharge(chargeId);
+        return new CommonResult(SUCCESS,true);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/charge/history")
+    @ApiOperation("获取充值记录")
+    @ApiResponses(
+            @ApiResponse(code = 2000,message = "成功")
+    )
+    public CommonResult getChargeHistory(
+            @ApiParam("springSecurity认证信息") Principal principal
+    ){
+        return new CommonResult(SUCCESS,userService.getChargeByUser(userService.queryUserIdByEmail(principal.getName())));
+    }
+
 
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "/complain",method = {RequestMethod.POST,RequestMethod.OPTIONS})

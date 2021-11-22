@@ -34,6 +34,10 @@ public class Constants {
 
     public static final Integer BAD_COMMENT_ADD = -5;
 
+    public static final Integer NOT_PUBLISHED_GOODS_CREDIT = -10;
+
+    public static final Integer NOT_BUY_OR_SELL_GOODS_CREDIT = -30;
+
     public static final Integer GOODS_RECOMMEND_COUNT = 1;
 
 }

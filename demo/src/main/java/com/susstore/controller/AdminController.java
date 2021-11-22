@@ -1,6 +1,7 @@
 package com.susstore.controller;
 
 
+import com.susstore.pojo.Event;
 import com.susstore.pojo.Stage;
 import com.susstore.pojo.process.AppealingDeal;
 import com.susstore.pojo.process.ComplainGoods;
@@ -10,12 +11,12 @@ import com.susstore.result.ResultCode;
 import com.susstore.service.AdminService;
 import com.susstore.service.DealService;
 import com.susstore.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Date;
 
 @RestController
 @Api(value = "管理员",tags = {"管理员访问接口"})
@@ -118,6 +119,32 @@ public class AdminController {
         }
         adminService.updateDealState(Stage.DEAL_CLOSE.ordinal(),appealingDeal.getDealId());
         adminService.processAppealingDeal(recordId);
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/calendar")
+    @ApiOperation("往日历添加事件（讲座等）")
+    public CommonResult addCalendar(
+            @ApiParam("事件") @RequestBody Event event
+    ){
+        adminService.addEvent(event);
+        return new CommonResult(ResultCode.SUCCESS);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/calendar")
+    @ApiOperation("删除日历某一天的事件")
+    @ApiResponses(
+            @ApiResponse(code = 4001,message = "请求参数有误")
+    )
+    public CommonResult deleteCalendar(
+            @ApiParam("事件id") @RequestParam("eventId") Integer eventId
+    ){
+        if(adminService.getEvent(eventId)==null){
+            return new CommonResult(ResultCode.PARAM_NOT_VALID);
+        }
+        adminService.deleteEvent(eventId);
         return new CommonResult(ResultCode.SUCCESS);
     }
 

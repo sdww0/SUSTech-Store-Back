@@ -1,11 +1,13 @@
 package com.susstore.mapper;
 
+import com.susstore.pojo.Event;
 import com.susstore.pojo.process.AppealingDeal;
 import com.susstore.pojo.process.ComplainGoods;
 import com.susstore.pojo.process.ComplainUsers;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -42,5 +44,12 @@ public interface AdminMapper {
 
     Integer updateDealState(Integer stage,Integer dealId);
 
+    Integer addEvent(Event event);
+
+    Integer deleteEvent(Integer eventId);
+
+    Event getEvent(Integer eventId);
+
+    List<Event> getEventWithTimeConstrain(Date minDate, Date maxDate);
 
 }

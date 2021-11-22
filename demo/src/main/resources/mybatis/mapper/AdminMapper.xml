@@ -37,31 +37,48 @@
     </select>
 
     <select id="getAppealingDeal" resultType="com.susstore.pojo.process.AppealingDeal">
-        select * from store.appealing_deal where record_id = #{recordId}
+        select * from store.appealing_deal where record_id = #{recordId};
     </select>
 
     <update id="processComplainGoods" >
-        update store.complain_goods set is_process = true where record_id = #{recordId}
+        update store.complain_goods set is_process = true where record_id = #{recordId};
     </update>
 
     <update id="processComplainUsers" >
-        update store.complain_users set is_process = true where record_id = #{recordId}
+        update store.complain_users set is_process = true where record_id = #{recordId};
     </update>
 
     <update id="processAppealingDeal" >
-        update store.appealing_deal set is_process = true where record_id = #{recordId}
+        update store.appealing_deal set is_process = true where record_id = #{recordId};
     </update>
 
     <update id="banGoods">
-        update store.goods set goods_state = #{banState} where goods_id = #{goodsId}
+        update store.goods set goods_state = #{banState} where goods_id = #{goodsId};
     </update>
 
     <update id="banUser">
-        update store.users set is_ban = true where user_id = #{userId}
+        update store.users set is_ban = true where user_id = #{userId};
     </update>
 
     <update id="updateDealState">
-        update store.deal set stage = #{stage} where deal_id = #{dealId}
+        update store.deal set stage = #{stage} where deal_id = #{dealId};
     </update>
+
+    <insert id="addEvent">
+        insert into store.event(date, description) VALUES (#{date},#{description});
+    </insert>
+
+    <delete id="deleteEvent">
+        delete from store.event where event_id = #{eventId};
+    </delete>
+
+    <select id="getEvent" resultType="Event">
+        select *
+        from store.event where event_id = #{eventId};
+    </select>
+
+    <select id="getEventWithTimeConstrain" resultType="Event">
+        select * from store.event where date between #{minDate} and #{maxDate};
+    </select>
 
 </mapper>

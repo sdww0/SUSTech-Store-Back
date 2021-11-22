@@ -1,9 +1,6 @@
 package com.susstore.mapper;
 
-import com.susstore.pojo.GoodsAbbreviation;
-import com.susstore.pojo.Users;
-import com.susstore.pojo.UsersComment;
-import com.susstore.pojo.UsersLabel;
+import com.susstore.pojo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
@@ -165,4 +162,19 @@ public interface UsersMapper {
      List<UsersLabel> getUserVisitedLabels(Integer userId);
 
     Integer searchUsersAmount(String userName);
+
+    Integer getUserCredit(String email);
+
+    Integer addNewCharge(Charge charge);
+
+    Charge getChargeUser(Integer chargeId,Integer chargeUserId);
+
+    Charge getCharge(Integer chargeId);
+
+    Boolean isCharge(Integer chargeId,Integer chargeUserId);
+
+    Integer setCharge(Integer chargeId);
+
+    List<Charge> getChargeByUser(Integer userId);
+
 }

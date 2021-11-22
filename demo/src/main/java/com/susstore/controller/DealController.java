@@ -99,6 +99,7 @@ public class DealController {
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4051,message = "商品下架"),
             @ApiResponse(code = 4003,message = "权限不足"),
+            @ApiResponse(code = 4014,message = "用户信誉分过低"),
             @ApiResponse(code = 4071,message = "添加订单失败")
     })
     public CommonResult addDeal(
@@ -106,8 +107,12 @@ public class DealController {
             @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId,
             @ApiParam("地址id") @RequestParam("addressId") Integer addressId
     ){
-        //查看商品是不是已经下架
+
+        if(userService.getUserCredit(principal.getName())<Constants.NOT_BUY_OR_SELL_GOODS_CREDIT){
+            return new CommonResult(ResultCode.CREDIT_LOW);
+        }
         Integer userId = userService.queryUserIdByEmail(principal.getName());
+        //查看商品是不是已经下架
         if (goodsService.ifOnShelfById(goodsId)== GoodsState.OFF_SHELL.ordinal()){
             return new CommonResult(ResultCode.GOODS_OFF_SHELL);
         }
