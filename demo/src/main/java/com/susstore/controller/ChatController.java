@@ -47,48 +47,35 @@ public class ChatController {
         //这里使用的是spring的security的认证体系，所以直接使用Principal获取用户信息即可。
         //注意为什么使用queue，主要目的是为了区分广播和队列的方式。实际采用topic，也没有关系。但是为了好理解
         //messagingTemplate.convertAndSend( "/topic/broadcast", "hhh");
-        String[] str = principal.getName().split("/");
-        Integer userId = Integer.parseInt(str[0]);
-        Integer chatId = Integer.parseInt(str[1]);
-        boolean isInitiator = Integer.parseInt(str[2])==1;
-        chatService.insertNewChatContent(chatId,isInitiator,new Date(System.currentTimeMillis()),requestMsg.getBody());
-        Integer otherUserId = -1;
-        StringBuilder otherUserUrl = new StringBuilder();
-        if(isInitiator){
-            otherUserId = chatService.getAnnouncerId(chatId);
-        }else{
-            otherUserId = chatService.getInitiatorId(chatId);
-        }
-        otherUserUrl
-                .append(otherUserId).append("/")
-                .append(chatId).append("/")
-                .append((isInitiator?0:1));
-        messagingTemplate.convertAndSendToUser(otherUserUrl.toString(), "/queue", requestMsg.getBody());
-
+        Integer userId = Integer.parseInt(principal.getName());
+        Integer chatId = requestMsg.getChatId();
+        Boolean isInitiator = isInitiator(userId,chatId);
+        assert isInitiator !=null;
+        chatService.insertNewChatContent(chatId,isInitiator,new Date(),requestMsg.getBody());
+        Integer otherUserId = isInitiator ? chatService.getAnnouncerId(chatId) : chatService.getInitiatorId(chatId);
+        requestMsg.setDate(new Date());
+        messagingTemplate.convertAndSendToUser(String.valueOf(otherUserId),"/queue",requestMsg.getBody());
     }
 
-    /**
-     * 订阅,返回建立连接时需要的初始数据
-     * @return json格式化的数据
-     */
-    @SubscribeMapping("/subscribe/chat")
-    public String subscribe(Principal principal) {
-        String[] str = principal.getName().split("/");
-        Integer userId = Integer.parseInt(str[0]);
-        Integer chatId = Integer.parseInt(str[1]);
-        boolean isInitiator = Integer.parseInt(str[2])==1;
-        Chat chat = chatService.getInitContent(chatId,userId,isInitiator);
-        return JSON.toJSONString(chat);
-    }
-
+    @ApiOperation("获得聊天历史记录等")
+    @GetMapping("/chat/history/{chatId}")
     @PreAuthorize("hasRole('USER')")
-    @ApiOperation("获得登录用户的所有聊天历史最新记录")
-    @GetMapping("/chat/list")
-    @ApiResponses(value = {
-            @ApiResponse(code = 2000,message = "成功")
-    })
-    public CommonResult chatList(Principal principal){
-        return new CommonResult(ResultCode.SUCCESS,chatService.getUserChatHistory(userService.queryUserIdByEmail(principal.getName())));
+    public CommonResult chatHistory(
+            @ApiParam("SpringSecurity认证信息") Principal principal,
+            @ApiParam("聊天id") @PathVariable("chatId") Integer chatId
+    ) {
+        Integer userId = userService.queryUserIdByEmail(principal.getName());
+        Boolean isInitiator = isInitiator(userId,chatId);
+        if(isInitiator==null){
+            return new CommonResult(ResultCode.PARAM_NOT_VALID);
+        }
+        Chat chat = chatService.getInitContent(chatId,userId,isInitiator);
+        return new CommonResult(ResultCode.SUCCESS,chat);
+    }
+
+    @SubscribeMapping("/subscribe/chat")
+    public String initChatList(Principal principal){
+        return JSON.toJSONString(chatService.getUserChatHistory(Integer.parseInt(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -124,6 +111,22 @@ public class ChatController {
         }
         goodsService.increaseWant(goodsId);
         return new CommonResult(ResultCode.SUCCESS,id);
+    }
+
+    private Boolean isInitiator(Integer userId,Integer chatId){
+        boolean isInitiator = false;
+        Integer otherId = chatService.getAnnouncerId(chatId);
+        if(otherId==null){
+            return null;
+        }
+        if(!otherId.equals(userId)){
+            otherId = chatService.getInitiatorId(chatId);
+            if(!otherId.equals(userId)){
+                return null;
+            }
+            isInitiator = true;
+        }
+        return isInitiator;
     }
 
 }

@@ -33,9 +33,6 @@ public class AuthInterceptor implements ChannelInterceptor {
     private UserService userService;
     @Autowired
     private UserDetailServiceImpl jwtUserDetailsService;
-    @Autowired
-    private ChatService chatService;
-
 
     /**
      * 连接前监听
@@ -58,29 +55,16 @@ public class AuthInterceptor implements ChannelInterceptor {
                 if (StringUtils.isNotBlank(token)) {
                     String userEmail = TokenUtil.getUserEmailFromToken(token);
                     if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                        Integer userId = userService.queryUserIdByEmail(userEmail);
-                        boolean isInitiator = false;
-                        Integer otherId = chatService.getAnnouncerId(Integer.parseInt(chatId.get(0)));
-                        if(otherId==null){
-                            return null;
-                        }
-                        if(!otherId.equals(userId)){
-                            otherId = chatService.getInitiatorId(Integer.parseInt(chatId.get(0)));
-                            isInitiator = true;
-                        }
-                        if(otherId!=null) {
-                            UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(userEmail);
-                            UserDetails userDetails1 = new User(
-                                    userId + "/" + chatId.get(0)+ "/"+(isInitiator?1:0),
-                                    userDetails.getPassword(), userDetails.getAuthorities());
-
-                            if (TokenUtil.validateToken(token, userDetails)) {
-                                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                        userDetails1, null, userDetails1.getAuthorities());
-                                //如果存在用户信息，将用户名赋值，后期发送时，可以指定用户名即可发送到对应用户
-                                accessor.setUser(authentication);
-                                return message;
-                            }
+                        UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(userEmail);
+                        UserDetails userDetails1 = new User(
+                                String.valueOf(userService.queryUserIdByEmail(userEmail)),
+                                userDetails.getPassword(), userDetails.getAuthorities());
+                        if (TokenUtil.validateToken(token, userDetails)) {
+                            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                    userDetails1, null, userDetails1.getAuthorities());
+                            //如果存在用户信息，将用户名赋值，后期发送时，可以指定用户名即可发送到对应用户
+                            accessor.setUser(authentication);
+                            return message;
                         }
                     }
                 }
