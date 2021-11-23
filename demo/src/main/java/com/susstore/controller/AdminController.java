@@ -129,7 +129,7 @@ public class AdminController {
             @ApiParam("事件") @RequestBody Event event
     ){
         adminService.addEvent(event);
-        return new CommonResult(ResultCode.SUCCESS);
+        return new CommonResult(ResultCode.SUCCESS,event.getEventId());
     }
 
     @PreAuthorize("hasRole('ADMIN')")

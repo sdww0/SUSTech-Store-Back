@@ -138,13 +138,13 @@
                    from announce_list
                             join store.chat_content
                                  on chat_content.chat_id in (announce_list.chat_id)
-                                     and is_initiator_speak = true group by announce_list.chat_id)
+                                     group by announce_list.chat_id)
                   union
                   (select min(chat_content_id) id,max(speak_date)
                    from initiate_list
                             join store.chat_content
                                  on chat_content.chat_id in (initiate_list.chat_id)
-                                     and is_initiator_speak = false group by  initiate_list.chat_id)
+                                     group by  initiate_list.chat_id)
                  ) chat1 left join store.chat_content on chat1.id=chat_content.chat_content_id
              ) chat on chat.chat_id = other.chat_id;
     </select>
