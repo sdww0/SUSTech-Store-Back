@@ -261,7 +261,9 @@ public class UserService {
         return charge.getChargeDealId();
     }
 
-
+    public      Integer changeUserCredit(Integer userId,Integer change){
+        return usersMapper.changeUserCredit(userId,change);
+    }
 
     public Charge getChargeUser(Integer chargeId,Integer chargeUserId){
         return usersMapper.getChargeUser(chargeId,chargeUserId);

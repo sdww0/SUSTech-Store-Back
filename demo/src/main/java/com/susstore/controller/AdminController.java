@@ -10,6 +10,7 @@ import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.AdminService;
 import com.susstore.service.DealService;
+import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class AdminController {
 
     @Autowired
     private DealService dealService;
+
+    @Autowired
+    private GoodsService goodsService;
 
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -85,6 +89,7 @@ public class AdminController {
         ComplainGoods complainGoods = adminService.getComplainGoods(recordId);
         if(offShell){
             adminService.banGoods(complainGoods.getGoodsId());
+            userService.changeUserCredit(goodsService.getAnnouncerId(complainGoods.getGoodsId()),-3);
         }
         adminService.processComplainGoods(recordId);
         return new CommonResult(ResultCode.SUCCESS);
