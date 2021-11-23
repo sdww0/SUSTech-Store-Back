@@ -286,7 +286,7 @@
         update store.charge_deal set is_charge = true , charge_date = #{date} where charge_deal_id = #{chargeId};
     </update>
 
-    <select id="getUserEmail">
+    <select id="getUserEmail" resultType="String">
         select email
         from store.users where user_id = #{userId};
     </select>
