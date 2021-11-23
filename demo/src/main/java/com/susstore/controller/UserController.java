@@ -584,11 +584,12 @@ public class UserController {
                 users.setPhone(Long.parseLong(userSecurity.content));
                 break;
             case EMAIL:
+//                int id_test = userService.queryUserIdByEmail(userSecurity.content);
                 if(userService.queryUserIdByEmail(userSecurity.content)!=null){
                     return new CommonResult(PARAM_NOT_VALID);
                 }
                 users.setEmail(userSecurity.content);
-                userService.deactivateUsers(id,userSecurity.content);
+//                userService.deactivateUsers(id,userSecurity.content);
                 break;
             case MAX:
             default:new CommonResult(PARAM_NOT_VALID);

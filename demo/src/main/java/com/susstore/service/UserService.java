@@ -208,6 +208,7 @@ public class UserService {
                     Consume.builder().consumeDate(new Date())
                             .money(-delta)
                             .ipAddress(CommonUtil.getIpAddress(request))
+                            .belongUserId(userId)
                             .relatedDealId(dealId).build()
 
             );
