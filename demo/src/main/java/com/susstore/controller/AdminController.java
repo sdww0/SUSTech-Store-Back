@@ -120,7 +120,7 @@ public class AdminController {
         AppealingDeal appealingDeal = adminService.getAppealingDeal(recordId);
         if(canRefund){
             Integer sellerId = dealService.getSellerIdByDealId(appealingDeal.getDealId());
-            userService.changeUserMoney(sellerId,dealService.getDealPrice(appealingDeal.getDealId()));
+            userService.changeUserMoney(sellerId,dealService.getDealPrice(appealingDeal.getDealId()),null,null);
         }
         adminService.updateDealState(Stage.DEAL_CLOSE.ordinal(),appealingDeal.getDealId());
         adminService.processAppealingDeal(recordId);

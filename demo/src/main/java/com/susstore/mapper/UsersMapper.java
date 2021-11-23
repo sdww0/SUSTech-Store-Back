@@ -181,4 +181,8 @@ public interface UsersMapper {
     String getUserEmail(Integer userId);
 
     Users getUserNameAndPictureById(Integer userId);
+
+     void addNewConsume(Consume consume);
+
+     List<Consume> getConsumeList(Integer userId);
 }

@@ -21,6 +21,7 @@ drop table if exists store.appealing_deal cascade ;
 drop table if exists store.users_label cascade;
 drop table if exists store.event cascade ;
 drop table if exists store.charge_deal cascade ;
+drop table if exists store.consume_deal cascade ;
 --主要的大类
 
 create table if not exists store.users(
@@ -233,6 +234,19 @@ create table if not exists store.charge_deal(
     is_charge bool not null ,
     constraint charge_user_id_fkey foreign key (charge_user_id) references store.users(user_id)
 );
+
+create table if not exists store.consume_deal(
+    consume_deal_id serial primary key ,
+    money float not null ,
+    related_deal_id int not null ,
+    consume_date date not null ,
+    ip_address varchar not null ,
+    belong_user_id int not null ,
+    constraint related_deal_id_fkey foreign key (related_deal_id) references store.deal(deal_id),
+    constraint belong_user_id_fkey foreign key (belong_user_id) references store.users(user_id)
+
+);
+
 
 create or replace function store.addLabelView(userid int,goodsid int)
     returns boolean as

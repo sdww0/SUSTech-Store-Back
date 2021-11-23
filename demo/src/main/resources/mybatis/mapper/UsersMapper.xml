@@ -295,4 +295,13 @@
         select picture_path,user_id,user_name from store.users where user_id = #{userId};
     </select>
 
+    <insert id="addNewConsume" >
+        insert into store.consume_deal (money, related_deal_id, consume_date, ip_address,belong_user_id) VALUES
+        (#{money},#{relatedDealId},#{consumeDate},#{ipAddress},#{belongUserId})
+    </insert>
+
+    <select id="getConsumeList" resultType="Consume">
+        select * from store.consume_deal where belong_user_id = #{userId};
+    </select>
+
 </mapper>
