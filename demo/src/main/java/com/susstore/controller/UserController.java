@@ -1,10 +1,7 @@
 package com.susstore.controller;
 
 import com.susstore.config.Constants;
-import com.susstore.pojo.Address;
-import com.susstore.pojo.Gender;
-import com.susstore.pojo.Stage;
-import com.susstore.pojo.Users;
+import com.susstore.pojo.*;
 import com.susstore.result.CommonResult;
 import static com.susstore.result.ResultCode.*;
 
@@ -371,10 +368,11 @@ public class UserController {
             @ApiParam("springSecurity认证信息") Principal principal,
             @ApiParam("充值id") @PathVariable("chargeId") Integer chargeId
     ){
-        Boolean isCharge = userService.isCharge(chargeId,userService.queryUserIdByEmail(principal.getName()));
-        if(isCharge==null){
+        Charge charge = userService.getChargeUser(chargeId,userService.queryUserIdByEmail(principal.getName()));
+        if(charge==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
+        userService.changeUserMoney(charge.getChargeUserId(),charge.getMoney());
         userService.setCharge(chargeId);
         return new CommonResult(SUCCESS,true);
     }
