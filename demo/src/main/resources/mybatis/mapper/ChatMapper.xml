@@ -16,6 +16,7 @@
         <result property="otherUserId" column="other_user_id" />
         <result property="otherUserName" column="other_user_name" />
         <result property="otherUserPicturePath" column="other_user_picture_path" />
+        <result property="isBuyer" column="is_buyer"/>
 
         <!-- 一对多级联查询，ofType表示集合中的元素类型 -->
         <collection property="chatContents"
@@ -36,7 +37,8 @@
         select chat.goods_id goods_id,goods.price goods_price,goods_picture.picture_path goods_picture_path,
         other.user_id other_user_id, other.user_name other_user_name, other.picture_path other_user_picture_path,
         speaker.user_id speak_user_id, speaker.user_name speak_user_name, speaker.picture_path speak_user_picture_path,
-        chat_content_id,
+        chat_content_id, case(goods.announcer_id == #{userId})
+            when true then (not goods.is_sell) else (goods.is_sell) end as is_buyer ,
         case(chat.initiator_id = #{userId}) when true then (is_initiator_speak) else (not is_initiator_speak) end as is_speak_user,
         content,speak_date as date
         from store.chat
@@ -78,41 +80,6 @@
             on chat.chat_id = #{chatId} and chat.initiator_id = users.user_id) </if>
         speaker on speaker.chat_id = chat.chat_id;
 
-<!--        select deal.goods_id goods_id, goods.price goods_price, goods_picture.picture_path goods_picture_path,-->
-<!--               other.user_id other_user_id, other.user_name other_user_name, other.picture_path other_user_picture_path,-->
-<!--        speaker.user_id speak_user_id, speaker.user_name speak_user_name, speaker.picture_path speak_user_picture_path,-->
-<!--               chat_content_id,-->
-<!--               case(deal.seller_id = #{userId}) when true then (is_seller_speak) else (not is_seller_speak) end as is_speak_user,-->
-<!--               content,speak_date as date-->
-<!--        from (select * from store.deal on deal_id = #{dealId}) deal-->
-<!--            left join store.chat_content-->
-<!--                on chat_content.belong_to_deal_id = deal.deal_id-->
-<!--            join store.goods on deal.goods_id = goods.goods_id-->
-<!--            join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_activate and is_default_picture-->
-<!--            join-->
-<!--            <if test="isSeller">-->
-<!--            (select *-->
-<!--            from store.deal-->
-<!--                join store.users-->
-<!--                    on deal.deal_id = #{dealId} and deal.buyer_id = users.user_id) </if>-->
-<!--            <if test="!isSeller">-->
-<!--            (select *-->
-<!--            from store.deal-->
-<!--            join store.users-->
-<!--            on deal.deal_id = #{dealId} and deal.seller_id = users.user_id) </if>-->
-<!--            other on other.deal_id = deal.deal_id-->
-<!--            join-->
-<!--            <if test="isSeller">-->
-<!--                (select *-->
-<!--                from store.deal-->
-<!--                join store.users-->
-<!--                on deal.deal_id = #{dealId} and deal.seller_id = users.user_id) </if>-->
-<!--            <if test="!isSeller">-->
-<!--                (select *-->
-<!--                from store.deal-->
-<!--                join store.users-->
-<!--                on deal.deal_id = #{dealId} and deal.buyer_id = users.user_id) </if>-->
-<!--            speaker on speaker.deal_id = deal.deal_id;-->
     </select>
 
 

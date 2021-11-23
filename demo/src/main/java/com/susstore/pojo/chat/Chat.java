@@ -22,6 +22,7 @@ public class Chat {
     private Integer goodsId;
     private String goodsPicturePath;
     private Float goodsPrice;
+    private Boolean isBuyer;
 
     private List<ChatContent> chatContents;
 
