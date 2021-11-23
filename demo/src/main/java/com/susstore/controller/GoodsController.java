@@ -87,7 +87,6 @@ public class GoodsController {
         outputStream.close();
     }
 
-    @PreAuthorize("hasRole('USER')")
     @ApiOperation("获取举报商品图片")
     @GetMapping("/complain/{complainerId}/{file}")
     @ApiResponses(value = {
