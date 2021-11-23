@@ -64,8 +64,8 @@
         update store.deal set stage = #{stage} where deal_id = #{dealId};
     </update>
 
-    <insert id="addEvent">
-        insert into store.event(date, description) VALUES (#{date},#{description});
+    <insert id="addEvent" useGeneratedKeys="true" keyProperty="eventId">
+        insert into store.event(date, description) VALUES (#{date},#{description}) returning event_id;
     </insert>
 
     <delete id="deleteEvent">
