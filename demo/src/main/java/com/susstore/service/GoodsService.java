@@ -110,6 +110,7 @@ public class GoodsService {
      */
     public Integer editGoods(Goods goods){
         goodsMapper.deleteGoodsLabels(goods.getGoodsId());
+        goodsMapper.addLabels(goods.getLabels());
         goodsMapper.addGoodsLabels(goods.getGoodsId(), goodsMapper.getLabelsId(goods.getLabels()));
         goodsMapper.updateGoods(goods);
         return 0;
