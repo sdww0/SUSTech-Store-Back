@@ -371,7 +371,7 @@ public class UserController {
             @ApiParam("springSecurity认证信息") Principal principal,
             @ApiParam("充值id") @PathVariable("chargeId") Integer chargeId
     ){
-        Boolean isCharge = userService.isCharge(userService.queryUserIdByEmail(principal.getName()),chargeId);
+        Boolean isCharge = userService.isCharge(chargeId,userService.queryUserIdByEmail(principal.getName()));
         if(isCharge==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
