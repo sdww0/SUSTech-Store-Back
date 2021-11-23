@@ -263,7 +263,7 @@
 
     <insert id="addNewCharge" useGeneratedKeys="true" keyProperty="chargeDealId">
         insert into store.charge_deal(money, charge_user_id, add_deal_date, charge_date, ip_address, is_charge)
-        VALUES (#{money},#{chargeUserId},#{addDealDate},#{chargeDate},#{ipAddress},false)
+        VALUES (#{money},#{chargeUserId},#{addDealDate},#{chargeDate},#{ipAddress},false) returning charge_deal_id
     </insert>
 
     <select id="getCharge" resultType="Charge">
