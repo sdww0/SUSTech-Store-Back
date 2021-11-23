@@ -283,7 +283,7 @@
     </select>
 
     <update id="setCharge">
-        update store.charge_deal set is_charge = true and charge_date = #{date} where charge_deal_id = #{chargeId};
+        update store.charge_deal set is_charge = true , charge_date = #{date} where charge_deal_id = #{chargeId};
     </update>
 
     <select id="getUserEmail">
