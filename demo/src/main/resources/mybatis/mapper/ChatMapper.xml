@@ -37,7 +37,7 @@
         select chat.goods_id goods_id,goods.price goods_price,goods_picture.picture_path goods_picture_path,
         other.user_id other_user_id, other.user_name other_user_name, other.picture_path other_user_picture_path,
         speaker.user_id speak_user_id, speaker.user_name speak_user_name, speaker.picture_path speak_user_picture_path,
-        chat_content_id, case(goods.announcer_id == #{userId})
+        chat_content_id, case(goods.announcer_id = #{userId})
             when true then (not goods.is_sell) else (goods.is_sell) end as is_buyer ,
         case(chat.initiator_id = #{userId}) when true then (is_initiator_speak) else (not is_initiator_speak) end as is_speak_user,
         content,speak_date as date
