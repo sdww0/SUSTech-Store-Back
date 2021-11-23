@@ -97,9 +97,9 @@
     </select>
     
     <insert id="addGoodsLabels">
-        insert into store.goods_label (goods_id, label_id) VALUES
+
         <foreach collection="labels" item="label" separator=",">
-            (#{goodsId},#{label})
+            insert into store.goods_label (goods_id, label_id) VALUES (#{goodsId},#{label})
         </foreach>
     </insert>
 
@@ -125,7 +125,7 @@
             <if test="title != null">title=#{title},</if>
             <if test="isSell != null">is_sell=#{isSell}</if>
         </set>
-        where goods_id=#{goodsId}
+        where goods_id=#{goodsId};
     </update>
 
     <update id="deleteGoods" parameterType="int">
