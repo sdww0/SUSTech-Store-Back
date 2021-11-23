@@ -41,20 +41,9 @@ public class UtilController {
         Calendar calendar = Calendar.getInstance();
         DateFormat dateFormat = DateFormat.getDateInstance();
         int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH)+1;
-        int maxDay = 31;
-        if(month==4||month==6||month==9||month==11){
-            maxDay = 30;
-        }else if(month==2){
-            if(year%4==0){
-                maxDay = 29;
-            }else{
-                maxDay = 28;
-            }
-        }
-        calendar.set(year,month-1,0);
+        calendar.set(year,0,0);
         Date minDate = calendar.getTime();
-        calendar.set(year,month-1,maxDay,23,59,59);
+        calendar.set(year,11,31,23,59,59);
         Date maxDate = calendar.getTime();
 
         return new CommonResult(ResultCode.SUCCESS,adminService.getEventWithTimeConstrain(minDate,maxDate));
