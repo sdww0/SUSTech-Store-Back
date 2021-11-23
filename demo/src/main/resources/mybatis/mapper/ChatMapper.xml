@@ -134,13 +134,13 @@
                              on users.user_id in(initiate_list.announcer_id))) other
                  left join
              (select chat_id,content,speak_date from
-                 ((select min(chat_content_id) id,max(speak_date)
+                 ((select min(speak_date), max(chat_content_id) id
                    from announce_list
                             join store.chat_content
                                  on chat_content.chat_id in (announce_list.chat_id)
                                      group by announce_list.chat_id)
                   union
-                  (select min(chat_content_id) id,max(speak_date)
+                  (select min(speak_date), max(chat_content_id) id
                    from initiate_list
                             join store.chat_content
                                  on chat_content.chat_id in (initiate_list.chat_id)
@@ -163,7 +163,7 @@
         select chat_id from store.chat where goods_id = #{goodsId} and initiator_id = #{userId};
     </select>
 
-    <insert id="addChat" keyColumn="chat_id" useGeneratedKeys="true">
+    <insert id="addChat" keyColumn="chat_id" useGeneratedKeys="true" keyProperty="chatId">
         insert into store.chat (goods_id,initiator_id) values (#{goodsId},#{initiatorId})
     </insert>
 

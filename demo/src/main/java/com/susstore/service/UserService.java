@@ -280,10 +280,15 @@ public class UserService {
     }
 
     public Integer setCharge(Integer chargeId){
-        return usersMapper.setCharge(chargeId);
+        return usersMapper.setCharge(chargeId,new Date());
     }
 
     public String getUserEmail(Integer userId){
         return usersMapper.getUserEmail(userId);
     }
+
+    public Users getUserNameAndPictureById(Integer userId){
+        return usersMapper.getUserNameAndPictureById(userId);
+    }
+
 }

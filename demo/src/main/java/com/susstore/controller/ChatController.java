@@ -3,8 +3,11 @@ package com.susstore.controller;
 import com.alibaba.fastjson.JSON;
 import com.susstore.pojo.ChatMessage;
 import com.susstore.pojo.Goods;
+import com.susstore.pojo.Users;
 import com.susstore.pojo.chat.Chat;
+import com.susstore.pojo.chat.ChatHistory;
 import com.susstore.pojo.chat.DataBaseChat;
+import com.susstore.pojo.chat.InitChat;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.ChatService;
@@ -58,7 +61,7 @@ public class ChatController {
         chatService.insertNewChatContent(chatId,isInitiator,new Date(),requestMsg.getBody());
         Integer otherUserId = isInitiator ? chatService.getAnnouncerId(chatId) : chatService.getInitiatorId(chatId);
         requestMsg.setDate(new Date());
-        messagingTemplate.convertAndSendToUser(String.valueOf(otherUserId),"/queue",requestMsg.getBody());
+        messagingTemplate.convertAndSendToUser(String.valueOf(otherUserId),"/queue",requestMsg);
     }
 
     @ApiOperation("获得聊天历史记录等")
@@ -83,7 +86,15 @@ public class ChatController {
     public CommonResult initChatList(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(ResultCode.SUCCESS,chatService.getUserChatHistory(userService.queryUserIdByEmail(principal.getName())));
+        Users users = userService.getUserNameAndPictureById(userService.queryUserIdByEmail(principal.getName()));
+        return new CommonResult(ResultCode.SUCCESS,
+                new InitChat().builder()
+                .picturePath(users.getPicturePath())
+                .userName(users.getUserName())
+                .userId(users.getUserId())
+                .chatHistories(chatService.getUserChatHistory(userService.queryUserIdByEmail(principal.getName()))).build()
+
+                        );
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -113,12 +124,19 @@ public class ChatController {
         if(announcerId.equals(userId)){
             return new CommonResult(ResultCode.CANNOT_CHAT_WITH_OWN);
         }
+
         Integer id = chatService.addChat(DataBaseChat.builder().initiatorId(userId).goodsId(goodsId).build());
         if(id==null||id<0){
             return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS);
         }
         mailService.sendSimpleMail(principal.getName(),"有人想要你的商品","有人对你的商品感兴趣,快去看看吧");
         goodsService.increaseWant(goodsId);
+        Users users = userService.getUserNameAndPictureById(userId);
+        ChatHistory chatHistory = ChatHistory.builder().chatId(id)
+                .otherUserId(userId)
+                .otherUserPicturePath(users.getPicturePath())
+                .otherUserName(users.getUserName()).build();
+        messagingTemplate.convertAndSendToUser(String.valueOf(announcerId),"/queue",chatHistory);
         return new CommonResult(ResultCode.SUCCESS,id);
     }
 

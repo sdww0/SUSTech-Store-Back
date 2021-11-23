@@ -214,6 +214,32 @@ public class GoodsController {
     }
 
 
+    @ApiOperation("上传商品图片(swagger)")
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "/upload/picture/one",method = {RequestMethod.POST,RequestMethod.OPTIONS})
+    @ApiResponses(value={
+            @ApiResponse(code = 2000,message = "成功"),
+            @ApiResponse(code = 4003,message = "权限不足不允许访问"),
+            @ApiResponse(code = 4050,message = "商品不存在")
+    })
+    public CommonResult uploadPictureSwagger(
+            @ApiParam("SpringSecurity用户认证信息")Principal principal,
+            @ApiParam("商品图片") @RequestParam(name = "photos") MultipartFile photo,
+            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
+    ){
+        Integer userId = goodsService.getBelongUserId(goodsId);
+        if(userId==null){
+            return new CommonResult(ResultCode.GOODS_NOT_FOUND);
+        }
+        if(!(userId.equals(userService.queryUserIdByEmail(principal.getName())))){
+            return new CommonResult(ResultCode.ACCESS_DENIED);
+        }
+        MultipartFile[] photos = new MultipartFile[1];
+        photos[0] = photo;
+        Integer id = goodsService.addGoodsPicture(goodsId,photos);
+        return new CommonResult(ResultCode.SUCCESS,id);
+    }
+
     @ApiOperation("更新商品，不需要图片")
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "/edit",method = {RequestMethod.OPTIONS,RequestMethod.POST})

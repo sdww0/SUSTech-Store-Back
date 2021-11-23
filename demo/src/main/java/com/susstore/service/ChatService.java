@@ -42,7 +42,8 @@ public class ChatService {
     }
 
     public     Integer addChat(DataBaseChat chat){
-        return chatMapper.addChat(chat);
+        chatMapper.addChat(chat);
+        return chat.getChatId();
     }
 
 }

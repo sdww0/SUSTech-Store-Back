@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -173,9 +174,11 @@ public interface UsersMapper {
 
     Boolean isCharge(Integer chargeId,Integer chargeUserId);
 
-    Integer setCharge(Integer chargeId);
+    Integer setCharge(Integer chargeId, Date date);
 
     List<Charge> getChargeByUser(Integer userId);
 
     String getUserEmail(Integer userId);
+
+    Users getUserNameAndPictureById(Integer userId);
 }

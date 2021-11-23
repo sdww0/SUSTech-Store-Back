@@ -226,7 +226,7 @@ create table if not exists store.charge_deal(
     money float not null ,
     charge_user_id int not null ,
     add_deal_date date not null ,
-    charge_date date not null ,
+    charge_date date ,
     ip_address varchar not null ,
     is_charge bool not null ,
     constraint charge_user_id_fkey foreign key (charge_user_id) references store.users(user_id)

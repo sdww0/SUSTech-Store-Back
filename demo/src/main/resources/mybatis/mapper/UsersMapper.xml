@@ -283,12 +283,16 @@
     </select>
 
     <update id="setCharge">
-        update store.charge_deal set is_charge = true where charge_deal_id = #{chargeId};
+        update store.charge_deal set is_charge = true and charge_date = #{date} where charge_deal_id = #{chargeId};
     </update>
 
     <select id="getUserEmail">
         select email
         from store.users where user_id = #{userId};
+    </select>
+
+    <select id="getUserNameAndPictureById" resultType="Users">
+        select picture_path,user_id,user_name from store.users where user_id = #{userId};
     </select>
 
 </mapper>
