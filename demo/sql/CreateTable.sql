@@ -104,6 +104,8 @@ create table if not exists store.chat(
     chat_id serial primary key ,
     goods_id int not null ,
     initiator_id int not null ,
+    initiator_unread_count int default 0 not null ,
+    not_initiator_unread_count int default 0 not null ,
     constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
     constraint initiator_id_fkey foreign key (initiator_id) references store.users(user_id)
 

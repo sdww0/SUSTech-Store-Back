@@ -24,4 +24,5 @@ public class ChatHistory {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date lastMessageDate;
+    private Integer unreadCount;
 }

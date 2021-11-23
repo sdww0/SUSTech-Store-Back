@@ -46,4 +46,21 @@ public class ChatService {
         return chat.getChatId();
     }
 
+    public Integer addOneNotInitiatorUnread(Integer chatId) {
+        return chatMapper.addOneNotInitiatorUnread(chatId);
+    }
+
+    public Integer addOneInitiatorUnread(Integer chatId) {
+        return chatMapper.addOneInitiatorUnread(chatId);
+    }
+
+    public Integer clearInitiatorUnread(Integer chatId) {
+        return chatMapper.clearInitiatorUnread(chatId);
+    }
+
+    public Integer clearNotInitiatorUnread(Integer chatId) {
+        return chatMapper.clearNotInitiatorUnread(chatId);
+    }
+
+
 }

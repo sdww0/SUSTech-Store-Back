@@ -28,4 +28,11 @@ public interface ChatMapper {
 
     Integer addChat(DataBaseChat chat);
 
+    Integer addOneNotInitiatorUnread(Integer chatId);
+
+    Integer addOneInitiatorUnread(Integer chatId);
+
+    Integer clearInitiatorUnread(Integer chatId);
+
+    Integer clearNotInitiatorUnread(Integer chatId);
 }

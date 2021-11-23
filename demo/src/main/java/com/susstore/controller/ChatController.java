@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.susstore.pojo.ChatMessage;
 import com.susstore.pojo.Goods;
 import com.susstore.pojo.Users;
-import com.susstore.pojo.chat.Chat;
-import com.susstore.pojo.chat.ChatHistory;
-import com.susstore.pojo.chat.DataBaseChat;
-import com.susstore.pojo.chat.InitChat;
+import com.susstore.pojo.chat.*;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.ChatService;
@@ -61,7 +58,33 @@ public class ChatController {
         chatService.insertNewChatContent(chatId,isInitiator,new Date(),requestMsg.getBody());
         Integer otherUserId = isInitiator ? chatService.getAnnouncerId(chatId) : chatService.getInitiatorId(chatId);
         requestMsg.setDate(new Date());
+        if(isInitiator){
+            chatService.addOneNotInitiatorUnread(chatId);
+        }else{
+            chatService.addOneInitiatorUnread(chatId);
+        }
         messagingTemplate.convertAndSendToUser(String.valueOf(otherUserId),"/queue",requestMsg);
+    }
+
+    /**
+     * 清空数据库未读消息
+     * @param requestMsg 消息
+     * @param principal 登录信息userId
+     */
+    @MessageMapping("/clear")
+    public void clear(ClearChat requestMsg, Principal principal) {
+        //这里使用的是spring的security的认证体系，所以直接使用Principal获取用户信息即可。
+        //注意为什么使用queue，主要目的是为了区分广播和队列的方式。实际采用topic，也没有关系。但是为了好理解
+        //messagingTemplate.convertAndSend( "/topic/broadcast", "hhh");
+        Integer userId = Integer.parseInt(principal.getName());
+        Integer chatId = Integer.parseInt(requestMsg.getBody());
+        Boolean isInitiator = isInitiator(userId,chatId);
+        assert isInitiator !=null;
+        if(isInitiator){
+            chatService.clearInitiatorUnread(chatId);
+        }else{
+            chatService.clearNotInitiatorUnread(chatId);
+        }
     }
 
     @ApiOperation("获得聊天历史记录等")

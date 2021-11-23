@@ -89,7 +89,7 @@
 
         select other.chat_id,user_id other_user_id,user_name other_user_name,
                picture_path other_user_picture_path, content last_message_content,
-               speak_date last_message_date
+               speak_date last_message_date,unread.unread_count unread_count
         from ((select chat_id, users.user_id, users.user_name, users.picture_path
                from announce_list
                         join store.users
@@ -100,6 +100,11 @@
                         join store.users
                              on users.user_id in(initiate_list.announcer_id))) other
                  left join
+            (select not_initiator_unread_count as unread_count,chat_id from announce_list
+                union
+                select initiator_unread_count as unread_count,chat_id from initiate_list
+                )unread on unread.chat_id = other.chat_id
+            left join
              (select chat_id,content,speak_date from
                  ((select min(speak_date), max(chat_content_id) id
                    from announce_list
@@ -133,5 +138,21 @@
     <insert id="addChat" keyColumn="chat_id" useGeneratedKeys="true" keyProperty="chatId">
         insert into store.chat (goods_id,initiator_id) values (#{goodsId},#{initiatorId})
     </insert>
+
+    <update id="addOneInitiatorUnread">
+        update store.chat set initiator_unread_count = initiator_unread_count+1 where chat_id = #{chatId};
+    </update>
+
+    <update id="addOneNotInitiatorUnread">
+        update store.chat set not_initiator_unread_count = not_initiator_unread_count+1 where chat_id = #{chatId};
+    </update>
+
+    <update id="clearInitiatorUnread">
+        update store.chat set initiator_unread_count = 0 where chat_id = #{chatId};
+    </update>
+
+    <update id="clearNotInitiatorUnread">
+        update store.chat set not_initiator_unread_count = 0 where chat_id = #{chatId};
+    </update>
 
 </mapper>
