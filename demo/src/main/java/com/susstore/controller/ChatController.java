@@ -189,7 +189,7 @@ public class ChatController {
         if(id==null||id<0){
             return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS);
         }
-        mailService.sendSimpleMail(principal.getName(),"有人想要你的商品","有人对你的商品感兴趣,快去看看吧");
+        mailService.sendSimpleMail(userService.getUserEmail(announcerId),"有人想要卖/买的商品","有人想卖/买你的发布商品,快去看看吧");
         goodsService.increaseWant(goodsId);
         Users users = userService.getUserNameAndPictureById(userId);
         ChatHistory chatHistory = ChatHistory.builder().chatId(id)
