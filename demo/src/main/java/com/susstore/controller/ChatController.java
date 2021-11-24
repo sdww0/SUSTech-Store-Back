@@ -131,7 +131,7 @@ public class ChatController {
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/chat/picture/{chatId}")
     @ApiOperation("添加聊天图片")
-    public CommonResult initChatList(
+    public CommonResult chatPicture(
             @ApiParam("SpringSecurity认证信息") Principal principal,
             @ApiParam("聊天图片") @RequestParam("photo") MultipartFile photo,
             @ApiParam("聊天id") @PathVariable("chatId") Integer chatId

@@ -348,7 +348,7 @@ public class DealController {
             if(agree){
                 //同意，买家加钱
                 Float price = dealService.getDealPrice(dealId1);
-                userService.changeUserMoney(otherId,price,null,null);
+                userService.changeUserMoney(otherId,price,null,-1);
                 dealService.changeDealStage(dealId1,Stage.DEAL_CLOSE);
             }else{
                 dealService.changeDealStage(dealId1,Stage.APPEALING);

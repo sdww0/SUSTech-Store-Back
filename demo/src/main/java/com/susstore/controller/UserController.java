@@ -361,13 +361,14 @@ public class UserController {
     })
     public CommonResult getCharge(
             @ApiParam("springSecurity认证信息") Principal principal,
-            @ApiParam("充值id") @PathVariable("chargeId") Integer chargeId
+            @ApiParam("充值id") @PathVariable("chargeId") Integer chargeId,
+            HttpServletRequest request
     ){
         Charge charge = userService.getChargeUser(chargeId,userService.queryUserIdByEmail(principal.getName()));
         if(charge==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        userService.changeUserMoney(charge.getChargeUserId(),charge.getMoney(),null,1);
+        userService.changeUserMoney(charge.getChargeUserId(),charge.getMoney(),request,1);
         userService.setCharge(chargeId);
         return new CommonResult(SUCCESS,true);
     }

@@ -69,16 +69,17 @@ public class ChatService {
         return chatMapper.clearNotInitiatorUnread(chatId);
     }
 
-    public Integer storeImage(MultipartFile photo,Integer chatId,Integer userId){
+    public String storeImage(MultipartFile photo,Integer chatId,Integer userId){
         String uuid = UUID.randomUUID().toString();
         String computerPath = CHAT_PICTURE_PATH+chatId+"/"+uuid+".png";
         String backEndPath = BACK_END_LINK+"/chat/picture/"+chatId+"/"+uuid+".png";
         Integer initiatorId = chatMapper.getInitiatorId(chatId);
         Boolean isInitiator = initiatorId.equals(userId);
         ImageUtil.storeImage(photo,computerPath);
-        String content = "`<img src = \"backEndPath\" style=\"width: 80px; height: 80px;\">`";
-
-        return chatMapper.insertNewChatContent(chatId, isInitiator, new Date(), content);
+        String content = "`<img src = \""+backEndPath+"\" style=\"width: 80px; height: 80px;\">`";
+        chatMapper.insertNewChatContent(chatId, isInitiator, new Date(), content);
+        content = "<img src = \""+backEndPath+"\" style=\"width: 80px; height: 80px;\">";
+        return content;
     }
 
 }

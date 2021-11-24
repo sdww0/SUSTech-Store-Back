@@ -199,13 +199,22 @@ public class UserService {
 
     public Integer changeUserMoney(Integer userId,Float delta,HttpServletRequest request,Integer dealId){
         if(delta>=0){
-            if(dealId==null) {
-                usersMapper.addNewCharge(
-                        Charge.builder().
-                                isCharge(true).
-                                chargeDate(new Date())
-                                .addDealDate(new Date())
-                                .ipAddress("0").chargeUserId(userId).money(delta).build());
+            if(request==null) {
+                if(dealId!=null) {
+                    usersMapper.addNewCharge(
+                            Charge.builder().
+                                    isCharge(true).
+                                    chargeDate(new Date())
+                                    .addDealDate(new Date())
+                                    .ipAddress("-1").chargeUserId(userId).money(delta).build());
+                }else{
+                    usersMapper.addNewCharge(
+                            Charge.builder().
+                                    isCharge(true).
+                                    chargeDate(new Date())
+                                    .addDealDate(new Date())
+                                    .ipAddress("-2").chargeUserId(userId).money(delta).build());
+                }
             }
         }else{
             usersMapper.addNewConsume(
