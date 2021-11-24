@@ -75,7 +75,7 @@
     
     <insert id="addGoodsPicture" >
         insert into store.goods_picture(goods_id,picture_path,is_default_picture) values (#{goodsId},
-            #{picture.path},#{picture.isDefaultPicture})
+            #{pictures.path},#{pictures.isDefaultPicture})
     </insert>
 
     <insert id="addLabels">
