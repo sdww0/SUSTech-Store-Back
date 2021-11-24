@@ -43,7 +43,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         }
         if (authToken != null) {
             String userEmail = TokenUtil.getUserEmailFromToken(authToken);
-            logger.info("checking authentication " + userEmail);
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 Users user = userService.getUserByEmail(userEmail);
                 UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(userEmail);
@@ -53,7 +52,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                             userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
                             request));
-                    logger.info("authenticated user " + userEmail + ", setting security context");
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }

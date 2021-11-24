@@ -1,6 +1,7 @@
 package com.susstore.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.susstore.SUSTechStore;
 import com.susstore.config.Constants;
 import com.susstore.pojo.ChatMessage;
 import com.susstore.pojo.Goods;
@@ -13,6 +14,9 @@ import com.susstore.service.GoodsService;
 import com.susstore.service.MailServiceThread;
 import com.susstore.service.UserService;
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -29,7 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Principal;
 import java.util.Date;
-
+@Slf4j
 @RestController
 @Api(value = "聊天",tags = {"聊天访问接口"})
 public class ChatController {
@@ -105,10 +109,11 @@ public class ChatController {
         Integer chatId = Integer.parseInt(requestMsg.getBody());
         Boolean isInitiator = isInitiator(userId,chatId);
         assert isInitiator !=null;
+        log.info(userId+"/"+chatId+"/"+isInitiator);
         if(isInitiator){
-            chatService.clearInitiatorUnread(chatId);
-        }else{
             chatService.clearNotInitiatorUnread(chatId);
+        }else{
+            chatService.clearInitiatorUnread(chatId);
         }
     }
 
