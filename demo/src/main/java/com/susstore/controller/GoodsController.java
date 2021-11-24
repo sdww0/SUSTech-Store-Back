@@ -214,8 +214,9 @@ public class GoodsController {
 
 
     @ApiOperation("上传商品图片(swagger)")
-    @PreAuthorize("hasRole('USER')")
-    @RequestMapping(value = "/upload/picture/one",method = {RequestMethod.POST,RequestMethod.OPTIONS})
+//    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "/upload/picture/one/{goodsId}",method = {RequestMethod.POST,RequestMethod.OPTIONS}
+    , headers = "content-type=multipart/form-data")
     @ApiResponses(value={
             @ApiResponse(code = 2000,message = "成功"),
             @ApiResponse(code = 4003,message = "权限不足不允许访问"),
@@ -223,8 +224,8 @@ public class GoodsController {
     })
     public CommonResult uploadPictureSwagger(
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
-            @ApiParam("商品图片") @RequestParam(name = "photos") MultipartFile photo,
-            @ApiParam("商品id") @RequestParam("goodsId") Integer goodsId
+            @ApiParam("商品图片") @RequestParam(name = "photos") MultipartFile[] photos,
+            @ApiParam("商品id") @PathVariable("goodsId") Integer goodsId
     ){
         Integer userId = goodsService.getBelongUserId(goodsId);
         if(userId==null){
@@ -233,8 +234,8 @@ public class GoodsController {
         if(!(userId.equals(userService.queryUserIdByEmail(principal.getName())))){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
-        MultipartFile[] photos = new MultipartFile[1];
-        photos[0] = photo;
+//        MultipartFile[] photos = new MultipartFile[1];
+//        photos[0] = photo;
         Integer id = goodsService.addGoodsPicture(goodsId,photos);
         return new CommonResult(ResultCode.SUCCESS,id);
     }

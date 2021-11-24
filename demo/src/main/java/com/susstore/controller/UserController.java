@@ -154,11 +154,6 @@ public class UserController {
             return new CommonResult(PARAM_NOT_VALID);
         }
         Gender gender1 = Gender.values()[user.gender];
-
-        String email = principal.getName();
-        user.name = user.name.length() == 0 ? null : user.name;
-        user.sign = user.sign.length() == 0 ? null : user.sign;
-
         Users users = Users.builder().userId(userService.queryUserIdByEmail(principal.getName())).sign(user.sign).gender(gender1.ordinal())
                 .birthday(user.birthday).userName(user.name).build();
         userService.updateUserById(users);
