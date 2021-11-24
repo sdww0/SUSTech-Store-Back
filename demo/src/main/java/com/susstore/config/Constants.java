@@ -2,23 +2,23 @@ package com.susstore.config;
 
 public class Constants {
 
-    public static final String USER_UPLOAD_PATH = "/home/ooad/store/upload/user/";
+    public static final String USER_UPLOAD_PATH = "D:/ooad/store/upload/user/";
 
-    public static final String GOODS_UPLOAD_PATH = "/home/ooad/store/upload/goods/";
+    public static final String GOODS_UPLOAD_PATH = "D:/ooad/store/upload/goods/";
 
-    public static final String USER_COMPLAIN_PATH = "/home/ooad/store/complain/user/";
+    public static final String USER_COMPLAIN_PATH = "D:/ooad/store/complain/user/";
 
-    public static final String GOODS_COMPLAIN_PATH = "/home/ooad/store/complain/goods/";
+    public static final String GOODS_COMPLAIN_PATH = "D:/ooad/store/complain/goods/";
 
-    public static final String DEAL_APPEALING_PATH = "/home/ooad/store/appealing/deal/";
+    public static final String DEAL_APPEALING_PATH = "D:/ooad/store/appealing/deal/";
 
-    public static final String CHAT_PICTURE_PATH = "/home/ooad/store/upload/chat/";
+    public static final String CHAT_PICTURE_PATH = "D:/ooad/store/upload/chat/";
 
     public static final Integer GOODS_MAX_PICTURE = 3;
 
     public static final String WEBSITE_LINK = "http://localhost:8080";
 
-    public static final String BACK_END_LINK = "http://120.24.4.97:8081/";
+    public static final String BACK_END_LINK = "http://localhost:8081/";
 
     public static final Integer RANDOM_STRING_SIZE = 64;
 
