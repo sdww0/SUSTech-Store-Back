@@ -42,8 +42,12 @@ public class UserService {
 
     public Integer addUser(Users user){
         user.setPicturePath(BACK_END_LINK+"user/user_picture_default.png");
+
         usersMapper.addUser(user);
         usersMapper.registerRole(user.getUserId(), Role.USER.ordinal());
+        if(user.getEmail().endsWith("edu.cn")){
+            usersMapper.changeUserCredit(user.getUserId(),Constants.SCHOOL_EMAIL_ADD_CREDIT);
+        }
         return user.getUserId();
     }
 

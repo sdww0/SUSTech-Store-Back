@@ -12,6 +12,8 @@ public class Constants {
 
     public static final String DEAL_APPEALING_PATH = "D:/ooad/store/appealing/deal/";
 
+    public static final String CHAT_PICTURE_PATH = "D:/ooad/store/upload/chat/";
+
     public static final Integer GOODS_MAX_PICTURE = 3;
 
     public static final String WEBSITE_LINK = "http://localhost:8080";
@@ -39,5 +41,7 @@ public class Constants {
     public static final Integer NOT_BUY_OR_SELL_GOODS_CREDIT = -30;
 
     public static final Integer GOODS_RECOMMEND_COUNT = 1;
+
+    public static final Integer SCHOOL_EMAIL_ADD_CREDIT = 20;
 
 }

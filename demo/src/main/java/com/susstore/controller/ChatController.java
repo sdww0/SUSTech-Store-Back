@@ -1,6 +1,7 @@
 package com.susstore.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.susstore.config.Constants;
 import com.susstore.pojo.ChatMessage;
 import com.susstore.pojo.Goods;
 import com.susstore.pojo.Users;
@@ -17,8 +18,15 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.Principal;
 import java.util.Date;
 
@@ -40,6 +48,23 @@ public class ChatController {
 
     @Autowired
     private MailServiceThread mailService;
+
+    @GetMapping("/chat/picture/{chatId}/{fileName}")
+    @ApiOperation("获取用户默认头像")
+    public void defaultImage(
+            @ApiParam("聊天Id") @PathVariable("chatId") Integer chatId,
+            @ApiParam("聊天Id") @PathVariable("fileName") String fileName,
+            HttpServletResponse response) throws IOException {
+
+        response.setContentType("image/jpeg;charset=utf-8");
+        response.setHeader("Content-Disposition", "inline; filename=girls.png");
+        ServletOutputStream outputStream = response.getOutputStream();
+        outputStream.write(Files.readAllBytes(Path.of(Constants.CHAT_PICTURE_PATH+"/chat/picture/"+chatId+"/"+fileName)));
+        outputStream.flush();
+        outputStream.close();
+    }
+
+
 
     /**
      * 传递消息，保存到数据库，并发到另外一个用户
@@ -101,6 +126,17 @@ public class ChatController {
         }
         Chat chat = chatService.getInitContent(chatId,userId,isInitiator);
         return new CommonResult(ResultCode.SUCCESS,chat);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/chat/picture/{chatId}")
+    @ApiOperation("添加聊天图片")
+    public CommonResult initChatList(
+            @ApiParam("SpringSecurity认证信息") Principal principal,
+            @ApiParam("聊天图片") @RequestParam("photo") MultipartFile photo,
+            @ApiParam("聊天id") @PathVariable("chatId") Integer chatId
+    ){
+        return new CommonResult(ResultCode.SUCCESS,chatService.storeImage(photo,chatId,userService.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")

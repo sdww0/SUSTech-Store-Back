@@ -1,14 +1,21 @@
 package com.susstore.service;
 
+import com.susstore.config.Constants;
 import com.susstore.mapper.ChatMapper;
+import com.susstore.pojo.GoodsPicture;
 import com.susstore.pojo.chat.Chat;
 import com.susstore.pojo.chat.ChatHistory;
 import com.susstore.pojo.chat.DataBaseChat;
+import com.susstore.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.util.*;
+
+import static com.susstore.config.Constants.*;
 
 @Service
 public class ChatService {
@@ -62,5 +69,16 @@ public class ChatService {
         return chatMapper.clearNotInitiatorUnread(chatId);
     }
 
+    public Integer storeImage(MultipartFile photo,Integer chatId,Integer userId){
+        String uuid = UUID.randomUUID().toString();
+        String computerPath = CHAT_PICTURE_PATH+chatId+"/"+uuid+".png";
+        String backEndPath = BACK_END_LINK+"/chat/picture/"+chatId+"/"+uuid+".png";
+        Integer initiatorId = chatMapper.getInitiatorId(chatId);
+        Boolean isInitiator = initiatorId.equals(userId);
+        ImageUtil.storeImage(photo,computerPath);
+        String content = "`<img src = \"backEndPath\" style=\"width: 80px; height: 80px;\">`";
+
+        return chatMapper.insertNewChatContent(chatId, isInitiator, new Date(), content);
+    }
 
 }
