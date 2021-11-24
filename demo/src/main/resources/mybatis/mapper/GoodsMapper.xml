@@ -74,10 +74,8 @@
     </insert>
     
     <insert id="addGoodsPicture" >
-        insert into store.goods_picture(goods_id,picture_path,is_activate,is_default_picture) values (#{goodsId},
-        <foreach collection="pictures" item="picture" separator=",">
-            #{picture.path},true,#{picture.isDefaultPicture})
-        </foreach>
+        insert into store.goods_picture(goods_id,picture_path,is_default_picture) values (#{goodsId},
+            #{picture.path},#{picture.isDefaultPicture})
     </insert>
 
     <insert id="addLabels">
@@ -109,9 +107,9 @@
         where goods_id = #{goodsId};
     </delete>
 
-    <update id="deactivateGoodsPicture">
-        update store.goods_picture set is_activate = false where goods_id = #{goodsId} and is_activate = true;
-    </update>
+    <delete id="deactivateGoodsPicture">
+        delete from store.goods_picture where goods_id = #{goodsId};
+    </delete>
 
     <update id="updateGoods" parameterType="Goods">
         update store."goods"
@@ -147,11 +145,11 @@
 
 
     <select id="getGoodsPicturePath" resultType="com.susstore.pojo.GoodsPicture">
-        select picture_path path,is_default_picture from store.goods_picture where goods_id = #{goodsId} and is_activate = true;
+        select picture_path path,is_default_picture from store.goods_picture where goods_id = #{goodsId};
     </select>
 
     <select id="getDefaultPicturePath" resultType="String">
-        select picture_path from store.goods_picture where goods_id = #{goodsId} and is_default_picture and is_activate;
+        select picture_path from store.goods_picture where goods_id = #{goodsId} and is_default_picture ;
     </select>
 
     <select id="getAnnounceUser" resultType="com.susstore.pojo.Users">
@@ -166,7 +164,7 @@
                               on  announcer_id = users.user_id and store.goods.announcer_id = #{userId}
                          left join store.goods_label on goods.goods_id = goods_label.goods_id
                          left join store.label on goods_label.label_id = label.label_id
-                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture ;
     </select>
 
     <select id="queryGoodsByUserIdAndState" parameterType="int" resultMap="goods2">
@@ -177,7 +175,7 @@
                               on  announcer_id = users.user_id and store.goods.announcer_id = #{userId} and goods.goods_state = #{state}
                          left join store.goods_label on goods.goods_id = goods_label.goods_id
                          left join store.label on goods_label.label_id = label.label_id
-                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture ;
     </select>
 
     <select id="getBelongUserId" parameterType="int" resultType="int">
@@ -196,7 +194,7 @@
                                   and title like concat('%',#{searchContent,jdbcType=VARCHAR},'%')
                          left join store.goods_label on goods.goods_id = goods_label.goods_id
                          left join store.label on goods_label.label_id = label.label_id
-                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture
 
         order by goods.goods_id offset (${pageSize}*(${pageIndex}-1)) limit #{pageSize} ;
     </select>
@@ -253,7 +251,7 @@
                                                                                                                                                    (select count(*) from store.goods where goods_state = 0) limit 10)
                          left join store.goods_label on goods.goods_id = goods_label.goods_id
                          left join store.label on goods_label.label_id = label.label_id
-                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture ;
    </select>
 
     <select id="getOneRandomGoods" resultMap="goods2">
@@ -269,7 +267,7 @@
                               on announcer_id = users.user_id
                          left join store.goods_label on goods.goods_id = goods_label.goods_id
                          left join store.label on goods_label.label_id = label.label_id
-                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture;
     </select>
 
     <insert id="addGoodsComment" parameterType="com.susstore.pojo.GoodsComment" useGeneratedKeys="true" keyProperty="commentId">
@@ -299,7 +297,7 @@
                  join store.users on announcer_id = users.user_id
                             join store.goods_label on goods.goods_id = goods_label.goods_id
                             join store.label on goods_label.label_id = label.label_id
-                            left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
+                            left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture ;
     </select>
 
     <select id="getGoodsFromLabel" resultMap="goods2">
@@ -310,7 +308,7 @@
                               on announcer_id = users.user_id
                          join store.goods_label on goods.goods_id = goods_label.goods_id
                          join store.label on goods_label.label_id = label.label_id and label.content like #{content}
-                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
+                         left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture ;
     </select>
 
     <select id="getGoodsFromLabelId" resultMap="goods2">
@@ -321,7 +319,7 @@
             join store.goods_label on goods_label.label_id = #{labelId} and label.label_id = goods_label.label_id
             join store.goods on goods_label.goods_id = goods.goods_id
             join store.users on announcer_id = users.user_id
-            left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
+            left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture ;
     </select>
 
 
@@ -334,6 +332,10 @@
     <select id="searchGoodsAmount" resultType="Integer">
         select count(*)        from store.goods
                                   where title like concat('%',#{searchContent,jdbcType=VARCHAR},'%');
+    </select>
+
+    <select id="pictureCount" resultType="Integer">
+        select count(*) from store.goods_picture where goods_id = #{goodsId};
     </select>
 
 </mapper>

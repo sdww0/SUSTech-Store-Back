@@ -66,7 +66,7 @@ public interface GoodsMapper {
 
     Integer ifOnShelfById(int goodsId);
 
-    Integer addGoodsPicture(Integer goodsId,List<GoodsPicture> pictures);
+    Integer addGoodsPicture(Integer goodsId,GoodsPicture pictures);
 
     Integer deactivateGoodsPicture(Integer goodsId);
 
@@ -117,4 +117,6 @@ public interface GoodsMapper {
     GoodsAbbreviation getOneRandomGoods();
 
     Integer searchGoodsAmount(String searchContent);
+
+    Integer pictureCount(Integer goodsId);
 }

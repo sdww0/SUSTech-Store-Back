@@ -48,42 +48,34 @@ public class GoodsService {
         return goods.getGoodsId();
     }
 
-    public Integer addGoodsPicture(Integer goodsId,MultipartFile[] photos){
-        int count = 0;
-        for(MultipartFile photo:photos){
-            String contentType = Objects.requireNonNull(photo.getOriginalFilename()).substring(photo.getOriginalFilename().lastIndexOf("."));
-            if(contentType.length()==0){
-                return -1;
-            }
-            if (!(".jpeg".equals(contentType) ||
-                    ".jpg".equals(contentType) ||
-                    ".png".equals(contentType))) {
-                return -1;
-            }
-            count++;
-        }
-        if(count==0||count>GOODS_MAX_PICTURE){
+    public Integer addGoodsPicture(Integer goodsId,MultipartFile photo) {
+        String contentType = Objects.requireNonNull(photo.getOriginalFilename()).substring(photo.getOriginalFilename().lastIndexOf("."));
+        if (contentType.length() == 0) {
             return -1;
         }
-        List<GoodsPicture> picturePaths = new ArrayList<>();
-        String[] uuids = new String[count];
-        for(int n = 0;n<count;n++){
-            uuids[n] = UUID.randomUUID().toString();
-            picturePaths.add(new GoodsPicture(BACK_END_LINK+"goods/"+goodsId+"/image/"+uuids[n]+".png",n==0));
+        if (!(".jpeg".equals(contentType) ||
+                ".jpg".equals(contentType) ||
+                ".png".equals(contentType))) {
+            return -1;
         }
-        goodsMapper.deactivateGoodsPicture(goodsId);
-        goodsMapper.addGoodsPicture(goodsId,picturePaths);
-        String picturePath = Constants.GOODS_UPLOAD_PATH+goodsId+"/image/";
-        for(int n = 0;n<count;n++) {
-            try {
-                FileInputStream in = (FileInputStream) photos[n].getInputStream();
-                BufferedImage srcImage = javax.imageio.ImageIO.read(in);
-                ImageUtil.storeImage(srcImage, picturePath + uuids[n] + ".png");
-            } catch (Exception e) {
-                System.out.println("读取图片文件出错！" + e.getMessage());
-                e.printStackTrace();
-            }
+
+        String uuid = UUID.randomUUID().toString();
+        GoodsPicture goodsPicture = new GoodsPicture(BACK_END_LINK + "goods/" + goodsId + "/image/" + uuid + ".png", false);
+        if (goodsMapper.pictureCount(goodsId) == 0) {
+            goodsPicture.setIsDefaultPicture(true);
         }
+        goodsMapper.addGoodsPicture(goodsId, goodsPicture);
+        String picturePath = Constants.GOODS_UPLOAD_PATH + goodsId + "/image/";
+
+        try {
+            FileInputStream in = (FileInputStream) photo.getInputStream();
+            BufferedImage srcImage = javax.imageio.ImageIO.read(in);
+            ImageUtil.storeImage(srcImage, picturePath + uuid + ".png");
+        } catch (Exception e) {
+            System.out.println("读取图片文件出错！" + e.getMessage());
+            e.printStackTrace();
+        }
+
         return goodsId;
     }
 
@@ -292,4 +284,14 @@ public class GoodsService {
         }
         return goodsAbbreviations;
     }
+
+    public Integer deleteGoodsPicture(Integer goodsId) {
+        return goodsMapper.deactivateGoodsPicture(goodsId);
+    }
+
+    public Integer pictureCount(Integer goodsId){
+        return goodsMapper.pictureCount(goodsId);
+    }
+
+
 }

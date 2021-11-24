@@ -87,7 +87,7 @@
             join store.goods g
                 on d.goods_id = g.goods_id and d.deal_id = #{dealId}
             left join store.goods_picture gp
-                on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                on gp.is_default_picture and gp.goods_id = d.goods_id
             join store.users u1
                 on u1.user_id = d.seller_id
             join store.users u2
@@ -181,7 +181,7 @@
                  join store.goods g
                       on d.goods_id = g.goods_id and d.buyer_id = #{userId} and d.stage = #{stage}
                  left join store.goods_picture gp
-                           on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                           on gp.is_default_picture and gp.goods_id = d.goods_id
                  join store.users u1
                       on u1.user_id = d.seller_id
                  join store.users u2
@@ -206,7 +206,7 @@
                  join store.goods g
                       on d.goods_id = g.goods_id and d.seller_id = #{userId} and d.stage = #{stage}
                  left join store.goods_picture gp
-                           on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                           on gp.is_default_picture  and gp.goods_id = d.goods_id
                  join store.users u1
                       on u1.user_id = d.seller_id
                  join store.users u2
@@ -239,7 +239,7 @@
                  join store.goods g
                       on d.goods_id = g.goods_id and d.seller_id = #{userId}
                  left join store.goods_picture gp
-                           on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                           on gp.is_default_picture and gp.goods_id = d.goods_id
                  join store.users u1
                       on u1.user_id = d.seller_id
                  join store.users u2
@@ -264,7 +264,7 @@
                  join store.goods g
                       on d.goods_id = g.goods_id and d.buyer_id = #{userId}
                  left join store.goods_picture gp
-                           on gp.is_default_picture and gp.is_activate and gp.goods_id = d.goods_id
+                           on gp.is_default_picture  and gp.goods_id = d.goods_id
                  join store.users u1
                       on u1.user_id = d.seller_id
                  join store.users u2
