@@ -75,11 +75,11 @@ create table if not exists store.goods(
 );
 --
 create table if not exists store.goods_picture(
-    goods_picture_id serial primary key ,
     goods_id int not null ,
     picture_path varchar not null ,
     is_default_picture bool not null ,
-    constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id)
+    constraint goods_id_fkey foreign key (goods_id) references store.goods(goods_id),
+    primary key (goods_id,picture_path)
 );
 
 
