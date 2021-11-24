@@ -125,6 +125,7 @@ public class ChatController {
             return new CommonResult(ResultCode.PARAM_NOT_VALID);
         }
         Chat chat = chatService.getInitContent(chatId,userId,isInitiator);
+        chat.setIsBuyer(!chat.getIsBuyer());
         return new CommonResult(ResultCode.SUCCESS,chat);
     }
 
