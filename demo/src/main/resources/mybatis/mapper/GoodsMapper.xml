@@ -257,12 +257,16 @@
    </select>
 
     <select id="getOneRandomGoods" resultMap="goods2">
+        with target_goods as (select goods_id from store.goods where goods_state = 0 offset random() *
+
+                                                            (select count(*) from store.goods where goods_state = 0) limit 1)
         select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
                user_id,user_name,sign,gender,credit,users.picture_path picture_path1,
                goods_picture.picture_path picture_path, is_default_picture,content labels
-        from store.goods join store.users
-                              on announcer_id = users.user_id and goods.goods_id == (select goods_id from store.goods where goods_state = 0 offset random() *
-                                                                                                                                                   (select count(*) from store.goods where goods_state = 0) limit 1).goods_id
+        from store.goods
+            join target_goods on goods.goods_id = target_goods.goods_id
+            join store.users
+                              on announcer_id = users.user_id
                          left join store.goods_label on goods.goods_id = goods_label.goods_id
                          left join store.label on goods_label.label_id = label.label_id
                          left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
@@ -290,10 +294,11 @@
         select goods.goods_id goods_id1 ,view,price,title,is_sell,postage,want,announce_time,goods_state,
                user_id,user_name,sign,gender,credit,users.picture_path picture_path1,
                goods_picture.picture_path picture_path, is_default_picture,content labels
-        from store.goods join store.users
-                              on goods.goods_id = target_goods.goods_id and announcer_id = users.user_id
+        from store.goods
+                 join target_goods on goods.goods_id = target_goods.goods_id
+                 join store.users on announcer_id = users.user_id
                             join store.goods_label on goods.goods_id = goods_label.goods_id
-                            join store.label on goods_label.label_id = label.label_id and label.content like #{content}
+                            join store.label on goods_label.label_id = label.label_id
                             left join store.goods_picture on goods.goods_id = goods_picture.goods_id and is_default_picture and goods_picture.is_activate;
     </select>
 

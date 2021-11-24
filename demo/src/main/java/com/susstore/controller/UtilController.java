@@ -57,10 +57,13 @@ public class UtilController {
     })
     public CommonResult carousel(){
         return new CommonResult(ResultCode.SUCCESS, List.of(
-                new Carousel("https://www.sustech.edu.cn/uploads/images/2020/09/29150224_67522.jpg",
-                        "https://www.sustech.edu.cn/zh/faculty/"),
-                new Carousel("https://www.sustech.edu.cn/uploads/full/2020/08/25165059_71675.jpg",
-                        "https://www.sustech.edu.cn/zh/about.html")));
+                new Carousel("https://newshub.sustech.edu.cn/uploads/full/2021/11/201637375068653950.jpeg",
+                        "https://newshub.sustech.edu.cn/html/202111/41450.html"),
+                new Carousel("https://www.sustech.edu.cn/uploads/images/2021/11/18131622_64529.jpg",
+                        "https://newshub.sustech.edu.cn/html/202111/41436.html"
+                        ),
+                new Carousel("https://newshub.sustech.edu.cn/uploads/full/2021/08/011627802843506432.jpg",
+                        "https://newshub.sustech.edu.cn/html/202108/41098.html")));
     }
 
     static class Carousel{

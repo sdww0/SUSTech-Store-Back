@@ -265,12 +265,12 @@ public class GoodsService {
         for(UsersLabel label : labels){
             allCount+=label.getVisitTime();
         }
-        if(allCount<=10){
+        if(allCount<=15){
             return getRandomGoods();
         }
-        Integer[] eachIndex = new Integer[10];
-        Integer eachCount = allCount/8;
-        for(int n = 0;n<8;n++){
+        Integer[] eachIndex = new Integer[15];
+        Integer eachCount = allCount/10;
+        for(int n = 0;n<10;n++){
             if(n==9){
                 eachIndex[n] = CommonUtil.getRandomInteger(n*eachCount,allCount);
                 break;
@@ -287,7 +287,7 @@ public class GoodsService {
                 currentIndex++;
             }
         }
-        while(goodsAbbreviations.size()<=10){
+        while(goodsAbbreviations.size()<15){
             goodsAbbreviations.add(goodsMapper.getOneRandomGoods());
         }
         return goodsAbbreviations;
