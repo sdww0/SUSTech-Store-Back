@@ -31,6 +31,7 @@ public class UserService {
     private MailServiceThread mailService;
 
 
+
     public List<Users> queryUserList(){
         return usersMapper.queryUserList();
     }
@@ -192,8 +193,31 @@ public class UserService {
         return  usersMapper.getUserMoney(userId);
     }
 
-    public Integer changeUserMoney(Integer userId,Float delta){
+    public Integer changeUserMoney(Integer userId,Float delta,HttpServletRequest request,Integer dealId){
+        if(delta>=0){
+            if(dealId==null) {
+                usersMapper.addNewCharge(
+                        Charge.builder().
+                                isCharge(true).
+                                chargeDate(new Date())
+                                .addDealDate(new Date())
+                                .ipAddress("0").chargeUserId(userId).money(delta).build());
+            }
+        }else{
+            usersMapper.addNewConsume(
+                    Consume.builder().consumeDate(new Date())
+                            .money(-delta)
+                            .ipAddress(CommonUtil.getIpAddress(request))
+                            .belongUserId(userId)
+                            .relatedDealId(dealId).build()
+
+            );
+        }
         return usersMapper.changeUserMoney(userId,delta);
+    }
+
+    public List<Consume> getConsumeList(Integer userId){
+        return usersMapper.getConsumeList(userId);
     }
 
     public Boolean checkUserHasInputAddress(Integer userId,Integer addressId){

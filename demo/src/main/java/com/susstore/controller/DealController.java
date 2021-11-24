@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -144,7 +145,8 @@ public class DealController {
     })
     public CommonResult pay(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
-            @ApiParam("订单id") @PathVariable("dealId") Integer dealId
+            @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
+            HttpServletRequest request
     ){
         StageControlMethod method = (userId,otherId,  dealId1, currentStage, wantStage, isBuyer) -> {
             Float money = userService.getUserMoney(userId);
@@ -153,7 +155,7 @@ public class DealController {
                 //钱不够
                 return 1;
             }
-            userService.changeUserMoney(userId,-needMoney);
+            userService.changeUserMoney(userId,-needMoney,request,dealId);
             dealService.changeDealStage(dealId1,Stage.BUY_PAY);
             mailService.sendSimpleMail(userService.getUserEmail(otherId),"你的商品有人付款","你的商品有人付款，去看看吧");
             return 0;
@@ -216,7 +218,7 @@ public class DealController {
     ){
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
             //确认收货，卖家加钱
-            userService.changeUserMoney(otherId, dealService.getDealPrice(dealId1));
+            userService.changeUserMoney(otherId, dealService.getDealPrice(dealId1),null,null);
             mailService.sendSimpleMail(userService.getUserEmail(otherId),"买家已经收货","买家已经收货,钱已经打到账上");
             return 0;
         };
@@ -346,7 +348,7 @@ public class DealController {
             if(agree){
                 //同意，买家加钱
                 Float price = dealService.getDealPrice(dealId1);
-                userService.changeUserMoney(otherId,price);
+                userService.changeUserMoney(otherId,price,null,null);
                 dealService.changeDealStage(dealId1,Stage.DEAL_CLOSE);
             }else{
                 dealService.changeDealStage(dealId1,Stage.APPEALING);

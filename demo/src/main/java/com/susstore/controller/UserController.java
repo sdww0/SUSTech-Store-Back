@@ -372,9 +372,21 @@ public class UserController {
         if(charge==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        userService.changeUserMoney(charge.getChargeUserId(),charge.getMoney());
+        userService.changeUserMoney(charge.getChargeUserId(),charge.getMoney(),null,1);
         userService.setCharge(chargeId);
         return new CommonResult(SUCCESS,true);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/consume/history")
+    @ApiOperation("获取消费记录")
+    @ApiResponses(
+            @ApiResponse(code = 2000,message = "成功")
+    )
+    public CommonResult getConsumeHistory(
+            @ApiParam("springSecurity认证信息") Principal principal
+    ){
+        return new CommonResult(SUCCESS,userService.getConsumeList(userService.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -572,11 +584,12 @@ public class UserController {
                 users.setPhone(Long.parseLong(userSecurity.content));
                 break;
             case EMAIL:
+//                int id_test = userService.queryUserIdByEmail(userSecurity.content);
                 if(userService.queryUserIdByEmail(userSecurity.content)!=null){
                     return new CommonResult(PARAM_NOT_VALID);
                 }
                 users.setEmail(userSecurity.content);
-                userService.deactivateUsers(id,userSecurity.content);
+//                userService.deactivateUsers(id,userSecurity.content);
                 break;
             case MAX:
             default:new CommonResult(PARAM_NOT_VALID);

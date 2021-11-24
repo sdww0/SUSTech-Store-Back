@@ -99,7 +99,7 @@
             <if test="idCard != null">id_card=#{idCard},</if>
             <if test="money != null">money=#{money},</if>
             <if test="picturePath != null">picture_path=#{picturePath},</if>
-            <if test="email != null">email=#{email},</if>
+<!--            <if test="email != null">email=#{email},</if>-->
             <if test="sign != null">sign = #{sign}</if>
         </set>
         where user_id=#{userId};
@@ -293,6 +293,15 @@
 
     <select id="getUserNameAndPictureById" resultType="Users">
         select picture_path,user_id,user_name from store.users where user_id = #{userId};
+    </select>
+
+    <insert id="addNewConsume" >
+        insert into store.consume_deal (money, related_deal_id, consume_date, ip_address,belong_user_id) VALUES
+        (#{money},#{relatedDealId},#{consumeDate},#{ipAddress},#{belongUserId})
+    </insert>
+
+    <select id="getConsumeList" resultType="Consume">
+        select * from store.consume_deal where belong_user_id = #{userId};
     </select>
 
 </mapper>
