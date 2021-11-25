@@ -1,13 +1,10 @@
-package com.susstore.service;
+package com.susstore.service.impl;
 
+import com.susstore.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,11 +13,11 @@ import java.util.concurrent.Executors;
 /**
  * 邮件服务，采用了多线程，不阻塞原来
  */
-@Component
-public class MailServiceThread {
+@Service("MailServiceThreadImpl")
+public class MailServiceThreadImpl implements MailService {
 
     @Autowired
-    private MailService mailService;
+    private MailServiceImpl mailService;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(20);
 

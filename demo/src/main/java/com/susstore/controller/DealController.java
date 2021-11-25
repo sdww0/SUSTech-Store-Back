@@ -10,11 +10,14 @@ import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.DealService;
 import com.susstore.service.GoodsService;
-import com.susstore.service.MailServiceThread;
+import com.susstore.service.MailService;
 import com.susstore.service.UserService;
+
 import com.susstore.util.ImageUtil;
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,24 +32,27 @@ import java.security.Principal;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
-
+@Slf4j
 @RestController
 @Api(value = "商品控制器",tags = {"订单访问接口"})
 @RequestMapping("/deal")
 public class DealController {
     @Autowired
+    @Qualifier("GoodsServiceImpl")
     private GoodsService goodsService;
 
     @Autowired
+    @Qualifier("DealServiceImpl")
     private DealService dealService;
 
     @Autowired
-    private UserService userService;
+    @Qualifier("UserServiceImpl")
+    private UserService userServiceImpl;
 
     @Autowired
-    private MailServiceThread mailService;
+    @Qualifier("MailServiceThreadImpl")
+    private MailService mailService;
 
-    @PreAuthorize("hasRole('USER')")
     @ApiOperation("获取订单申诉图片")
     @GetMapping("/appealing/{dealId}/{file}")
     @ApiResponses(value = {
@@ -58,7 +64,7 @@ public class DealController {
         response.setContentType("image/jpeg;charset=utf-8");
         response.setHeader("Content-Disposition", "inline; filename=picture.png");
         ServletOutputStream outputStream = response.getOutputStream();
-        outputStream.write(Files.readAllBytes(Path.of(Constants.USER_COMPLAIN_PATH+dealId+"/"+file)));
+        outputStream.write(Files.readAllBytes(Path.of(Constants.DEAL_APPEALING_PATH+dealId+"/"+file)));
         outputStream.flush();
         outputStream.close();
     }
@@ -84,7 +90,7 @@ public class DealController {
 
         //获取当前user 看看是不是订单id user的一个
         //不满足返回无权限
-        Integer currentUserId = userService.queryUserIdByEmail(principal.getName());
+        Integer currentUserId = userServiceImpl.queryUserIdByEmail(principal.getName());
         if (!currentUserId.equals(deal.getBuyer().getUserId())
                 && !currentUserId.equals(deal.getSeller().getUserId())){
             return new CommonResult(ResultCode.ACCESS_DENIED);
@@ -109,15 +115,15 @@ public class DealController {
             @ApiParam("地址id") @RequestParam("addressId") Integer addressId
     ){
 
-        if(userService.getUserCredit(principal.getName())<Constants.NOT_BUY_OR_SELL_GOODS_CREDIT){
+        if(userServiceImpl.getUserCredit(principal.getName())<Constants.NOT_BUY_OR_SELL_GOODS_CREDIT){
             return new CommonResult(ResultCode.CREDIT_LOW);
         }
-        Integer userId = userService.queryUserIdByEmail(principal.getName());
+        Integer userId = userServiceImpl.queryUserIdByEmail(principal.getName());
         //查看商品是不是已经下架
         if (goodsService.ifOnShelfById(goodsId)== GoodsState.OFF_SHELL.ordinal()){
             return new CommonResult(ResultCode.GOODS_OFF_SHELL);
         }
-        if(!userService.checkUserHasInputAddress(userId,addressId)){
+        if(!userServiceImpl.checkUserHasInputAddress(userId,addressId)){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         //查看相同订单是否已存在
@@ -149,15 +155,15 @@ public class DealController {
             HttpServletRequest request
     ){
         StageControlMethod method = (userId,otherId,  dealId1, currentStage, wantStage, isBuyer) -> {
-            Float money = userService.getUserMoney(userId);
+            Float money = userServiceImpl.getUserMoney(userId);
             Float needMoney = dealService.getDealPrice(dealId1);
             if(money<needMoney){
                 //钱不够
                 return 1;
             }
-            userService.changeUserMoney(userId,-needMoney,request,dealId);
+            userServiceImpl.changeUserMoney(userId,-needMoney,request,dealId);
             dealService.changeDealStage(dealId1,Stage.BUY_PAY);
-            mailService.sendSimpleMail(userService.getUserEmail(otherId),"你的商品有人付款","你的商品有人付款，去看看吧");
+            mailService.sendSimpleMail(userServiceImpl.getUserEmail(otherId),"你的商品有人付款","你的商品有人付款，去看看吧");
             return 0;
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(),dealId,Stage.BUY_PAY,true,method);
@@ -190,7 +196,7 @@ public class DealController {
             }else{
                 dealService.addMailingNumber(dealId1,mailingNumber);
             }
-            mailService.sendSimpleMail(userService.getUserEmail(otherId),"你的订单发货了","你的订单发货了,去看看吧");
+            mailService.sendSimpleMail(userServiceImpl.getUserEmail(otherId),"你的订单发货了","你的订单发货了,去看看吧");
             return 0;
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(),dealId,Stage.DELIVERING,true,method);
@@ -218,8 +224,8 @@ public class DealController {
     ){
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
             //确认收货，卖家加钱
-            userService.changeUserMoney(otherId, dealService.getDealPrice(dealId1),null,null);
-            mailService.sendSimpleMail(userService.getUserEmail(otherId),"买家已经收货","买家已经收货,钱已经打到账上");
+            userServiceImpl.changeUserMoney(otherId, dealService.getDealPrice(dealId1),null,null);
+            mailService.sendSimpleMail(userServiceImpl.getUserEmail(otherId),"买家已经收货","买家已经收货,钱已经打到账上");
             return 0;
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.COMMENT,true,method);
@@ -257,7 +263,7 @@ public class DealController {
                 dealService.badComment(otherId);
             }
             dealService.addUserComment(dealId1,userId,otherId,new Date(System.currentTimeMillis()),dealComment.content,dealComment.isGood);
-            mailService.sendSimpleMail(userService.getUserEmail(otherId),"有人评价了你","有人评价了你");
+            mailService.sendSimpleMail(userServiceImpl.getUserEmail(otherId),"有人评价了你","有人评价了你");
             if(dealService.checkUserHadComment(dealId1,userId)){
                 //如果双方都评价了则跳到下一阶段
                 dealService.changeDealStage(dealId1,wantStage);
@@ -348,7 +354,7 @@ public class DealController {
             if(agree){
                 //同意，买家加钱
                 Float price = dealService.getDealPrice(dealId1);
-                userService.changeUserMoney(otherId,price,null,-1);
+                userServiceImpl.changeUserMoney(otherId,price,null,-1);
                 dealService.changeDealStage(dealId1,Stage.DEAL_CLOSE);
             }else{
                 dealService.changeDealStage(dealId1,Stage.APPEALING);
@@ -370,7 +376,7 @@ public class DealController {
 
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(path="/appealing/{dealId}")
+    @PostMapping(path="/appealing")
     @ApiOperation("买家填写申诉信息")
     @ApiResponses(value = {
             @ApiResponse(code = 2000,message = "成功"),
@@ -381,11 +387,13 @@ public class DealController {
     })
     public CommonResult appealing(
             @ApiParam("SpringSecurity用户认证信息") Principal principal,
-            @ApiParam("订单id") @PathVariable("dealId") Integer dealId,
+
+            @ApiParam("订单id") @RequestParam("dealId") Integer dealId,
             @ApiParam("申诉信息") @RequestParam("content") String content,
-            @ApiParam("申诉图片（仅限一张）可有可无") @RequestParam(value = "picture",required = false)
-            MultipartFile picture
+            @ApiParam("申诉图片（仅限一张）") @RequestParam(value = "picture")
+                    MultipartFile picture
     ){
+
         StageControlMethod method = (userId, otherId, dealId1, currentStage, wantStage, isBuyer) -> {
             String contentPath = null;
             if(picture!=null) {
@@ -394,10 +402,10 @@ public class DealController {
                 ImageUtil.storeImage(picture, path);
                 contentPath = Constants.BACK_END_LINK+"deal/appealing/"+dealId1 +"/"+ uuid + ".png";
             }
+            log.info(contentPath);
             mailService.sendSimpleMail(Constants.WEBSITE_COMMUNICATE_EMAIL,"订单申诉，单号:"+dealId1,
                     "详细描述:"+content);
-            dealService.addAppealingContent(dealId1,content,contentPath);
-            return 0;
+            return dealService.addAppealingContent(dealId1,content,contentPath);
         };
         Map<String,Object> map = dealService.stageControl(principal.getName(), dealId, Stage.APPEALED,true,method);
         Integer code = (Integer)map.get("code");
@@ -405,7 +413,7 @@ public class DealController {
         if(resultCode!=null){
             return new CommonResult(resultCode);
         }else{
-            return new CommonResult(ResultCode.PARAM_NOT_VALID);
+            return new CommonResult(ResultCode.SUCCESS,code);
         }
 
     }

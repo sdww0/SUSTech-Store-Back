@@ -77,7 +77,7 @@
             from store.chat
             join store.users
             on chat.chat_id = #{chatId} and chat.initiator_id = users.user_id) </if>
-        speaker on speaker.chat_id = chat.chat_id;
+        speaker on speaker.chat_id = chat.chat_id
 
     </select>
 
@@ -117,7 +117,7 @@
                                  on chat_content.chat_id in (initiate_list.chat_id)
                                      group by  initiate_list.chat_id)
                  ) chat1 left join store.chat_content on chat1.id=chat_content.chat_content_id
-             ) chat on chat.chat_id = other.chat_id;
+             ) chat on chat.chat_id = other.chat_id order by speak_date desc;
     </select>
 
     <select id="getAnnouncerId" resultType="Integer">

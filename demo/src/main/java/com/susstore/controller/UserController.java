@@ -6,10 +6,12 @@ import com.susstore.result.CommonResult;
 import static com.susstore.result.ResultCode.*;
 
 import com.susstore.service.*;
+import com.susstore.service.impl.*;
 import com.susstore.util.CommonUtil;
 import com.susstore.util.TokenUtil;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -38,21 +40,26 @@ public class UserController {
     private TokenUtil jwtUtil;
 
     @Autowired
-    private UserService userService;
+    @Qualifier("UserServiceImpl")
+    private UserService userServiceImpl;
 
     @Autowired
+    @Qualifier("AddressServiceImpl")
     private AddressService addressService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private MailServiceThread mailService;
+    @Qualifier("MailServiceThreadImpl")
+    private MailService mailService;
 
     @Autowired
+    @Qualifier("DealServiceImpl")
     private DealService dealService;
 
     @Autowired
+    @Qualifier("GoodsServiceImpl")
     private GoodsService goodsService;
 
 
@@ -82,7 +89,6 @@ public class UserController {
         outputStream.close();
     }
 
-    @PreAuthorize("hasRole('USER')")
     @ApiOperation("获取举报用户图片")
     @GetMapping("/complain/{complainerId}/{file}")
     @ApiResponses(value = {
@@ -110,13 +116,13 @@ public class UserController {
     public CommonResult getUserInformation(
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("用户id") @PathVariable("queryUserId")Integer id){
-        Users user = userService.queryUserById(id);
+        Users user = userServiceImpl.queryUserById(id);
         if(user==null){
             return new CommonResult(USER_NOT_FOUND);
         }
         Integer loginId = -1;
         if(principal!=null){
-            loginId = userService.queryUserIdByEmail(principal.getName());
+            loginId = userServiceImpl.queryUserIdByEmail(principal.getName());
         }
         if(loginId.equals(user.getUserId())){
             user.setPassword("");
@@ -133,8 +139,8 @@ public class UserController {
     })
     public CommonResult getComment(
             @ApiParam("SpringSecurity用户信息认证") Principal principal){
-        Integer user = userService.queryUserIdByEmail(principal.getName());
-        return new CommonResult(SUCCESS,userService.getUsersComment(user));
+        Integer user = userServiceImpl.queryUserIdByEmail(principal.getName());
+        return new CommonResult(SUCCESS, userServiceImpl.getUsersComment(user));
     }
 
 
@@ -154,9 +160,9 @@ public class UserController {
             return new CommonResult(PARAM_NOT_VALID);
         }
         Gender gender1 = Gender.values()[user.gender];
-        Users users = Users.builder().userId(userService.queryUserIdByEmail(principal.getName())).sign(user.sign).gender(gender1.ordinal())
+        Users users = Users.builder().userId(userServiceImpl.queryUserIdByEmail(principal.getName())).sign(user.sign).gender(gender1.ordinal())
                 .birthday(user.birthday).userName(user.name).build();
-        userService.updateUserById(users);
+        userServiceImpl.updateUserById(users);
         return new CommonResult(SUCCESS);
     }
 
@@ -171,8 +177,8 @@ public class UserController {
             @ApiParam("用户照片") @RequestParam(name="photo")MultipartFile photo
     ) {
         Users users = Users.builder().email(principal.getName()).build();
-        if(userService.updateUserWithPhoto(photo,users)){
-            return new CommonResult(SUCCESS,userService.queryUserById(users.getUserId()));
+        if(userServiceImpl.updateUserWithPhoto(photo,users)){
+            return new CommonResult(SUCCESS, userServiceImpl.queryUserById(users.getUserId()));
         }
         return new CommonResult(PARAM_NOT_VALID);
     }
@@ -189,7 +195,7 @@ public class UserController {
         if(register.username.length()==0||register.password.length()==0||register.email.length()==0){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        if(userService.queryUserIdByEmail(register.email)!=null){
+        if(userServiceImpl.queryUserIdByEmail(register.email)!=null){
             return new CommonResult(EMAIL_EXIST);
         }
         Users user = new Users();
@@ -198,7 +204,7 @@ public class UserController {
         user.setEmail(register.email);
         user.setActivateCode(register.email+ CommonUtil.getRandomString(Constants.RANDOM_STRING_SIZE));
         user.setGender(register.gender);
-        userService.addUser(user);
+        userServiceImpl.addUser(user);
         int id = 0;
         if((id=user.getUserId())==-1){
             return new CommonResult(PARAM_NOT_VALID);
@@ -232,7 +238,7 @@ public class UserController {
             @ApiParam("SpringSecurity用户信息认证") Principal principal,
             @ApiParam("地址") @RequestBody Address address
     ){
-        address.setBelongToUserId(userService.queryUserIdByEmail(principal.getName()));
+        address.setBelongToUserId(userServiceImpl.queryUserIdByEmail(principal.getName()));
         addressService.addAddress(address);
         return new CommonResult(SUCCESS,address.getAddressId());
     }
@@ -256,7 +262,7 @@ public class UserController {
         if(!addressService.isBelongAddress(principal.getName(),address.getAddressId())){
             return new CommonResult(ACCESS_DENIED);
         }
-        address.setBelongToUserId(userService.queryUserIdByEmail(principal.getName()));
+        address.setBelongToUserId(userServiceImpl.queryUserIdByEmail(principal.getName()));
         addressService.updateAddress(address);
         return new CommonResult(SUCCESS);
     }
@@ -288,9 +294,9 @@ public class UserController {
             @ApiParam("登录信息") Principal principal,
             @ApiParam("邮箱") @RequestParam("email")String email
     ){
-        Integer userId = userService.queryUserIdByEmail(principal.getName());
+        Integer userId = userServiceImpl.queryUserIdByEmail(principal.getName());
         Integer checkCode = random.nextInt(899999)+100000;
-        userService.changeUserCheckCodeById(userId,checkCode);
+        userServiceImpl.changeUserCheckCodeById(userId,checkCode);
         mailService.sendSimpleMail(email,"邮箱验证码","验证码为"+checkCode);
         return new CommonResult(SUCCESS);
     }
@@ -305,12 +311,12 @@ public class UserController {
     public CommonResult sendCode(
             @ApiParam("邮箱") @RequestParam("email")String email
     ){
-        Integer userId = userService.queryUserIdByEmail(email);
+        Integer userId = userServiceImpl.queryUserIdByEmail(email);
         if(userId==null){
             return new CommonResult(EMAIL_NOT_FOUND);
         }
         Integer checkCode = random.nextInt(899999)+100000;
-        userService.changeUserCheckCodeById(userId,checkCode);
+        userServiceImpl.changeUserCheckCodeById(userId,checkCode);
         mailService.sendSimpleMail(email,"邮箱验证码","验证码为"+checkCode);
         return new CommonResult(SUCCESS);
     }
@@ -325,14 +331,14 @@ public class UserController {
     public CommonResult activate(
             @ApiParam("激活码") @PathVariable("activateCode") String activateCode
     ){
-        Integer integer = userService.getActivateUser(activateCode);
+        Integer integer = userServiceImpl.getActivateUser(activateCode);
         if(integer==null){
             return new CommonResult(ACTIVATE_CODE_ILLEGAL);
         }else
         if(integer==-2){
             return new CommonResult(ADDRESS_NOT_EXISTS);
         }
-        userService.activateUser(integer);
+        userServiceImpl.activateUser(integer);
         return new CommonResult(SUCCESS);
     }
 
@@ -349,7 +355,7 @@ public class UserController {
             HttpServletRequest request
     ){
 
-        return new CommonResult(SUCCESS,userService.addCharge(userService.queryUserIdByEmail(principal.getName()),money,request));
+        return new CommonResult(SUCCESS, userServiceImpl.addCharge(userServiceImpl.queryUserIdByEmail(principal.getName()),money,request));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -364,12 +370,12 @@ public class UserController {
             @ApiParam("充值id") @PathVariable("chargeId") Integer chargeId,
             HttpServletRequest request
     ){
-        Charge charge = userService.getChargeUser(chargeId,userService.queryUserIdByEmail(principal.getName()));
+        Charge charge = userServiceImpl.getChargeUser(chargeId, userServiceImpl.queryUserIdByEmail(principal.getName()));
         if(charge==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        userService.changeUserMoney(charge.getChargeUserId(),charge.getMoney(),request,1);
-        userService.setCharge(chargeId);
+        userServiceImpl.changeUserMoney(charge.getChargeUserId(),charge.getMoney(),request,1);
+        userServiceImpl.setCharge(chargeId);
         return new CommonResult(SUCCESS,true);
     }
 
@@ -382,7 +388,7 @@ public class UserController {
     public CommonResult getConsumeHistory(
             @ApiParam("springSecurity认证信息") Principal principal
     ){
-        return new CommonResult(SUCCESS,userService.getConsumeList(userService.queryUserIdByEmail(principal.getName())));
+        return new CommonResult(SUCCESS, userServiceImpl.getConsumeList(userServiceImpl.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -394,7 +400,7 @@ public class UserController {
     public CommonResult getChargeHistory(
             @ApiParam("springSecurity认证信息") Principal principal
     ){
-        return new CommonResult(SUCCESS,userService.getChargeByUser(userService.queryUserIdByEmail(principal.getName())));
+        return new CommonResult(SUCCESS, userServiceImpl.getChargeByUser(userServiceImpl.queryUserIdByEmail(principal.getName())));
     }
 
 
@@ -419,11 +425,11 @@ public class UserController {
         if (content.length()==0){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        if(userService.getUserMoney(userId)==null){
+        if(userServiceImpl.getUserMoney(userId)==null){
             return new CommonResult(COMPLAIN_USER_NOT_EXISTS);
         }
-        if (!userService.addUserComplain(userId,
-                content,picture,userService.getUserByEmail(principal.getName()).getUserId())){
+        if (!userServiceImpl.addUserComplain(userId,
+                content,picture, userServiceImpl.getUserByEmail(principal.getName()).getUserId())){
             return new CommonResult(COMPLAIN_FAIL);
         }
         return new CommonResult(SUCCESS);
@@ -445,7 +451,7 @@ public class UserController {
         }
         return new CommonResult(SUCCESS,
                 dealService.getDealByBuyerAndStage(
-                        userService.queryUserIdByEmail(principal.getName()
+                        userServiceImpl.queryUserIdByEmail(principal.getName()
         ),type));
 
     }
@@ -466,7 +472,7 @@ public class UserController {
         }
         return new CommonResult(SUCCESS,
                 dealService.getDealBySellerAndStage(
-                        userService.queryUserIdByEmail(principal.getName()
+                        userServiceImpl.queryUserIdByEmail(principal.getName()
                         ),type));
 
     }
@@ -481,7 +487,7 @@ public class UserController {
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
         return new CommonResult(SUCCESS,
-                dealService.getDealByBuyer(userService.queryUserIdByEmail(principal.getName())));
+                dealService.getDealByBuyer(userServiceImpl.queryUserIdByEmail(principal.getName())));
 
     }
 
@@ -496,7 +502,7 @@ public class UserController {
     ){
 
         return new CommonResult(SUCCESS,
-                dealService.getDealBySeller(userService.queryUserIdByEmail(principal.getName())));
+                dealService.getDealBySeller(userServiceImpl.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -514,9 +520,9 @@ public class UserController {
             return new CommonResult(PARAM_NOT_VALID);
         }
         if(state==2)
-        return new CommonResult(SUCCESS,goodsService.queryGoodsByUserId(userService.queryUserIdByEmail(principal.getName())));
+        return new CommonResult(SUCCESS,goodsService.queryGoodsByUserId(userServiceImpl.queryUserIdByEmail(principal.getName())));
         else
-        return new CommonResult(SUCCESS,goodsService.queryGoodsByUserIdAndState(userService.queryUserIdByEmail(principal.getName()),state));
+        return new CommonResult(SUCCESS,goodsService.queryGoodsByUserIdAndState(userServiceImpl.queryUserIdByEmail(principal.getName()),state));
     }
 
     @ApiOperation("获取用户发布的商品,state:0-发布,1-下架,2-所有")
@@ -532,7 +538,7 @@ public class UserController {
         if(state>2||state<0){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        if(userService.getUserMoney(userId)==null){
+        if(userServiceImpl.getUserMoney(userId)==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
         if(state==2)
@@ -561,9 +567,9 @@ public class UserController {
         if(userSecurity.checkCode!=null&&String.valueOf(userSecurity.checkCode).length()!=Constants.CHECK_CODE_SIZE){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        Integer id = userService.queryUserIdByEmail(principal.getName());
+        Integer id = userServiceImpl.queryUserIdByEmail(principal.getName());
         //检查验证码
-        if(userSecurity.checkCode!=null&& !userService.getUserCheckCodeById(id).equals(userSecurity.checkCode)){
+        if(userSecurity.checkCode!=null&& !userServiceImpl.getUserCheckCodeById(id).equals(userSecurity.checkCode)){
             return new CommonResult(CHECK_CODE_WRONG);
         }
         SecurityType securityType = SecurityType.values()[userSecurity.type];
@@ -581,7 +587,7 @@ public class UserController {
                 break;
             case EMAIL:
 //                int id_test = userService.queryUserIdByEmail(userSecurity.content);
-                if(userService.queryUserIdByEmail(userSecurity.content)!=null){
+                if(userServiceImpl.queryUserIdByEmail(userSecurity.content)!=null){
                     return new CommonResult(PARAM_NOT_VALID);
                 }
                 users.setEmail(userSecurity.content);
@@ -590,7 +596,7 @@ public class UserController {
             case MAX:
             default:new CommonResult(PARAM_NOT_VALID);
         }
-        userService.updateUserById(users);
+        userServiceImpl.updateUserById(users);
         return new CommonResult(SUCCESS);
     }
 
@@ -608,7 +614,7 @@ public class UserController {
         if(goodsService.getBelongUserId(goodsId)==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        return new CommonResult(SUCCESS,userService.isInUserCollection(goodsId,principal.getName()));
+        return new CommonResult(SUCCESS, userServiceImpl.isInUserCollection(goodsId,principal.getName()));
 
     }
 
@@ -629,10 +635,10 @@ public class UserController {
         if(goodsService.getBelongUserId(goodsId)==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        if(userService.isInUserCollection(goodsId,principal.getName())){
+        if(userServiceImpl.isInUserCollection(goodsId,principal.getName())){
             return new CommonResult(COLLECTION_EXISTS);
         }
-        return new CommonResult(SUCCESS,userService.addCollection(userService.queryUserIdByEmail(principal.getName()),goodsId));
+        return new CommonResult(SUCCESS, userServiceImpl.addCollection(userServiceImpl.queryUserIdByEmail(principal.getName()),goodsId));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -644,7 +650,7 @@ public class UserController {
     public CommonResult getCollection(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(SUCCESS,userService.getUsersCollection(userService.queryUserIdByEmail(principal.getName())));
+        return new CommonResult(SUCCESS, userServiceImpl.getUsersCollection(userServiceImpl.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -662,10 +668,10 @@ public class UserController {
         if(goodsService.getBelongUserId(goodsId)==null){
             return new CommonResult(PARAM_NOT_VALID);
         }
-        if(!userService.isInUserCollection(goodsId,principal.getName())){
+        if(!userServiceImpl.isInUserCollection(goodsId,principal.getName())){
             return new CommonResult(COLLECTION_NOT_EXISTS);
         }
-        userService.deleteCollection(userService.queryUserIdByEmail(principal.getName()),goodsId );
+        userServiceImpl.deleteCollection(userServiceImpl.queryUserIdByEmail(principal.getName()),goodsId );
         return new CommonResult(SUCCESS);
     }
 
@@ -681,7 +687,7 @@ public class UserController {
             @ApiParam("验证码") @RequestParam("checkCode") Integer checkCode,
             HttpServletResponse httpServletResponse
     ){
-        Integer check = userService.getUserCheckCodeByEmail(email);
+        Integer check = userServiceImpl.getUserCheckCodeByEmail(email);
         if(check==null){
             return new CommonResult(USER_NOT_FOUND);
         }
@@ -705,7 +711,7 @@ public class UserController {
     public CommonResult me(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(SUCCESS,userService.queryUserById(userService.queryUserIdByEmail(principal.getName())));
+        return new CommonResult(SUCCESS, userServiceImpl.queryUserById(userServiceImpl.queryUserIdByEmail(principal.getName())));
     }
 
 

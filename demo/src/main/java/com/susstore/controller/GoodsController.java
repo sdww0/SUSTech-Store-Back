@@ -8,12 +8,14 @@ import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
+
 import io.swagger.annotations.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,10 +37,13 @@ import static com.susstore.config.Constants.*;
 public class GoodsController {
 
     @Autowired
+    @Qualifier("GoodsServiceImpl")
     private GoodsService goodsService;
 
     @Autowired
-    private UserService userService;
+    @Qualifier("UserServiceImpl")
+    private UserService userServiceImpl;
+
 
     @GetMapping("/{goodsId}")
     @ApiOperation("根据商品id获取商品信息")
@@ -55,7 +60,7 @@ public class GoodsController {
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
         if(principal!=null){
-            goodsService.updateUserVisitTime(userService.queryUserIdByEmail(principal.getName()),goodsId);
+            goodsService.updateUserVisitTime(userServiceImpl.queryUserIdByEmail(principal.getName()),goodsId);
         }
         goodsService.increaseView(goodsId);
         return new CommonResult(ResultCode.SUCCESS,goods);
@@ -71,7 +76,7 @@ public class GoodsController {
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
         return new CommonResult(ResultCode.SUCCESS,
-                goodsService.recommendGoods(userService.queryUserIdByEmail(principal.getName())));
+                goodsService.recommendGoods(userServiceImpl.queryUserIdByEmail(principal.getName())));
     }
 
     @GetMapping("/{goodsId}/image/{file}")
@@ -117,7 +122,7 @@ public class GoodsController {
         if(goodsService.getBelongUserId(commentGoods.goodsId)==null){
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
-        goodsService.commentGoods(userService.queryUserIdByEmail(principal.getName()),
+        goodsService.commentGoods(userServiceImpl.queryUserIdByEmail(principal.getName()),
                 commentGoods.goodsId,
                 commentGoods.content);
         return new CommonResult(ResultCode.SUCCESS);
@@ -134,7 +139,7 @@ public class GoodsController {
             @ApiParam("SpringSecurity用户认证信息")Principal principal,
             @ApiParam("商品id") @RequestParam("commentId") Integer commentId
     ){
-        if(goodsService.deleteGoodsComment(userService.queryUserIdByEmail(principal.getName()),commentId)==-1){
+        if(goodsService.deleteGoodsComment(userServiceImpl.queryUserIdByEmail(principal.getName()),commentId)==-1){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         return new CommonResult(ResultCode.SUCCESS);
@@ -172,13 +177,13 @@ public class GoodsController {
         if(goodsInfo.labels.size()>LABELS_MAX_AMOUNT){
             return new CommonResult(ResultCode.PARAM_NOT_VALID);
         }
-        if(userService.getUserCredit(principal.getName())<NOT_PUBLISHED_GOODS_CREDIT){
+        if(userServiceImpl.getUserCredit(principal.getName())<NOT_PUBLISHED_GOODS_CREDIT){
             return new CommonResult(ResultCode.CREDIT_LOW);
         }
 
         Goods goods = Goods.builder().labels(goodsInfo.labels)
                 .price(goodsInfo.price).introduce(goodsInfo.introduce)
-                .announcer(Users.builder().userId(userService.queryUserIdByEmail(principal.getName())).build()).
+                .announcer(Users.builder().userId(userServiceImpl.queryUserIdByEmail(principal.getName())).build()).
                         title(goodsInfo.title).isSell(goodsInfo.isSell).postage(goodsInfo.postage).build();
 
         Integer id = goodsService.addGoods(goods);
@@ -205,7 +210,7 @@ public class GoodsController {
         if(userId==null){
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
-        if(!(userId.equals(userService.queryUserIdByEmail(principal.getName())))){
+        if(!(userId.equals(userServiceImpl.queryUserIdByEmail(principal.getName())))){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         Integer id = goodsService.addGoodsPicture(goodsId,photo);
@@ -228,7 +233,7 @@ public class GoodsController {
         if(userId==null){
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
-        if(!(userId.equals(userService.queryUserIdByEmail(principal.getName())))){
+        if(!(userId.equals(userServiceImpl.queryUserIdByEmail(principal.getName())))){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         Integer id = goodsService.deleteGoodsPicture(goodsId);
@@ -283,7 +288,7 @@ public class GoodsController {
         if(userId==null){
             return new CommonResult(ResultCode.GOODS_NOT_FOUND);
         }
-        if(!(userId.equals(userService.queryUserIdByEmail(principal.getName())))){
+        if(!(userId.equals(userServiceImpl.queryUserIdByEmail(principal.getName())))){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         Goods goods = Goods.builder().labels(goodsInfo.labels)
@@ -309,7 +314,7 @@ public class GoodsController {
         if(id==null){
             return new CommonResult(ResultCode.PARAM_NOT_VALID);
         }
-        if(!(id==userService.queryUserIdByEmail(principal.getName()))){
+        if(!(id== userServiceImpl.queryUserIdByEmail(principal.getName()))){
             return new CommonResult(ResultCode.ACCESS_DENIED);
         }
         goodsService.deleteGoods(goodsId);
@@ -349,7 +354,7 @@ public class GoodsController {
                 return new CommonResult(ResultCode.PARAM_NOT_VALID);
             }
             if (!goodsService.addGoodsComplain(goodsId,
-                    content,picture,userService.getUserByEmail(principal.getName()).getUserId())){
+                    content,picture, userServiceImpl.getUserByEmail(principal.getName()).getUserId())){
                 return new CommonResult(ResultCode.COMPLAIN_FAIL);
             }
             return new CommonResult(ResultCode.SUCCESS);

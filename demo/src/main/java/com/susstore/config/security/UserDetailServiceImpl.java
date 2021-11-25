@@ -4,8 +4,9 @@ import com.susstore.config.security.exception.*;
 import com.susstore.pojo.Role;
 import com.susstore.pojo.Users;
 import com.susstore.service.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -21,10 +22,8 @@ import java.util.List;
 public class UserDetailServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Qualifier("UserServiceImpl")
+    private UserService userServiceImpl;
 
     /**
      * 0 代表用户名密码错误
@@ -39,7 +38,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UserNotActivateException, UsernameNotFoundException {
-        Users user = userService.getUserByEmail(email);
+        Users user = userServiceImpl.getUserByEmail(email);
         if(user==null){
             throw new UsernameNotFoundException("0");
         }
@@ -49,7 +48,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         if(user.getIsBan()){
             throw new UsernameNotFoundException("2");
         }
-        List<Integer> roles = userService.getUserRole(email);
+        List<Integer> roles = userServiceImpl.getUserRole(email);
         List<GrantedAuthority> authorities = new ArrayList<>();
         for(Integer i : roles){
             Role role = Role.values()[i];

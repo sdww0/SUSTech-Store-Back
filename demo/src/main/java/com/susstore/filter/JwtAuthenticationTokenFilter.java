@@ -3,8 +3,10 @@ package com.susstore.filter;
 import com.susstore.config.security.UserDetailServiceImpl;
 import com.susstore.pojo.Users;
 import com.susstore.service.UserService;
+
 import com.susstore.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +28,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private UserDetailServiceImpl jwtUserDetailsService;
 
     @Autowired
-    private UserService userService;
+    @Qualifier("UserServiceImpl")
+    private UserService userServiceImpl;
 
 
     private String tokenHeader = "Authorization";
@@ -44,7 +47,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         if (authToken != null) {
             String userEmail = TokenUtil.getUserEmailFromToken(authToken);
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                Users user = userService.getUserByEmail(userEmail);
+                Users user = userServiceImpl.getUserByEmail(userEmail);
                 UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(userEmail);
 
                 if (TokenUtil.validateToken(authToken, userDetails) /*&& userService.isPermissionApi(user.getId(), request.getRequestURI(), request.getMethod())*/) {

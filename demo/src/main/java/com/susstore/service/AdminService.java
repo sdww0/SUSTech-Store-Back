@@ -1,99 +1,58 @@
 package com.susstore.service;
 
-import com.susstore.mapper.AdminMapper;
 import com.susstore.pojo.Event;
 import com.susstore.pojo.GoodsState;
 import com.susstore.pojo.process.AppealingDeal;
 import com.susstore.pojo.process.ComplainGoods;
 import com.susstore.pojo.process.ComplainUsers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 
 @Service
-public class AdminService {
+public interface AdminService {
 
-    @Autowired
-    private AdminMapper adminMapper;
+    public List<ComplainUsers> getAllNotProcessComplainUser();
 
-    public List<ComplainUsers> getAllNotProcessComplainUser(){
-        return adminMapper.getAllNotProcessComplainUser();
-    }
+    public List<ComplainUsers> getAllComplainUser();
 
-    public List<ComplainUsers> getAllComplainUser(){
-        return adminMapper.getAllComplainUser();
-    }
-
-    public List<ComplainGoods> getAllNotProcessComplainGoods(){
-        return adminMapper.getAllNotProcessComplainGoods();
-    }
+    public List<ComplainGoods> getAllNotProcessComplainGoods();
 
 
-    public List<ComplainGoods> getAllComplainGoods(){
-        return adminMapper.getAllComplainGoods();
-    }
+    public List<ComplainGoods> getAllComplainGoods();
 
-    public List<AppealingDeal> getAllNotProcessAppealingDeal(){
-        return adminMapper.getAllNotProcessAppealingDeal();
-    }
+    public List<AppealingDeal> getAllNotProcessAppealingDeal();
 
-    public List<AppealingDeal> getAllAppealingDeal(){
-        return adminMapper.getAllAppealingDeal();
-    }
+    public List<AppealingDeal> getAllAppealingDeal();
 
-    public ComplainUsers getComplainUser(Integer recordId){
-        return adminMapper.getComplainUser(recordId);
-    }
+    public ComplainUsers getComplainUser(Integer recordId);
 
-    public ComplainGoods getComplainGoods(Integer recordId){
-        return adminMapper.getComplainGoods(recordId);
-    }
+    public ComplainGoods getComplainGoods(Integer recordId);
 
-    public AppealingDeal getAppealingDeal(Integer recordId){
-        return adminMapper.getAppealingDeal(recordId);
-    }
+    public AppealingDeal getAppealingDeal(Integer recordId);
 
-    public Integer processComplainGoods(Integer recordId){
-        return adminMapper.processComplainGoods(recordId);
-    }
+    public Integer processComplainGoods(Integer recordId);
 
-    public Integer processComplainUsers(Integer recordId){
-        return adminMapper.processComplainUsers(recordId);
-    }
+    public Integer processComplainUsers(Integer recordId);
 
-    public Integer processAppealingDeal(Integer recordId){
-        return adminMapper.processAppealingDeal(recordId);
-    }
+    public Integer processAppealingDeal(Integer recordId);
 
-    public Integer banGoods(Integer goodsId){
-        return adminMapper.banGoods(GoodsState.BANNED.ordinal(),goodsId);
-    }
+    public Integer banGoods(Integer goodsId);
 
-    public Integer banUser(Integer userId){
-        return adminMapper.banUser(userId);
-    }
+    public Integer banUser(Integer userId);
 
-    public Integer updateDealState(Integer stage,Integer dealId){
-        return adminMapper.updateDealState(stage,dealId);
-    }
+    public Integer updateDealState(Integer stage,Integer dealId);
 
 
-    public Integer addEvent(Event event){
-        return adminMapper.addEvent(event);
-    }
+    public Integer addEvent(Event event);
 
-    public Integer deleteEvent(Integer eventId){
-        return adminMapper.deleteEvent(eventId);
-    }
+    public Integer deleteEvent(Integer eventId);
 
-    public Event getEvent(Integer eventId){
-        return adminMapper.getEvent(eventId);
-    }
+    public Event getEvent(Integer eventId);
 
-    public List<Event> getEventWithTimeConstrain(Date minDate, Date maxDate){
-        return adminMapper.getEventWithTimeConstrain(minDate,maxDate);
-    }
+    public List<Event> getEventWithTimeConstrain(Date minDate, Date maxDate);
+
+
 
 }

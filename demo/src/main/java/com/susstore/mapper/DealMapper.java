@@ -2,6 +2,7 @@ package com.susstore.mapper;
 
 import com.susstore.pojo.Deal;
 import com.susstore.pojo.Goods;
+import com.susstore.pojo.process.AppealingDeal;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -58,7 +59,7 @@ public interface DealMapper {
 
     List<Deal> getDealByBuyerAndStage(Integer userId,Integer stage);
 
-    Integer addAppealingContent(Integer dealId,String content,String picturePath);
+    Integer addAppealingContent(AppealingDeal appealingDeal);
 
     Float getDealPrice(Integer dealId);
 

@@ -14,10 +14,9 @@ import com.susstore.service.GoodsService;
 import com.susstore.service.UserService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.sql.Date;
 
 @RestController
 @Api(value = "管理员",tags = {"管理员访问接口"})
@@ -25,15 +24,19 @@ import java.sql.Date;
 public class AdminController {
 
     @Autowired
+    @Qualifier("AdminServiceImpl")
     private AdminService adminService;
 
     @Autowired
-    private UserService userService;
+    @Qualifier("UserServiceImpl")
+    private UserService userServiceImpl;
 
     @Autowired
+    @Qualifier("DealServiceImpl")
     private DealService dealService;
 
     @Autowired
+    @Qualifier("GoodsServiceImpl")
     private GoodsService goodsService;
 
 
@@ -89,7 +92,7 @@ public class AdminController {
         ComplainGoods complainGoods = adminService.getComplainGoods(recordId);
         if(offShell){
             adminService.banGoods(complainGoods.getGoodsId());
-            userService.changeUserCredit(goodsService.getAnnouncerId(complainGoods.getGoodsId()),-3);
+            userServiceImpl.changeUserCredit(goodsService.getAnnouncerId(complainGoods.getGoodsId()),-3);
         }
         adminService.processComplainGoods(recordId);
         return new CommonResult(ResultCode.SUCCESS);
@@ -119,8 +122,8 @@ public class AdminController {
     ){
         AppealingDeal appealingDeal = adminService.getAppealingDeal(recordId);
         if(canRefund){
-            Integer sellerId = dealService.getSellerIdByDealId(appealingDeal.getDealId());
-            userService.changeUserMoney(sellerId,dealService.getDealPrice(appealingDeal.getDealId()),null,-1);
+            Integer buyerId = dealService.getBuyerIdByDealId(appealingDeal.getDealId());
+            userServiceImpl.changeUserMoney(buyerId,dealService.getDealPrice(appealingDeal.getDealId()),null,-1);
         }
         adminService.updateDealState(Stage.DEAL_CLOSE.ordinal(),appealingDeal.getDealId());
         adminService.processAppealingDeal(recordId);

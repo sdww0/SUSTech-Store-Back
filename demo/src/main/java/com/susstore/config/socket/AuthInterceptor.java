@@ -1,13 +1,13 @@
 package com.susstore.config.socket;
 
 import com.susstore.config.security.UserDetailServiceImpl;
-import com.susstore.service.ChatService;
 import com.susstore.service.UserService;
-import com.susstore.util.CommonUtil;
+
 import com.susstore.util.TokenUtil;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
@@ -30,7 +30,8 @@ import java.util.List;
 public class AuthInterceptor implements ChannelInterceptor {
 
     @Autowired
-    private UserService userService;
+    @Qualifier("UserServiceImpl")
+    private UserService userServiceImpl;
     @Autowired
     private UserDetailServiceImpl jwtUserDetailsService;
 
@@ -55,7 +56,7 @@ public class AuthInterceptor implements ChannelInterceptor {
                     if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                         UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(userEmail);
                         UserDetails userDetails1 = new User(
-                                String.valueOf(userService.queryUserIdByEmail(userEmail)),
+                                String.valueOf(userServiceImpl.queryUserIdByEmail(userEmail)),
                                 userDetails.getPassword(), userDetails.getAuthorities());
                         if (TokenUtil.validateToken(token, userDetails)) {
                             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

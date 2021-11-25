@@ -1,28 +1,23 @@
 package com.susstore.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.susstore.SUSTechStore;
 import com.susstore.config.Constants;
 import com.susstore.pojo.ChatMessage;
-import com.susstore.pojo.Goods;
 import com.susstore.pojo.Users;
 import com.susstore.pojo.chat.*;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.ChatService;
 import com.susstore.service.GoodsService;
-import com.susstore.service.MailServiceThread;
+import com.susstore.service.MailService;
 import com.susstore.service.UserService;
+
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,16 +37,20 @@ public class ChatController {
     private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
+    @Qualifier("ChatServiceImpl")
     private ChatService chatService;
 
     @Autowired
-    private UserService userService;
+    @Qualifier("UserServiceImpl")
+    private UserService userServiceImpl;
 
     @Autowired
+    @Qualifier("GoodsServiceImpl")
     private GoodsService goodsService;
 
     @Autowired
-    private MailServiceThread mailService;
+    @Qualifier("MailServiceThreadImpl")
+    private MailService mailService;
 
     @GetMapping("/chat/picture/{chatId}/{fileName}")
     @ApiOperation("获取用户默认头像")
@@ -63,7 +62,7 @@ public class ChatController {
         response.setContentType("image/jpeg;charset=utf-8");
         response.setHeader("Content-Disposition", "inline; filename=girls.png");
         ServletOutputStream outputStream = response.getOutputStream();
-        outputStream.write(Files.readAllBytes(Path.of(Constants.CHAT_PICTURE_PATH+"/chat/picture/"+chatId+"/"+fileName)));
+        outputStream.write(Files.readAllBytes(Path.of(Constants.CHAT_PICTURE_PATH+chatId+"/picture/"+fileName)));
         outputStream.flush();
         outputStream.close();
     }
@@ -111,9 +110,9 @@ public class ChatController {
         assert isInitiator !=null;
         log.info(userId+"/"+chatId+"/"+isInitiator);
         if(isInitiator){
-            chatService.clearNotInitiatorUnread(chatId);
-        }else{
             chatService.clearInitiatorUnread(chatId);
+        }else{
+            chatService.clearNotInitiatorUnread(chatId);
         }
     }
 
@@ -124,7 +123,7 @@ public class ChatController {
             @ApiParam("SpringSecurity认证信息") Principal principal,
             @ApiParam("聊天id") @PathVariable("chatId") Integer chatId
     ) {
-        Integer userId = userService.queryUserIdByEmail(principal.getName());
+        Integer userId = userServiceImpl.queryUserIdByEmail(principal.getName());
         Boolean isInitiator = isInitiator(userId,chatId);
         if(isInitiator==null){
             return new CommonResult(ResultCode.PARAM_NOT_VALID);
@@ -142,7 +141,7 @@ public class ChatController {
             @ApiParam("聊天图片") @RequestParam("photo") MultipartFile photo,
             @ApiParam("聊天id") @PathVariable("chatId") Integer chatId
     ){
-        return new CommonResult(ResultCode.SUCCESS,chatService.storeImage(photo,chatId,userService.queryUserIdByEmail(principal.getName())));
+        return new CommonResult(ResultCode.SUCCESS,chatService.storeImage(photo,chatId, userServiceImpl.queryUserIdByEmail(principal.getName())));
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -151,13 +150,13 @@ public class ChatController {
     public CommonResult initChatList(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        Users users = userService.getUserNameAndPictureById(userService.queryUserIdByEmail(principal.getName()));
+        Users users = userServiceImpl.getUserNameAndPictureById(userServiceImpl.queryUserIdByEmail(principal.getName()));
         return new CommonResult(ResultCode.SUCCESS,
                 new InitChat().builder()
                 .picturePath(users.getPicturePath())
                 .userName(users.getUserName())
                 .userId(users.getUserId())
-                .chatHistories(chatService.getUserChatHistory(userService.queryUserIdByEmail(principal.getName()))).build()
+                .chatHistories(chatService.getUserChatHistory(userServiceImpl.queryUserIdByEmail(principal.getName()))).build()
 
                         );
     }
@@ -177,7 +176,7 @@ public class ChatController {
     ){
         //查看商品是不是已经下架
         // check buyer&seller&goodsId&stage
-        Integer userId = userService.queryUserIdByEmail(principal.getName());
+        Integer userId = userServiceImpl.queryUserIdByEmail(principal.getName());
         Integer chatId = null;
         if ((chatId=chatService.getChatId(goodsId,userId))!=null){
             return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS,chatId);
@@ -194,9 +193,9 @@ public class ChatController {
         if(id==null||id<0){
             return new CommonResult(ResultCode.CHAT_ALREADY_EXISTS);
         }
-        mailService.sendSimpleMail(userService.getUserEmail(announcerId),"有人想要卖/买的商品","有人想卖/买你的发布商品,快去看看吧");
+        mailService.sendSimpleMail(userServiceImpl.getUserEmail(announcerId),"有人想要卖/买的商品","有人想卖/买你的发布商品,快去看看吧");
         goodsService.increaseWant(goodsId);
-        Users users = userService.getUserNameAndPictureById(userId);
+        Users users = userServiceImpl.getUserNameAndPictureById(userId);
         ChatHistory chatHistory = ChatHistory.builder().chatId(id)
                 .otherUserId(userId)
                 .otherUserPicturePath(users.getPicturePath())

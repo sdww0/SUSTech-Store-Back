@@ -217,8 +217,9 @@
                            on a.address_id = d.shipping_address_id;
     </select>
     
-    <insert id="addAppealingContent" >
-        insert into store.appealing_deal(deal_id, content, picture_path,is_process) VALUES (#{dealId},#{content},#{picturePath},false);
+    <insert id="addAppealingContent" useGeneratedKeys="true" keyProperty="recordId">
+        insert into store.appealing_deal(deal_id, content, picture_path,is_process) VALUES (#{dealId},#{content},#{picturePath},false)
+        returning record_id;
     </insert>
     
     <select id="getDealPrice" resultType="Float">

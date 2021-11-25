@@ -32,10 +32,9 @@ public class ValidateCodeController {
 
         //定义图形验证码的长、宽、验证码字符数、干扰元素个数
         CircleCaptcha captcha = CaptchaUtil.createCircleCaptcha(100, 38, 4, 2);
-//        System.out.println(captcha.getCode());
         //将验证码放到HttpSession里面
         request.getSession().setAttribute(SESSION_KEY_IMAGE_CODE, captcha.getCode());
-//        log.info("本次生成的验证码为：" + captcha.getCode() + ",已存放到HttpSession中");
+        log.info("本次生成的验证码为：" + captcha.getCode() + ",已存放到HttpSession中");
 
         //图形验证码写出，可以写出到文              件，也可以写出到流
         //输出浏览器

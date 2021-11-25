@@ -1,14 +1,15 @@
 package com.susstore.controller;
 
-import com.susstore.mapper.AdminMapper;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.AdminService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +25,7 @@ import java.util.List;
 public class UtilController {
 
     @Autowired
+    @Qualifier("AdminServiceImpl")
     private AdminService adminService;
 
     @ApiOperation("只是用来返回给vue确认有login这个接口")
