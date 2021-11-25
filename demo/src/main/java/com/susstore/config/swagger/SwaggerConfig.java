@@ -25,6 +25,8 @@ import java.util.List;
 @EnableSwagger2
 public class SwaggerConfig {
 
+    private Boolean enable = false;
+
     private ApiInfo apiInfo(){
         return ApiInfo.DEFAULT;
     }
@@ -61,6 +63,7 @@ public class SwaggerConfig {
                 .paths(PathSelectors.any())
                 .build()
                 .securitySchemes(security())
+                .enable(enable)
                 .securityContexts(securityContexts());         //主要关注点--统一填写一次token
     }
 

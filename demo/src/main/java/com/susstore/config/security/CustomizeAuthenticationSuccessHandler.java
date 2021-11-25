@@ -1,6 +1,7 @@
 package com.susstore.config.security;
 
 import com.alibaba.fastjson.JSON;
+import com.susstore.pojo.Users;
 import com.susstore.result.CommonResult;
 import com.susstore.result.ResultCode;
 import com.susstore.service.UserService;
@@ -28,7 +29,9 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
-        CommonResult result = new CommonResult(ResultCode.SUCCESS, userServiceImpl.getUserByEmail(authentication.getName()));
+        Users users =  userServiceImpl.getUserByEmail(authentication.getName());
+        users.setPassword("");
+        CommonResult result = new CommonResult(ResultCode.SUCCESS,users);
         //生成jwt
         String jwt = jwtUtil.generateToken(authentication.getName());
         //把生成的jwt放在请求头中返回，前端以后访问后端接口请求头都需要带上它

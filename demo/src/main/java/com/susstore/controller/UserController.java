@@ -128,6 +128,7 @@ public class UserController {
             user.setPassword("");
             return new CommonResult(QUERY_IS_LOGIN_USER,user);
         }
+        user.setPassword("");
         return new CommonResult(QUERY_NOT_LOGIN_USER,user);
     }
 
@@ -711,7 +712,9 @@ public class UserController {
     public CommonResult me(
             @ApiParam("SpringSecurity认证信息") Principal principal
     ){
-        return new CommonResult(SUCCESS, userServiceImpl.queryUserById(userServiceImpl.queryUserIdByEmail(principal.getName())));
+        Users users = userServiceImpl.queryUserById(userServiceImpl.queryUserIdByEmail(principal.getName()));
+        users.setPassword("");
+        return new CommonResult(SUCCESS, users);
     }
 
 
