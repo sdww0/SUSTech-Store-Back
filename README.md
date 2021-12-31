@@ -1,4 +1,4 @@
-# SUSTech-Store
+# SUSTech-Store-Back
 
 
 ## 各个版本
@@ -9,7 +9,7 @@
 | java   |            | 11    |                                    |
 |        |            |       |                                    |
 
-其余见破pom.xml
+其余见pom.xml
 
 ## 运行提醒：
 
@@ -26,7 +26,7 @@
 
 **运行说明**
 
-1. 运行DemoApplication即可
+1. 运行SUSTechStore即可
 
 ## 查看接口信息
 
@@ -68,3 +68,4 @@ localhost:8081/swagger-ui.html
 | COMPLAIN_FAIL            | 4100   | 投诉失败             |
 | COMPLAIN_USER_NOT_EXISTS | 4101   | 举报用户不存在       |
 
+...

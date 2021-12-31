@@ -77,7 +77,7 @@
             from store.chat
             join store.users
             on chat.chat_id = #{chatId} and chat.initiator_id = users.user_id) </if>
-        speaker on speaker.chat_id = chat.chat_id
+        speaker on speaker.chat_id = chat.chat_id order by speak_date;
 
     </select>
 
