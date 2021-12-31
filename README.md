@@ -28,13 +28,15 @@
 
 1. 运行SUSTechStore即可
 
+**配置说明**
+
+1. application.properties中配置目标数据库等
+
 ## 查看接口信息
 
 localhost:8081/swagger-ui.html
 
 采用swagger
-
-
 
 ## 状态码
 
@@ -68,4 +70,4 @@ localhost:8081/swagger-ui.html
 | COMPLAIN_FAIL            | 4100   | 投诉失败             |
 | COMPLAIN_USER_NOT_EXISTS | 4101   | 举报用户不存在       |
 
-...
+其余见ResultCode
