@@ -1,5 +1,6 @@
 # SUSTech-Store-Back
 
+此项目不再维护，仅作为参考
 
 ## 各个版本
 
