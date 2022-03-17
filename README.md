@@ -1,6 +1,8 @@
 # SUSTech-Store-Back
 
-此项目不再维护，仅作为参考
+此项目为课程项目，不再维护，仅供参考
+
+前端地址:https://github.com/mithrao/Sustech-Store-Front
 
 ## 各个版本
 
